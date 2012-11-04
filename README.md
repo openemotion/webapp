@@ -1,2 +1,2 @@
-webapp
-======
+Open Emotion Web Application
+============================
