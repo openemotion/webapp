@@ -87,3 +87,12 @@ p {
   font-size: 110%;
   margin-bottom: 5px;
 }
+
+label {
+  display: block;
+}
+
+input {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
