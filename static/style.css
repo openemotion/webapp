@@ -19,22 +19,32 @@ a:hover {
 
 body {
   direction: rtl;
-  /*background-color: #ffffff;*/
   background: url(images/paper.png);
   padding: 20px;
   width: 800px;
   margin: auto;
   font-family: "Helvetica", "Arial", sans-serif;
-  /*font-family: "Choco", "Arial", sans-serif;*/
+}
+
+h1, h2, h3, h4 {
+  color: #666;
 }
 
 h1 {
-  color: #666;
   margin-top: 15px;
   margin-bottom: 10px;
-  padding-right: 7px;
   font-size: 38px;
   font-family: "Choco", sans-serif;
+}
+
+h2 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+p {
+  margin-bottom: 10px;
 }
 
 #new_conversation {
