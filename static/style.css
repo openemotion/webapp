@@ -1,3 +1,8 @@
+@font-face {
+  font-family: Choco;
+  src: url(fonts/ChocoRegular.ttf);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -5,7 +10,7 @@
 
 a {
   text-decoration: none;
-  color: #bf8b30;
+  color: #07c;
 }
 
 a:hover {
@@ -13,52 +18,58 @@ a:hover {
 }
 
 body {
-  background-color: #fff2ba;
   direction: rtl;
-}
-
-#body {
-  background-color: #ffffff;
+  /*background-color: #ffffff;*/
+  background: url(images/paper.png);
   padding: 20px;
   width: 800px;
   margin: auto;
-/*  margin-top: 10px;
-  margin-bottom: 20px;
-*/  font-family: "Helvetica", "Arial", sans-serif;
+  font-family: "Helvetica", "Arial", sans-serif;
+  /*font-family: "Choco", "Arial", sans-serif;*/
 }
 
 h1 {
   color: #666;
-  margin-top: 10px;
+  margin-top: 15px;
   margin-bottom: 10px;
   padding-right: 7px;
-  font-size: 170%;
+  font-size: 38px;
+  font-family: "Choco", sans-serif;
+}
+
+#new_conversation {
+  float: left;
+  font-size: 105%;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 4px;
+  padding-bottom: 2px;
+  margin-top: 5px;
+  font-family: "Choco", sans-serif;
+  cursor: pointer;
 }
 
 #header {
   background: url(images/logo-100.png) no-repeat right top;
-  /*height: 130px;*/
+  font-family: "Choco", sans-serif;
 }
 
-#links {
+#header #links {
   padding-top: 85px;
   padding-right: 100px;
   padding-bottom: 10px;
-  border-bottom: 3px #eee solid;
+  border-bottom: 3px #e5e5e5 solid;
 }
 
-#login-links {
+#header #login-links {
   float: left;
 }
 
 .conversation {
-  border: 1px #eee solid;
+  border: 1px #e5e5e5 solid;
+  border-radius: 5px;
   padding: 7px;
   margin-bottom: 10px;
-}
-
-.conversation:hover {
-  background-color: #ffffee;
 }
 
 .conversation .title {
