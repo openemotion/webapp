@@ -19,7 +19,7 @@ a:hover {
 
 body {
   direction: rtl;
-  background: url(images/paper.png);
+  background-color: #ffffff;
   padding: 20px;
   max-width: 800px;
   margin: auto;
