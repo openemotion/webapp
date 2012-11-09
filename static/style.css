@@ -87,14 +87,14 @@ p {
   float: left;
 }
 
-.share {
+.conversation {
   border: 1px #e5e5e5 solid;
   border-radius: 5px;
   padding: 7px;
   margin-bottom: 10px;
 }
 
-.share .title {
+.conversation .title {
   font-weight: bold;
   font-size: 110%;
   margin-bottom: 5px;

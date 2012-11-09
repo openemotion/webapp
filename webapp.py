@@ -21,10 +21,10 @@ def contact():
     return render_template("contact.html")
 
 @app.route("/c/<id>")
-def share(id):
+def conversation(id):
     if id == "new":
         return render_template("new_share.html")
-    return render_template("share.html")
+    return render_template("conversation.html")
 
 @app.route("/profile/<id>")
 def profile(id):
