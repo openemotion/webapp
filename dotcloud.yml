@@ -1,4 +1,4 @@
 www:
     type: python
     environment:
-        MODE: production
+        MODE: sandbox # sandbox / production
