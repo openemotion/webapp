@@ -2,16 +2,17 @@ drop table if exists users;
 drop table if exists conversations;
 drop table if exists messages;
 
--- create table users (
---   id integer primary key autoincrement,
---   name string not null,
---   password string not null
--- )
+create table users (
+  id integer primary key autoincrement,
+  name string,
+  password_hash string,
+  is_facilitator boolean
+);
 
 create table conversations (
   id integer primary key autoincrement,
   start_time datetime default current_timestamp,
-  author string,
+  author integer references users(id),
   title string,
   first_message string
 );
