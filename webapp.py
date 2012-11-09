@@ -1,12 +1,21 @@
-import sqlite3
+from db import Database
 from flask import Flask, render_template, request, g, session, redirect, url_for
 
 app = Flask(__name__)
 app.config.from_object("config")
 
+@app.before_request
+def before_request():
+    g.db = Database(app.config["DATABASE"])
+
+@app.teardown_request
+def teardown_request(exception):
+    g.db.close()
+
 @app.route("/")
 def main():
-    return render_template("main.html")
+    conversations = g.db.get_conversations()
+    return render_template("main.html", conversations=conversations)
 
 @app.route("/faq")
 def faq():
@@ -20,11 +29,22 @@ def terms():
 def contact():
     return render_template("contact.html")
 
-@app.route("/c/<id>")
-def conversation(id):
+@app.route("/c/<id>/<slug>", methods=["GET", "POST"])
+def conversation(id, slug):
     if id == "new":
-        return render_template("new_share.html")
-    return render_template("conversation.html")
+        if not session["logged_in"]:
+            abort(401)
+        if request.method == "POST":
+            g.db.store_conversation(session["user"], request.form["title"], request.form["message"])
+            return redirect(url_for("main"))
+        else:
+            return render_template("new_conversation.html")
+    else:
+        conv = g.db.get_conversation(id)
+        if conv:
+            return render_template("conversation.html", conversation=conv)
+        else:
+            return abort(404)
 
 @app.route("/profile/<id>")
 def profile(id):

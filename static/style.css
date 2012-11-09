@@ -64,37 +64,26 @@ p {
 }
 
 #header {
-  /*background: url(images/logo2-70.png) no-repeat right top;*/
   font-family: "Choco", sans-serif;
   border-bottom: 3px #e5e5e5 solid;
-  /*float: right;*/
 }
 
 #header img {
-  /*float: right;*/
   margin-right: -27px;
-}
-
-#header #links {
-  /*float: right;*/
-/*  padding-top: 85px;
-  padding-right: 100px;
-  padding-bottom: 10px;
-*/
 }
 
 #header #login-links {
   float: left;
 }
 
-.conversation {
+.conversation_link {
   border: 1px #e5e5e5 solid;
   border-radius: 5px;
   padding: 7px;
   margin-bottom: 10px;
 }
 
-.conversation .title {
+.conversation_link .title {
   font-weight: bold;
   font-size: 110%;
   margin-bottom: 5px;
@@ -116,6 +105,10 @@ input[type="text"], input[type="password"], textarea {
   border: 1px solid #ccc;
 }
 
+textarea {
+  font-family: "Helvetica", "Arial", sans-serif;
+}
+
 form #username, #email, input[type="password"] {
   direction: ltr;
 }
@@ -124,8 +117,3 @@ input[type="submit"] {
   margin-top: 20px;
   width: auto;
 }
-
-/*input[type="submit"]:hover {
-  border: 1px solid #dd2;
-}
-*/

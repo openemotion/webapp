@@ -1,3 +1,5 @@
+drop table if exists users;
+drop table if exists conversations;
 drop table if exists messages;
 
 -- create table users (
@@ -8,7 +10,8 @@ drop table if exists messages;
 
 create table conversations (
   id integer primary key autoincrement,
-  -- author_id integer foreign key users(id),
+  start_time datetime default current_timestamp,
+  author string,
   title string,
   first_message string
 );
