@@ -2,11 +2,11 @@
 {% block body %}
     <h1>כניסה</h1>
 
-    <form>
+    <form method="post">
       <label><div>שם בדוי</div><input type="text" id="name" name="name"></label>
-      <label><div>סיסמא</div><input  type="password" id="password" name="password"></label>
+      <!-- <label><div>סיסמא</div><input  type="password" id="password" name="password"></label> -->
       <input id="login" type="submit" value="התחבר">
-
     </form>
+    <script type="text/javascript">document.getElementById("name").focus()</script>
 
 {% endblock %}

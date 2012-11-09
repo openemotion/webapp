@@ -1,51 +1,53 @@
 {% extends "layout.html" %}
 {% block body %}
     <div>
-      <button id="new_conversation">שיתוף חדש</button>
+      {% if session.logged_in %}
+      <button id="new_share" onclick="window.location='/c/new'">שיתוף חדש</button>
+      {% endif %}
       <h1>שיתופים אחרונים</h1>
     </div>
     <div id="list">
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >נמאס לי מהעבודה שלי אבל אני לא יכול להתפטר</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">27/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קולהע צופעט למרקוח איבן איף, ברומץ כלרשט מיחוצים</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">26/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קלאצי סחטיר בלובק תצטנפל בלינדו למרקל אס לכימפו</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">25/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קוויז דומור ליאמום בלינך רוגצה לפמעט מוסן מנת</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">24/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קולהע צופעט למרקוח איבן איף ברומץ כלרשט מיחוצים</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">23/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קלאצי לורם איפסום דולור סיט אמט, קונסקטורר</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">22/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קולהע צופעט למרקוח איבן איף, ברומץ כלרשט מיחוצים</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">26/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קלאצי סחטיר בלובק תצטנפל בלינדו למרקל אס לכימפו</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">25/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קוויז דומור ליאמום בלינך רוגצה לפמעט מוסן מנת</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">24/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קולהע צופעט למרקוח איבן איף ברומץ כלרשט מיחוצים</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">23/11/2012</a></div>
       </div>
-      <div class="conversation">
+      <div class="share">
         <div class="title"><a href="/c/123" >קלאצי לורם איפסום דולור סיט אמט, קונסקטורר</a></div>
         <div>שיתוף של <a href="/profile/eli">אלי</a> מול <a href="/profile/alon">אלון</a>, פורסם ב-<a href="#">22/11/2012</a></div>
       </div>

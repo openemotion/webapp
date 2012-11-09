@@ -48,7 +48,7 @@ p {
   margin-bottom: 10px;
 }
 
-#new_conversation, button, input[type="submit"] {
+#new_share, button, input[type="submit"] {
   font-size: 18px;
   padding-left: 5px;
   padding-right: 5px;
@@ -59,7 +59,7 @@ p {
   cursor: pointer;
 }
 
-#new_conversation {
+#new_share {
   float: left;
 }
 
@@ -87,14 +87,14 @@ p {
   float: left;
 }
 
-.conversation {
+.share {
   border: 1px #e5e5e5 solid;
   border-radius: 5px;
   padding: 7px;
   margin-bottom: 10px;
 }
 
-.conversation .title {
+.share .title {
   font-weight: bold;
   font-size: 110%;
   margin-bottom: 5px;

@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, render_template, request, g
+from flask import Flask, render_template, request, g, session, redirect, url_for
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -21,8 +21,10 @@ def contact():
     return render_template("contact.html")
 
 @app.route("/c/<id>")
-def conversation(id):
-    return render_template("conversation.html")
+def share(id):
+    if id == "new":
+        return render_template("new_share.html")
+    return render_template("share.html")
 
 @app.route("/profile/<id>")
 def profile(id):
@@ -32,9 +34,20 @@ def profile(id):
 def register():
     return render_template("register.html")
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+    if request.method == "POST":
+        session["logged_in"] = True
+        session["user"] = request.form["name"]
+        return redirect(url_for("main"))
+    else:
+        return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session["logged_in"] = False
+    session["user"] = None
+    return redirect(url_for("main"))
 
 if __name__ == '__main__':
     app.run()
