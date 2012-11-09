@@ -17,6 +17,9 @@ class Database(object):
     def close(self):
         self.connection.close()
 
+CONV_STATUS_PENDING = "pending"
+CONV_STATUS_ACTIVE = "active"
+
 class Conversations(object):
     def __init__(self, connection):
         self.connection = connection
@@ -47,8 +50,8 @@ class Conversations(object):
         raise KeyError("no conversation with id %s" % id)
 
     def save(self,  talker_name, title, first_message):
-        self.connection.execute("insert into conversations (talker_name, title, first_message) values (?, ?, ?)",
-            [talker_name, title, first_message])
+        self.connection.execute("insert into conversations (talker_name, title, first_message, status) values (?, ?, ?, ?)",
+            [talker_name, title, first_message, CONV_STATUS_PENDING])
         self.connection.commit()
 
 class Users(object):
