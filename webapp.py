@@ -1,6 +1,6 @@
 import utils
 from db import Database
-from flask import Flask, render_template, request, g, session, redirect, url_for, abort
+from flask import Flask, render_template, request, g, session, redirect, url_for, abort, Markup
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -37,9 +37,9 @@ def conversation(id, slug=None):
         conv = g.db.conversations.get(id)
         if slug is None:
             return redirect(url_for("conversation", id=id, slug=conv.slug))
-        return render_template("conversation.html", conversation=conv)
+        conv.first_message = Markup(utils.text2p(conv.first_message))
+        return render_template("pending_conversation.html", conversation=conv)
     except KeyError:
-        raise
         return abort(404)
 
 @app.route("/c/new", methods=["GET", "POST"])

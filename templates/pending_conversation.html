@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block body %}
+
+    <h1>{{conversation.title}}</h1>
+
+    <div>
+    {{conversation.first_message}}
+    </div>
+
+    <div>-- <a href="/profile/{{conversation.talker_name}}">{{conversation.talker_name}}</a></div>
+
+    <br>
+
+    {% if conversation.talker_name != session.logged_in_user %}
+    <button id="listen">תמוך ב{{conversation.talker_name}}</button>
+    {% endif %}
+
+{% endblock %}

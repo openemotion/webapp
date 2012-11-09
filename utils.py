@@ -1,6 +1,7 @@
 # coding=utf8
-
+from flask import escape
 import datetime
+
 def prettydate(d):
     diff = datetime.datetime.utcnow() - d
     s = diff.seconds
@@ -36,3 +37,7 @@ def bytes(s):
     if isinstance(s, unicode):
         return s.encode("utf8")
     return s
+
+def text2p(text):
+    text = escape(text)
+    return "\n".join(("<p>%s</p>" % l) if l else "<br>" for l in text.splitlines())
