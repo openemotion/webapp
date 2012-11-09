@@ -13,8 +13,8 @@
         <a href="/faq">שאלות נפוצות</a> |
         <a href="/contact">צור קשר</a>
         <div id="login-links">
-        {% if session.logged_in %}
-          <span>מחובר כ-</span><a href="/profile/{{session.user}}">{{session.user}}</a> |
+        {% if session.logged_in_user %}
+          <span>מחובר כ-</span><a href="/profile/{{session.logged_in_user}}">{{session.logged_in_user}}</a> |
           <a href="/logout">התנתק</a>
         {% else %}
           <a href="/register">הרשמה</a> |

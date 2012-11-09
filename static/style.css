@@ -117,3 +117,13 @@ input[type="submit"] {
   margin-top: 20px;
   width: auto;
 }
+
+.error {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #d22;
+}
+
+.error a {
+  font-size: 14px;
+}

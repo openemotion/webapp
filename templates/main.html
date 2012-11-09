@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
     <div>
-      {% if session.logged_in %}
+      {% if session.logged_in_user %}
       <button id="new_share" onclick="window.location='/c/new'">שיתוף חדש</button>
       {% endif %}
       <h1>שיתופים אחרונים</h1>
@@ -10,7 +10,7 @@
       {% for conv in conversations %}
       <div class="conversation_link">
         <div class="title"><a href="/c/{{conv.id}}/{{conv.slug}}" >{{conv.title}}</a></div>
-        <div>שיתוף של <a href="/profile/{{conv.author}}">{{conv.author}}</a>, פורסם {{conv.start_time_since}}</div>
+        <div>שיתוף של <a href="/profile/{{conv.talker_name}}">{{conv.talker_name}}</a>, פורסם {{conv.start_time_since}}</div>
       </div>
       {% else %}
       <div><em>זה נורא עצוב, אבל אין כאן שום דבר.</em></div>

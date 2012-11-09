@@ -24,3 +24,15 @@ def prettydate(d):
         return u"לפני כשעתיים"
     else:
         return u"לפני {} שעות".format(s/3600)
+
+def encrypt_password(password, salt):
+    import sha
+    s = sha.new()
+    s.update(bytes(password))
+    s.update(bytes(salt))
+    return s.hexdigest()
+
+def bytes(s):
+    if isinstance(s, unicode):
+        return s.encode("utf8")
+    return s

@@ -3,8 +3,17 @@
     <h1>כניסה</h1>
 
     <form method="post">
-      <label><div>שם בדוי</div><input type="text" id="name" name="name"></label>
-      <!-- <label><div>סיסמא</div><input  type="password" id="password" name="password"></label> -->
+      <label><div>שם בדוי</div><input type="text" id="name" name="name" value="{{error.name}}"></label>
+      <label><div>סיסמא</div><input  type="password" id="password" name="password"></label>
+      {% if error.type == "no_password" %}
+      <div class="error">שכחת להזין סיסמא?</div>
+      {% elif error.type == "no_name" %}
+      <div class="error">שכחת להזין שם?</div>
+      {% elif error.type == "bad_password" %}
+      <div class="error">הסיסמא לא נכונה, נסו שנית.</div>
+      {% elif error.type == "bad_name" %}
+      <div class="error">אין משתמש עם השם {{error.name}}, אולי טעיתם באיות?</div>
+      {% endif %}
       <input id="login" type="submit" value="התחבר">
     </form>
     <script type="text/javascript">document.getElementById("name").focus()</script>
