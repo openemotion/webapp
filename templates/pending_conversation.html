@@ -12,7 +12,9 @@
     <br>
 
     {% if conversation.talker_name != session.logged_in_user %}
-    <button id="listen">תמוך ב{{conversation.talker_name}}</button>
+    <form method="post">
+    <input type="submit" id="submit" value="תמוך ב{{conversation.talker_name}}"></input>
+    </form>
     {% endif %}
 
 {% endblock %}

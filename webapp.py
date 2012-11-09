@@ -38,7 +38,14 @@ def conversation(id, slug=None):
         if slug is None:
             return redirect(url_for("conversation", id=id, slug=conv.slug))
         conv.first_message = Markup(utils.text2p(conv.first_message))
-        return render_template("pending_conversation.html", conversation=conv)
+        if conv.status == g.db.conversations.STATUS_ACTIVE:
+            return render_template("active_conversation.html", conversation=conv)
+        else: # conv.status == g.db.conversations.STATUS_PENDING:
+            if request.method == "POST":
+                g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
+                return redirect(url_for("conversation", id=id, slug=conv.slug))
+            else:
+                return render_template("pending_conversation.html", conversation=conv)
     except KeyError:
         return abort(404)
 

@@ -8,13 +8,13 @@ def prettydate(d):
     if diff.days > 7 or diff.days < 0:
         return d.strftime("%d %b %y")
     elif diff.days == 1:
-        return u"לפני יום"
+        return u"יום"
     elif diff.days == 2:
         return u"לפני יומיים"
     elif diff.days > 2:
         return u"לפני {} ימים".format(diff.days)
     elif s < 15:
-        return u"הרגע"
+        return u"לפני כמה שניות"
     elif s < 90:
         return u"לפני כדקה"
     elif s < 3600:

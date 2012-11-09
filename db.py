@@ -17,14 +17,14 @@ class Database(object):
     def close(self):
         self.connection.close()
 
-CONV_STATUS_PENDING = "pending"
-CONV_STATUS_ACTIVE = "active"
-
 class Conversations(object):
+    STATUS_PENDING = "pending"
+    STATUS_ACTIVE = "active"
+
     def __init__(self, connection):
         self.connection = connection
 
-    def _make_obj(self, id, start_time, talker_name, listener_name, title, first_message):
+    def _make_obj(self, id, start_time, talker_name, listener_name, title, first_message, status):
         obj = dictobj()
         obj.id = id
         obj.start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
@@ -32,18 +32,19 @@ class Conversations(object):
         obj.listener_name = listener_name
         obj.title = title
         obj.first_message = first_message
+        obj.status = status
         obj.start_time_since = utils.prettydate(obj.start_time)
         obj.slug = re.compile("\W+", re.UNICODE).sub("_", obj.title)
         return obj
 
     def get_all(self):
-        cmd = "select id, start_time, talker_name, listener_name, title, first_message from conversations order by id desc"
+        cmd = "select id, start_time, talker_name, listener_name, title, first_message, status from conversations order by id desc"
         cur = self.connection.execute(cmd)
         for row in cur:
             yield self._make_obj(*row)
 
     def get(self, id):
-        cmd = "select id, start_time, talker_name, listener_name, title, first_message from conversations where id = ?"
+        cmd = "select id, start_time, talker_name, listener_name, title, first_message, status from conversations where id = ?"
         cur = self.connection.execute(cmd, [id])
         for row in cur:
             return self._make_obj(*row)
@@ -51,7 +52,12 @@ class Conversations(object):
 
     def save(self,  talker_name, title, first_message):
         self.connection.execute("insert into conversations (talker_name, title, first_message, status) values (?, ?, ?, ?)",
-            [talker_name, title, first_message, CONV_STATUS_PENDING])
+            [talker_name, title, first_message, self.STATUS_PENDING])
+        self.connection.commit()
+
+    def update(self, id, status, listener_name):
+        self.connection.execute("update conversations set status = ?, listener_name = ? where id = ?",
+            [status, listener_name, id])
         self.connection.commit()
 
 class Users(object):

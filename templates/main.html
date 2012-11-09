@@ -10,7 +10,14 @@
       {% for conv in conversations %}
       <div class="conversation_link">
         <div class="title"><a href="/c/{{conv.id}}/{{conv.slug}}" >{{conv.title}}</a></div>
-        <div>שיתוף של <a href="/profile/{{conv.talker_name}}">{{conv.talker_name}}</a>, פורסם {{conv.start_time_since}}</div>
+        {% if conv.status == "pending" %}
+          <div>שיתוף של <a href="/profile/{{conv.talker_name}}">{{conv.talker_name}}</a>
+          מ{{conv.start_time_since}} (ממתין לתומך)</div>
+        {% else %}
+          <div>שיתוף של <a href="/profile/{{conv.talker_name}}">{{conv.talker_name}}</a> מול
+          <a href="/profile/{{conv.listener_name}}">{{conv.listener_name}}</a>
+          מ{{conv.start_time_since}}</div>
+        {% endif %}
       </div>
       {% else %}
       <div><em>זה נורא עצוב, אבל אין כאן שום דבר.</em></div>

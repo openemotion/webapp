@@ -84,9 +84,12 @@ p {
 }
 
 .conversation_link .title {
-  font-weight: bold;
-  font-size: 110%;
   margin-bottom: 5px;
+}
+
+.conversation_link .title a {
+  font-weight: bold;
+  font-size: 20px;
 }
 
 label {
