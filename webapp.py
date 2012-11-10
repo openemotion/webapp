@@ -1,3 +1,4 @@
+import urllib
 import utils
 from db import Database
 from flask import Flask, render_template, request, g, session, redirect, url_for, abort, Markup
@@ -82,26 +83,25 @@ def register():
         password = request.form["password"]
         password2 = request.form["password2"]
         if not name:
-            return render_template("register.html", error={"type":"no_name"})
+            return redirect(url_for("register", error="no_name"))
         if not password:
-            return render_template("register.html", error={"type":"no_password", "name": name})
+            return redirect(url_for("register", error="no_password", name=name))
         if not password2:
-            return render_template("register.html", error={"type":"no_password2", "name": name})
+            return redirect(url_for("register", error="no_password2", name=name))
         try:
             existing = g.db.users.get(name)
         except KeyError:
             pass
         else:
-            return render_template("register.html", error={"type":"user_exists", "user":existing.name})
-
+            return redirect(url_for("register", error="user_exists", name=existing.name))
         if password != password2:
-            return render_template("register.html", error={"type":"password_mismatch", "name": name})
+            return redirect(url_for("register", error="password_mismatch", name=name))
         password_hash = utils.encrypt_password(password.encode("utf8"), name.encode("utf8"))
         g.db.users.save(name, password_hash)
         session["logged_in_user"] = name
-        return redirect(request.args.get("goto") or url_for("main"))
+        return redirect(urldecode(request.args.get("goto")) or url_for("main"))
     else:
-        return render_template("register.html", error={})
+        return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -110,25 +110,36 @@ def login():
         name = request.form["name"]
         password = request.form["password"]
         if not name:
-            return render_template("login.html", error={"type":"no_name"})
+            return redirect(url_for("login", error="no_name"))
         if not password:
-            return render_template("login.html", error={"type":"no_password"})
+            return redirect(url_for("login", error="no_password", name=name))
         try:
             user = g.db.users.get(name)
         except KeyError:
-            return render_template("login.html", error={"type":"bad_name", "name" : name})
+            return redirect(url_for("login", error="bad_password", name=name))
         password_hash = utils.encrypt_password(password, name)
         if user.password_hash != password_hash:
-            return render_template("login.html", error={"type":"bad_password", "name" : name})
+            return redirect(url_for("login", error="bad_password", name=name))
         session["logged_in_user"] = request.form["name"]
-        return redirect(request.args.get("goto") or url_for("main"))
+        return redirect(urldecode(request.args.get("goto")) or url_for("main"))
     else:
-        return render_template("login.html", error={})
+        return render_template("login.html")
 
 @app.route("/logout")
 def logout():
     session["logged_in_user"] = None
-    return redirect(request.args.get("goto") or url_for("main"))
+    return redirect(urldecode(request.args.get("goto")) or url_for("main"))
+
+@app.template_filter("urlencode")
+def urlencode_filter(s):
+    if isinstance(s, unicode):
+        s = s.encode("utf8")
+    return Markup(urllib.quote_plus(s))
+
+def urldecode(s):
+    if isinstance(s, unicode):
+        s = s.encode("utf8")
+    return urllib.unquote(s).decode("utf8")
 
 if __name__ == '__main__':
     app.run()

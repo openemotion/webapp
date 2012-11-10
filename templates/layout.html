@@ -16,10 +16,10 @@
         <div id="login-links">
         {% if session.logged_in_user %}
           <span>מחובר כ-</span><a href="/profile/{{session.logged_in_user}}">{{session.logged_in_user}}</a> |
-          <a href="/logout?goto={{request.url}}">התנתק</a>
+          <a href="/logout?goto={{request.url|urlencode}}">התנתק</a>
         {% else %}
-          <a href="/register?goto={{request.url}}">הרשמה</a> |
-          <a href="/login?goto={{request.url}}">כניסה</a>
+          <a href="/register?goto={{request.url|urlencode}}">הרשמה</a> |
+          <a href="/login?goto={{request.url|urlencode}}">כניסה</a>
         {% endif %}
         </div>
       </div>

@@ -3,18 +3,18 @@
     <h1>הרשמה</h1>
 
     <form method="post">
-     <label><div>שם בדוי</div><input type ="text" id="name" name="name" value={{error.name}}></label>
+     <label><div>שם בדוי</div><input type ="text" id="name" name="name" value={{request.args.get("name", "")}}></label>
       <label><div>סיסמא</div><input  type="password" id="password" name="password"></label>
       <label><div>שוב סיסמא</div><input type="password" id="password" name="password2"></label>
-      {% if error.type == "user_exists" %}
-      <div class="error">מישהו כבר נרשם עם השם {{error.user}}, נסו שם אחר.</div>
-      {% elif error.type == "password_mismatch" %}
+      {% if request.args.get("error") == "user_exists" %}
+      <div class="error">מישהו כבר נרשם עם השם {{request.args.get("name", "")}}, נסו שם אחר.</div>
+      {% elif request.args.get("error") == "password_mismatch" %}
       <div class="error">הסיסמאות יצאו שונות, נסו שנית.</div>
-      {% elif error.type == "no_name" %}
+      {% elif request.args.get("error") == "no_name" %}
       <div class="error">שכחת להזין שם?</div>
-      {% elif error.type == "no_password" %}
+      {% elif request.args.get("error") == "no_password" %}
       <div class="error">שכחת להזין סיסמא?</div>
-      {% elif error.type == "no_password2" %}
+      {% elif request.args.get("error") == "no_password2" %}
       <div class="error">שכחת להזין סיסמא פעם שניה?</div>
       {% endif %}
       <input id="register" type="submit" value="הרשם">
