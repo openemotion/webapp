@@ -1,12 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 
-    <div>
-      {% if session.logged_in_user %}
-      <button id="new_share" onclick="window.location='/c/new'">שיתוף חדש</button>
-      {% endif %}
-      <h1>{{conversation.title}}</h1>
-    </div>
+    <h1>{{conversation.title}}</h1>
 
     <div>
     {{conversation.first_message}}
