@@ -37,7 +37,6 @@ def conversation(id, slug=None):
         conv = g.db.conversations.get(id)
         if slug is None:
             return redirect(url_for("conversation", id=id, slug=conv.slug))
-        conv.first_message = Markup(utils.text2p(conv.first_message))
         if conv.status == g.db.conversations.STATUS_ACTIVE:
             messages = g.db.messages.get_by_conversation(id)
             return render_template("active_conversation.html", conversation=conv, messages=messages)
@@ -46,6 +45,7 @@ def conversation(id, slug=None):
                 g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
                 return redirect(url_for("conversation", id=id, slug=conv.slug))
             else:
+                conv.first_message = g.db.messages.get_first(conv.id).text
                 return render_template("pending_conversation.html", conversation=conv)
     except KeyError:
         return abort(404)

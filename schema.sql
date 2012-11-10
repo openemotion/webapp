@@ -17,8 +17,7 @@ create table conversations (
   talker_name string,
   listener_name string,
   title string,
-  status string, -- pending / active / closed
-  first_message string
+  status string -- pending / active / closed
 );
 
 create index conversations_id on conversations(id);

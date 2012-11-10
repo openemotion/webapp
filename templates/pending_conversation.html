@@ -9,9 +9,7 @@
 
     <div>-- <a href="/profile/{{conversation.talker_name}}">{{conversation.talker_name}}</a></div>
 
-    <br>
-
-    {% if conversation.talker_name != session.logged_in_user %}
+    {% if session.logged_in_user and session.logged_in_user != conversation.talker_name %}
     <form method="post">
     <input type="submit" id="submit" value="תמוך ב{{conversation.talker_name}}"></input>
     </form>
