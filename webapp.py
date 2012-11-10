@@ -65,6 +65,7 @@ def profile(id):
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    #FIXME: should redirect and not render a template according to http://en.wikipedia.org/wiki/Post/Redirect/Get
     if request.method == "POST":
         name = request.form["name"]
         password = request.form["password"]
@@ -93,6 +94,7 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    #FIXME: should redirect and not render a template according to http://en.wikipedia.org/wiki/Post/Redirect/Get
     if request.method == "POST":
         name = request.form["name"]
         password = request.form["password"]

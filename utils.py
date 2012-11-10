@@ -3,6 +3,12 @@ from flask import escape
 import datetime
 
 def prettydate(d):
+    """
+    Converts a date into an estimate of how long has passed.
+    Assumes d and the system date are in the same time zone
+    (usually GMT).
+    Note that the result is in Hebrew.
+    """
     diff = datetime.datetime.utcnow() - d
     s = diff.seconds
     if diff.days > 7 or diff.days < 0:
@@ -27,6 +33,9 @@ def prettydate(d):
         return u"לפני {} שעות".format(s/3600)
 
 def encrypt_password(password, salt):
+    """
+    Creates a password hash.
+    """
     import sha
     s = sha.new()
     s.update(bytes(password))
@@ -34,10 +43,16 @@ def encrypt_password(password, salt):
     return s.hexdigest()
 
 def bytes(s):
+    """
+    Makes sure a string is in bytes.
+    """
     if isinstance(s, unicode):
         return s.encode("utf8")
     return s
 
 def text2p(text):
+    """
+    Converts a block of text into HTML paragraphs.
+    """
     text = escape(text)
     return "\n".join(("<p>%s</p>" % l) if l else "<br>" for l in text.splitlines())
