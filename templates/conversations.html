@@ -3,12 +3,12 @@
       <div class="conversation_link">
         <div class="title"><a href="/c/{{conv.id}}/{{conv.slug}}" >{{conv.title}}</a></div>
         {% if conv.status == "pending" %}
-          <div><a href="/profile/{{conv.talker_name}}">{{conv.talker_name}}</a> שיתף
-          לפני {{conv.start_time_since}} (ממתין לתומך)</div>
+          <div>שיתוף של <a href="/profile/{{conv.talker_name}}">{{conv.talker_name}}</a>
+          מלפני {{conv.start_time_since}} (ממתין לתומך)</div>
         {% else %}
-          <div><a href="/profile/{{conv.talker_name}}">{{conv.talker_name}}</a> שיתף את
+          <div>שיתוף של <a href="/profile/{{conv.talker_name}}">{{conv.talker_name}}</a> מול
           <a href="/profile/{{conv.listener_name}}">{{conv.listener_name}}</a>
-          לפני {{conv.start_time_since}}</div>
+          מלפני {{conv.start_time_since}}</div>
         {% endif %}
       </div>
       {% else %}
