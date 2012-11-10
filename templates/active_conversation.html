@@ -12,8 +12,11 @@
     <div id="history">
       {% include "messages.html" %}
     </div>
+
+    {% if session.logged_in_user in (conversation.talker_name, conversation.listener_name) %}
     <textarea id="message"></textarea>
     <p class="note">לחץ פעמיים על Enter בכדי לשלוח.</p>
     <button id="submit">שלח הודעה</button>
+    {% endif %}
 
 {% endblock %}

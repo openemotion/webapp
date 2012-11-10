@@ -3,10 +3,12 @@ drop table if exists conversations;
 drop table if exists messages;
 
 create table users (
+  id integer primary key autoincrement,
   name string,
   password_hash string
 );
 
+create index users_id on users(id);
 create index users_name on users(name);
 
 create table conversations (

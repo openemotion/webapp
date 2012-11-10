@@ -55,9 +55,10 @@ class Conversations(object):
         raise KeyError("no conversation with id %s" % id)
 
     def save(self,  talker_name, title, first_message):
-        self.connection.execute("insert into conversations (talker_name, title, first_message, status) values (?, ?, ?, ?)",
+        cur = self.connection.execute("insert into conversations (talker_name, title, first_message, status) values (?, ?, ?, ?)",
             [talker_name, title, first_message, self.STATUS_PENDING])
         self.connection.commit()
+        return cur.lastrowid
 
     def update(self, id, status, listener_name):
         self.connection.execute("update conversations set status = ?, listener_name = ? where id = ?",
@@ -86,6 +87,7 @@ class Messages(object):
         self.connection.execute("insert into messages (conversation_id, author, text) values (?, ?, ?)",
             [conversation_id, author, text])
         self.connection.commit()
+        return cur.lastrowid
 
 class Users(object):
     def __init__(self, connection):
@@ -108,3 +110,4 @@ class Users(object):
         self.connection.execute("insert into users (name, password_hash) values (?, ?)",
             [name, password_hash])
         self.connection.commit()
+        return cur.lastrowid
