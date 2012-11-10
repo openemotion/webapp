@@ -8,11 +8,15 @@ class dictobj(dict):
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
 
+def parse_date(s):
+    return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+
 class Database(object):
     def __init__(self, filename):
         self.connection = sqlite3.connect(filename)
         self.conversations = Conversations(self.connection)
         self.users = Users(self.connection)
+        self.messages = Messages(self.connection)
 
     def close(self):
         self.connection.close()
@@ -27,7 +31,7 @@ class Conversations(object):
     def _make_obj(self, id, start_time, talker_name, listener_name, title, first_message, status):
         obj = dictobj()
         obj.id = id
-        obj.start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+        obj.start_time = parse_date(start_time)
         obj.talker_name = talker_name
         obj.listener_name = listener_name
         obj.title = title
@@ -60,6 +64,29 @@ class Conversations(object):
             [status, listener_name, id])
         self.connection.commit()
 
+class Messages(object):
+    def __init__(self, connection):
+        self.connection = connection
+
+    def _make_obj(self, conversation_id, timestamp, author, text):
+        obj = dictobj()
+        obj.conversation_id = conversation_id
+        obj.timestamp = parse_date(timestamp)
+        obj.author = author
+        obj.text = text
+        return obj
+
+    def get_by_conversation(self, conversation_id):
+        cmd = "select conversation_id, timestamp, author, text from messages where conversation_id = ? order by timestamp"
+        cur = self.connection.execute(cmd, [conversation_id])
+        for row in cur:
+            yield self._make_obj(*row)
+
+    def save(self, conversation_id, author, text):
+        self.connection.execute("insert into messages (conversation_id, author, text) values (?, ?, ?)",
+            [conversation_id, author, text])
+        self.connection.commit()
+
 class Users(object):
     def __init__(self, connection):
         self.connection = connection
@@ -69,9 +96,6 @@ class Users(object):
         obj.name = name
         obj.password_hash = password_hash
         return obj
-
-    def get_all(self):
-        raise NotImplemented()
 
     def get(self, name):
         cmd = "select name, password_hash from users where name = ?"

@@ -1,10 +1,19 @@
 {% extends "layout.html" %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/static/css/chat.css">
+    <script type="text/javascript" src="/static/js/chat.js"></script>
+{% endblock %}
+
 {% block body %}
 
     <h1>{{conversation.title}}</h1>
 
-    <div>
-        כאן אמור להיות מסך של שיחה חיה בין {{conversation.talker_name}} ל{{conversation.listener_name}}.
+    <div id="history">
+      {% include "messages.html" %}
     </div>
+    <textarea id="message"></textarea>
+    <p class="note">לחץ פעמיים על Enter בכדי לשלוח.</p>
+    <button id="submit">שלח הודעה</button>
 
 {% endblock %}

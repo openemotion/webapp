@@ -23,11 +23,15 @@ create index conversations_id on conversations(id);
 create index conversations_sharer on conversations(talker_name);
 create index conversations_facilitator on conversations(listener_name);
 
--- create table messages (
---   id integer primary key autoincrement,
---   conversation_id integer foreign key conversations(id),
---   author string not null,
---   text string not null
--- );
+create table messages (
+  id integer primary key autoincrement,
+  conversation_id integer references conversations(id),
+  timestamp datetime default current_timestamp,
+  author string,
+  text string
+);
+
+create index messages_id on messages(id);
+create index messages_conversation on messages(conversation_id);
 
 .quit

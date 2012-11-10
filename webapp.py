@@ -39,7 +39,8 @@ def conversation(id, slug=None):
             return redirect(url_for("conversation", id=id, slug=conv.slug))
         conv.first_message = Markup(utils.text2p(conv.first_message))
         if conv.status == g.db.conversations.STATUS_ACTIVE:
-            return render_template("active_conversation.html", conversation=conv)
+            messages = g.db.messages.get_by_conversation(id)
+            return render_template("active_conversation.html", conversation=conv, messages=messages)
         else: # conv.status == g.db.conversations.STATUS_PENDING:
             if request.method == "POST":
                 g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
@@ -48,6 +49,16 @@ def conversation(id, slug=None):
                 return render_template("pending_conversation.html", conversation=conv)
     except KeyError:
         return abort(404)
+
+@app.route("/c/<int:id>/history")
+def history(id):
+    messages = g.db.messages.get_by_conversation(id)
+    return render_template("messages.html", messages=messages)
+
+@app.route("/c/<int:id>/post", methods=["POST"])
+def message(id):
+    g.db.messages.save(id, session["logged_in_user"], request.form["text"])
+    return ""
 
 @app.route("/c/new", methods=["GET", "POST"])
 def new_conversation():
