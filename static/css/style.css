@@ -54,7 +54,7 @@ p {
   margin-bottom: 10px;
 }
 
-#new_share, button, input[type="submit"] {
+button, input[type="submit"] {
   font-size: 18px;
   padding-left: 5px;
   padding-right: 5px;
@@ -139,5 +139,4 @@ input[type="submit"] {
 
 .signature {
   margin-top: 15px;
-  /*margin-bottom: 10px;*/
 }
