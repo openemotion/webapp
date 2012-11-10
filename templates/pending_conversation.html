@@ -7,7 +7,7 @@
     {{conversation.first_message}}
     </div>
 
-    <div>-- <a href="/profile/{{conversation.talker_name}}">{{conversation.talker_name}}</a></div>
+    <div class="signature">-- <a href="/profile/{{conversation.talker_name}}">{{conversation.talker_name}}</a></div>
 
     {% if session.logged_in_user and session.logged_in_user != conversation.talker_name %}
     <form method="post">

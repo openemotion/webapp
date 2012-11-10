@@ -38,6 +38,12 @@ h1 {
   font-family: "Choco", sans-serif;
 }
 
+.subtitle {
+  font-size: 14px;
+  font-weight: normal;
+  margin-bottom: 20px;
+}
+
 h2 {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -129,4 +135,9 @@ input[type="submit"] {
 
 .error a {
   font-size: 14px;
+}
+
+.signature {
+  margin-top: 15px;
+  /*margin-bottom: 10px;*/
 }

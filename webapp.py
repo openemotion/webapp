@@ -71,9 +71,12 @@ def new_conversation():
     else:
         return render_template("new_conversation.html")
 
-@app.route("/profile/<id>")
-def profile(id):
-    return render_template("profile.html")
+@app.route("/profile/<name>")
+def profile(name):
+    user = g.db.users.get(name)
+    conversations = g.db.conversations.get_by_talker(name)
+    return render_template("profile.html", user=user, conversations=conversations)
+    # return render_template("profile.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():

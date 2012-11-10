@@ -16,21 +16,21 @@ def prettydate(d):
     elif diff.days == 1:
         return u"יום"
     elif diff.days == 2:
-        return u"לפני יומיים"
+        return u"יומיים"
     elif diff.days > 2:
-        return u"לפני {} ימים".format(diff.days)
+        return u"{} ימים".format(diff.days)
     elif s < 15:
-        return u"לפני כמה שניות"
+        return u"כמה שניות"
     elif s < 90:
-        return u"לפני כדקה"
+        return u"כדקה"
     elif s < 3600:
-        return u"לפני {} דקות".format(s/60)
+        return u"{} דקות".format(s/60)
     elif s < 3600*1.5:
-        return u"לפני כשעה"
+        return u"כשעה"
     elif s < 3600*2.5:
-        return u"לפני כשעתיים"
+        return u"כשעתיים"
     else:
-        return u"לפני {} שעות".format(s/3600)
+        return u"{} שעות".format(s/3600)
 
 def encrypt_password(password, salt):
     """

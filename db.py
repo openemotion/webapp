@@ -41,8 +41,14 @@ class Conversations(object):
         return obj
 
     def get_all(self):
-        cmd = "select id, start_time, talker_name, listener_name, title, status from conversations order by id desc"
+        cmd = "select id, start_time, talker_name, listener_name, title, status from conversations order by start_time desc"
         cur = self.connection.execute(cmd)
+        for row in cur:
+            yield self._make_obj(*row)
+
+    def get_by_talker(self, name):
+        cmd = "select id, start_time, talker_name, listener_name, title, status from conversations where talker_name = ? order by start_time desc"
+        cur = self.connection.execute(cmd, [name])
         for row in cur:
             yield self._make_obj(*row)
 
@@ -97,14 +103,16 @@ class Users(object):
     def __init__(self, connection):
         self.connection = connection
 
-    def _make_obj(self, name, password_hash):
+    def _make_obj(self, name, password_hash, create_time):
         obj = dictobj()
         obj.name = name
         obj.password_hash = password_hash
+        obj.create_time = parse_date(create_time)
+        obj.create_time_since = utils.prettydate(obj.create_time)
         return obj
 
     def get(self, name):
-        cmd = "select name, password_hash from users where name = ?"
+        cmd = "select name, password_hash, create_time from users where name = ?"
         cur = self.connection.execute(cmd, [name])
         for row in cur:
             return self._make_obj(*row)

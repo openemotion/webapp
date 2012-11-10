@@ -4,6 +4,7 @@ drop table if exists messages;
 
 create table users (
   id integer primary key autoincrement,
+  create_time datetime default current_timestamp,
   name string,
   password_hash string
 );
