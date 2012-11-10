@@ -99,7 +99,7 @@ def register():
         password_hash = utils.encrypt_password(password.encode("utf8"), name.encode("utf8"))
         g.db.users.save(name, password_hash)
         session["logged_in_user"] = name
-        return redirect(url_for("main"))
+        return redirect(request.args.get("goto") or url_for("main"))
     else:
         return render_template("register.html", error={})
 
@@ -121,14 +121,14 @@ def login():
         if user.password_hash != password_hash:
             return render_template("login.html", error={"type":"bad_password", "name" : name})
         session["logged_in_user"] = request.form["name"]
-        return redirect(url_for("main"))
+        return redirect(request.args.get("goto") or url_for("main"))
     else:
         return render_template("login.html", error={})
 
 @app.route("/logout")
 def logout():
     session["logged_in_user"] = None
-    return redirect(url_for("main"))
+    return redirect(request.args.get("goto") or url_for("main"))
 
 if __name__ == '__main__':
     app.run()

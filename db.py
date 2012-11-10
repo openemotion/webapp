@@ -88,7 +88,7 @@ class Messages(object):
         raise KeyError("no messages for convesation with id %s" % conversation_id)
 
     def save(self, conversation_id, author, text):
-        self.connection.execute("insert into messages (conversation_id, author, text) values (?, ?, ?)",
+        cur = self.connection.execute("insert into messages (conversation_id, author, text) values (?, ?, ?)",
             [conversation_id, author, text])
         self.connection.commit()
         return cur.lastrowid
@@ -111,7 +111,7 @@ class Users(object):
         raise KeyError("no user with name %s" % name)
 
     def save(self, name, password_hash):
-        self.connection.execute("insert into users (name, password_hash) values (?, ?)",
+        cur = self.connection.execute("insert into users (name, password_hash) values (?, ?)",
             [name, password_hash])
         self.connection.commit()
         return cur.lastrowid
