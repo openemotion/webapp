@@ -16,7 +16,7 @@ values (2, 'אלי', 'עוד סיפור על חיים קשים.');
 
 -- a real conversation about relationships
 insert into conversations (id, talker_name, listener_name, title, status)
-values (3, 'ענת', 'אלון', 'אני מפחדת להרוס את מערכת היחסים', 'active');
+values (3, 'ענת', 'אלון', 'אני מפחדת להרוס את היחסים', 'active');
 
 insert into messages (conversation_id, author, text) values (3, 'ענת', 'אני בטיפול ממושך להבראת דפוסים לא בריאים');
 insert into messages (conversation_id, author, text) values (3, 'ענת', 'אחרי שבמשך שנים החרבתי מערכות יחסים בזו אחר זו');
@@ -29,7 +29,6 @@ insert into messages (conversation_id, author, text) values (3, 'אלון', 'מ�
 insert into messages (conversation_id, author, text) values (3, 'ענת', 'שאני אחזור על השגיאות');
 insert into messages (conversation_id, author, text) values (3, 'ענת', 'שאני לא אצליח בחיים האישיים שלי');
 insert into messages (conversation_id, author, text) values (3, 'ענת', 'וזה יהפוך אותי לבן אדם שלא ראוי לחיות איתו');
-insert into messages (conversation_id, author, text) values (3, 'ענת', '');
 insert into messages (conversation_id, author, text) values (3, 'אלון', 'מה יהפוך אותך לאדם שלא ראוי לחיות איתו?');
 insert into messages (conversation_id, author, text) values (3, 'ענת', 'שאני אתקע, שאני לא אתקדם, שאני לא אוכל לתרום במידה שווה');
 insert into messages (conversation_id, author, text) values (3, 'ענת', 'הקטע הכלכלי מפריע לי באופן מיוחד');
