@@ -1,24 +1,31 @@
 $(function() {
+    var lastMessageId = 0;
+
     function submitMessage() {
         var text = $("#message").val();
         text = text.replace(/^\n*/, "").replace(/\n*$/, "").replace(/\n/g, "<br>");
-        $("#message").val("").focus();
+        $("#message").val("");
         $.post("post", {text : text}, function (data, textStatus, jqXHR) {
             reloadHistory();
         });
     }
 
+    var reloading = false; // prevent multiple ajax calls from going out at the same time
     function reloadHistory() {
-        // FIXME: use HTTP HEAD to check if we need to change history
-        $.ajax("history", {success: function (data, textStatus, jqXHR) {
+        if (reloading) {
+            return;
+        }
+        reloading = true;
+        $.ajax("history?after_id=" + lastMessageId, {success: function (data, textStatus, jqXHR) {
+            lastMessageId = data.last_id;
             var fromBottom = $(document).height() -  $(window).scrollTop() - $(window).height();
-            $("#history").empty();
             $.each(data.messages, function (index, message) {
                 $("#history").append(formatMessage(message.author, message.text));
             });
             if (fromBottom < 50) {
                 $(document).scrollTop($(document).height());
             }
+            reloading = false;
         }});
     }
 

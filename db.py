@@ -74,16 +74,17 @@ class Messages(object):
     def __init__(self, connection):
         self.connection = connection
 
-    def _make_obj(self, conversation_id, timestamp, author, text):
+    def _make_obj(self, conversation_id, id, timestamp, author, text):
         obj = dictobj()
         obj.conversation_id = conversation_id
+        obj.id = id
         obj.timestamp = parse_date(timestamp)
         obj.author = author
         obj.text = text
         return obj
 
     def get_by_conversation(self, conversation_id):
-        cmd = "select conversation_id, timestamp, author, text from messages where conversation_id = ? order by timestamp"
+        cmd = "select conversation_id, id, timestamp, author, text from messages where conversation_id = ? order by timestamp"
         cur = self.connection.execute(cmd, [conversation_id])
         for row in cur:
             yield self._make_obj(*row)

@@ -55,10 +55,17 @@ def conversation(id, slug=None):
 
 @app.route("/c/<int:id>/history")
 def history(id):
+    try:
+        after_id = int(request.args.get("after_id", 0))
+    except ValueError:
+        after_id = 0
     messages = []
+    last_id = 0
     for msg in g.db.messages.get_by_conversation(id):
-        messages.append(dict(author=msg.author, text=msg.text))
-    return jsonify(messages=messages)
+        if msg.id > after_id:
+            messages.append(dict(author=msg.author, text=msg.text))
+        last_id = msg.id
+    return jsonify(messages=messages, last_id=last_id)
 
 @app.route("/c/<int:id>/post", methods=["POST"])
 def message(id):
