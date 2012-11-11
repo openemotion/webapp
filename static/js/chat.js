@@ -6,12 +6,12 @@ $(function() {
         text = text.replace(/^\n*/, "").replace(/\n*$/, "").replace(/\n/g, "<br>");
         $("#message").val("");
         $.post("post", {text : text}, function (data, textStatus, jqXHR) {
-            reloadHistory();
+            reloadHistory(true);
         });
     }
 
     var reloading = false; // prevent multiple ajax calls from going out at the same time
-    function reloadHistory() {
+    function reloadHistory(scroll) {
         if (reloading) {
             return;
         }
@@ -19,10 +19,11 @@ $(function() {
         $.ajax("history?after_id=" + lastMessageId, {success: function (data, textStatus, jqXHR) {
             lastMessageId = data.last_id;
             var fromBottom = $(document).height() -  $(window).scrollTop() - $(window).height();
+            console.log(fromBottom);
             $.each(data.messages, function (index, message) {
                 $("#history").append(formatMessage(message.author, message.text));
             });
-            if (fromBottom < 50) {
+            if (fromBottom < 50 && scroll) {
                 $(document).scrollTop($(document).height());
             }
             reloading = false;
@@ -47,6 +48,6 @@ $(function() {
         submitMessage();
     });
 
-    reloadHistory();
-    setInterval(reloadHistory, 1000);
+    reloadHistory(false);
+    setInterval("reloadHistory(true)", 1000);
 });
