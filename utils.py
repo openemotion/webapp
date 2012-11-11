@@ -24,13 +24,13 @@ def prettydate(d):
     elif s < 90:
         return u"כדקה"
     elif s < 3600:
-        return u"{} דקות".format(s/60)
-    elif s < 3600*1.5:
+        return u"{} דקות".format(s / 60)
+    elif s < 3600 * 1.5:
         return u"כשעה"
-    elif s < 3600*2.5:
+    elif s < 3600 * 2.5:
         return u"כשעתיים"
     else:
-        return u"{} שעות".format(s/3600)
+        return u"{} שעות".format(s / 3600)
 
 def encrypt_password(password, salt):
     """

@@ -1,7 +1,9 @@
 import urllib
 import utils
 from db import Database
-from flask import Flask, render_template, request, g, session, redirect, url_for, abort, Markup
+
+from flask import (Flask, render_template, request, g, session, redirect,
+    url_for, abort, Markup, jsonify)
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -41,7 +43,7 @@ def conversation(id, slug=None):
         if conv.status == g.db.conversations.STATUS_ACTIVE:
             messages = g.db.messages.get_by_conversation(id)
             return render_template("active_conversation.html", conversation=conv, messages=messages)
-        else: # conv.status == g.db.conversations.STATUS_PENDING:
+        else:  # conv.status == g.db.conversations.STATUS_PENDING:
             if request.method == "POST":
                 g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
                 return redirect(url_for("conversation", id=id, slug=conv.slug))
@@ -53,8 +55,10 @@ def conversation(id, slug=None):
 
 @app.route("/c/<int:id>/history")
 def history(id):
-    messages = g.db.messages.get_by_conversation(id)
-    return render_template("messages.html", messages=messages)
+    messages = []
+    for msg in g.db.messages.get_by_conversation(id):
+        messages.append(dict(author=msg.author, text=msg.text))
+    return jsonify(messages=messages)
 
 @app.route("/c/<int:id>/post", methods=["POST"])
 def message(id):
@@ -77,11 +81,9 @@ def profile(name):
     user = g.db.users.get(name)
     conversations = g.db.conversations.get_by_talker(name)
     return render_template("profile.html", user=user, conversations=conversations)
-    # return render_template("profile.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    #FIXME: should redirect and not render a template according to http://en.wikipedia.org/wiki/Post/Redirect/Get
     if request.method == "POST":
         name = request.form["name"]
         password = request.form["password"]
@@ -109,7 +111,6 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    #FIXME: should redirect and not render a template according to http://en.wikipedia.org/wiki/Post/Redirect/Get
     if request.method == "POST":
         name = request.form["name"]
         password = request.form["password"]

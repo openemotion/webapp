@@ -27,11 +27,8 @@ body {
   font-family: "Helvetica", "Arial", sans-serif;
 }
 
-h1, h2, h3, h4 {
-  color: #666;
-}
-
 h1 {
+  color: #666;
   margin-top: 15px;
   margin-bottom: 10px;
   font-size: 38px;
@@ -45,6 +42,7 @@ h1 {
 }
 
 h2 {
+  color: #666;
   margin-top: 10px;
   margin-bottom: 10px;
   font-size: 24px;
@@ -56,10 +54,7 @@ p {
 
 button, input[type="submit"] {
   font-size: 18px;
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-top: 4px;
-  padding-bottom: 2px;
+  padding: 4px 5px 2px 5px;
   margin-top: 5px;
   font-family: "Choco", sans-serif;
   cursor: pointer;
