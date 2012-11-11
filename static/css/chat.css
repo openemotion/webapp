@@ -14,3 +14,18 @@
   font-size: 0.7em;
   float: left;
 }
+
+.message {
+    margin-bottom: 10px;
+}
+
+.author {
+    font-weight: bold;
+    width: 50px;
+    float: right;
+    clear: right;
+}
+
+.text {
+    margin-right: 50px;
+}

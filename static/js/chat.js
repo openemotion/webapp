@@ -31,7 +31,7 @@ $(function() {
     }
 
     function formatMessage(author, text) {
-        return "<p><strong>" + author + "</strong>" + ": " + text + "</p>";
+        return "<div class='message'><div class='author'>" + author + "</div>" + "<div class='text'>" + text + "</div></div>";
     }
 
     $("#message").keypress(function(e) {
