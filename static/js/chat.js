@@ -16,17 +16,19 @@ $(function() {
             return;
         }
         reloading = true;
-        $.ajax("history?after_id=" + lastMessageId, {success: function (data, textStatus, jqXHR) {
-            lastMessageId = data.last_id;
-            var fromBottom = $(document).height() -  $(window).scrollTop() - $(window).height();
-            console.log(fromBottom);
-            $.each(data.messages, function (index, message) {
-                $("#history").append(formatMessage(message.author, message.text));
-            });
-            if (fromBottom < 50 && scroll) {
-                $(document).scrollTop($(document).height());
-            }
-            reloading = false;
+        $.ajax("history", {
+            data: {after_id: lastMessageId},
+            success: function (data, textStatus, jqXHR) {
+                lastMessageId = data.last_id;
+                var fromBottom = $(document).height() -  $(window).scrollTop() - $(window).height();
+                console.log(fromBottom);
+                $.each(data.messages, function (index, message) {
+                    $("#history").append(formatMessage(message.author, message.text));
+                });
+                if (fromBottom < 50 && scroll) {
+                    $(document).scrollTop($(document).height());
+                }
+                reloading = false;
         }});
     }
 
