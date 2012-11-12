@@ -40,16 +40,13 @@ def conversation(id, slug=None):
         conv = g.db.conversations.get(id)
         if slug is None:
             return redirect(url_for("conversation", id=id, slug=conv.slug))
-        if conv.status == g.db.conversations.STATUS_ACTIVE:
+
+        if request.method == "POST" and conv.status == g.db.conversations.STATUS_PENDING:
+            g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
+            return redirect(url_for("conversation", id=id, slug=conv.slug))
+        else:
             messages = g.db.messages.get_by_conversation(id)
-            return render_template("active_conversation.html", conversation=conv, messages=messages)
-        else:  # conv.status == g.db.conversations.STATUS_PENDING:
-            if request.method == "POST":
-                g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
-                return redirect(url_for("conversation", id=id, slug=conv.slug))
-            else:
-                conv.first_message = g.db.messages.get_first(conv.id).text
-                return render_template("pending_conversation.html", conversation=conv)
+            return render_template("conversation.html", conversation=conv, messages=messages)
     except KeyError:
         return abort(404)
 
@@ -65,7 +62,8 @@ def history(id):
         if msg.id > after_id:
             messages.append(dict(author=msg.author, text=msg.text))
         last_id = msg.id
-    return jsonify(messages=messages, last_id=last_id)
+    conv = g.db.conversations.get(id)
+    return jsonify(messages=messages, last_id=last_id, status=conv.status)
 
 @app.route("/c/<int:id>/post", methods=["POST"])
 def message(id):
@@ -79,7 +77,7 @@ def new_conversation():
     if request.method == "POST":
         id = g.db.conversations.save(session["logged_in_user"], request.form["title"])
         g.db.messages.save(id, session["logged_in_user"], request.form["message"])
-        return redirect(url_for("main"))
+        return redirect(url_for("conversation", id=id))
     else:
         return render_template("new_conversation.html")
 

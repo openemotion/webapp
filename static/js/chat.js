@@ -21,10 +21,19 @@ $(function() {
             success: function (data, textStatus, jqXHR) {
                 lastMessageId = data.last_id;
                 var fromBottom = $(document).height() -  $(window).scrollTop() - $(window).height();
-                console.log(fromBottom);
+                prevAuthor = null;
                 $.each(data.messages, function (index, message) {
-                    $("#history").append(formatMessage(message.author, message.text));
+                    $("#history").append(formatMessage(message.author, message.text, true));
+                    prevAuthor = message.author;
                 });
+                if (data.status === "pending") {
+                    $("#facilitate").show();
+                    $("#converse").hide();
+                }
+                else {
+                    $("#facilitate").hide();
+                    $("#converse").show();
+                }
                 if (fromBottom < 50 && scroll) {
                     $(document).scrollTop($(document).height());
                 }
@@ -32,8 +41,11 @@ $(function() {
         }});
     }
 
-    function formatMessage(author, text) {
-        return "<div class='message'><div class='author'>" + author + "</div>" + "<div class='text'>" + text + "</div></div>";
+    function formatMessage(author, text, newAuthor) {
+        msg = $("<div>").addClass("message");
+        msg.append($("<div>").addClass("author").append(newAuthor ? author + ":" : "&nbsp;"));
+        msg.append($("<div>").addClass("message").append(text));
+        return msg;
     }
 
     $("#message").keypress(function(e) {
@@ -51,5 +63,5 @@ $(function() {
     });
 
     reloadHistory(false);
-    setInterval("reloadHistory(true)", 1000);
+    setInterval(function () { reloadHistory(true); }, 1000);
 });
