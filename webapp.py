@@ -1,9 +1,12 @@
+# coding=utf8
+
 import urllib
 import utils
 from db import Database
 
-from flask import (Flask, render_template, request, g, session, redirect,
-    url_for, abort, Markup, jsonify)
+from flask import (Flask, render_template, request, g, session, redirect, url_for, abort, Markup, jsonify)
+from flask.ext.wtf import Form, TextField, PasswordField, RecaptchaField, validators
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -87,33 +90,32 @@ def profile(name):
     conversations = g.db.conversations.get_by_talker(name)
     return render_template("profile.html", user=user, conversations=conversations)
 
+class RegistrationForm(Form):
+    username = TextField(u"שם בדוי", [validators.Required(message=u"איך אפשר בלי שם?")])
+    password = PasswordField(u"סיסמא", [validators.Required(message=u"איך אפשר בלי סיסמא?"), validators.EqualTo("confirm", message=u"הסיסמאות צריכות להיות זהות")])
+    confirm = PasswordField(u"שוב סיסמא", [validators.Required(message=u"איך אפשר בלי להתעצבן?")])
+
+    def validate(self):
+        if not super(Form, self).validate():
+            return False
+        if g.db.users.exists(self.username.data):
+            self.username.errors.append(u"מישהו כבר נרשם עם השם הזה")
+            return False
+        return True
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == "POST":
-        name = request.form["name"]
-        password = request.form["password"]
-        password2 = request.form["password2"]
-        if not name:
-            return redirect(url_for("register", error="no_name"))
-        if not password:
-            return redirect(url_for("register", error="no_password", name=name))
-        if not password2:
-            return redirect(url_for("register", error="no_password2", name=name))
-        try:
-            existing = g.db.users.get(name)
-        except KeyError:
-            pass
-        else:
-            return redirect(url_for("register", error="user_exists", name=existing.name))
-        if password != password2:
-            return redirect(url_for("register", error="password_mismatch", name=name))
-        password_hash = utils.encrypt_password(password.encode("utf8"), name.encode("utf8"))
-        g.db.users.save(name, password_hash)
-        session["logged_in_user"] = name
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        # FIXME: use standard werkezeug password hashing
+        password_hash = generate_password_hash(form.password.data.encode("utf8"))
+        g.db.users.save(form.username.data, password_hash)
+        session["logged_in_user"] = form.username.data
         return redirect(urldecode(request.args.get("goto")) or url_for("main"))
-    else:
-        return render_template("register.html")
+    return render_template("register.html", form=form)
 
+
+# FIXME: use a WTF form
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -127,11 +129,10 @@ def login():
             user = g.db.users.get(name)
         except KeyError:
             return redirect(url_for("login", error="bad_password", name=name))
-        password_hash = utils.encrypt_password(password, name)
-        if user.password_hash != password_hash:
+        if check_password_hash(password.encode("utf8"), user.password_hash):
             return redirect(url_for("login", error="bad_password", name=name))
         session["logged_in_user"] = request.form["name"]
-        return redirect(urldecode(request.args.get("goto")) or url_for("main"))
+        return redirect(urldecode(request.args.get("goto") or "") or url_for("main"))
     else:
         return render_template("login.html")
 

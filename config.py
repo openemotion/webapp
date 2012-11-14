@@ -8,3 +8,5 @@ else:
     DATABASE = "data.db"
     SECRET_KEY = "development key"
     DEBUG = True
+    RECAPTCHA_PUBLIC_KEY = "6LeZF9kSAAAAAKrhqSW8ga1GLkez6_QdfyuKyrAQ"
+    RECAPTCHA_PRIVATE_KEY = "6LeZF9kSAAAAAGYJW_jb-n8hS7tXMQEjbh5E9Jm7"

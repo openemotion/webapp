@@ -119,6 +119,14 @@ class Users(object):
             return self._make_obj(*row)
         raise KeyError("no user with name %s" % name)
 
+    def exists(self, name):
+        try:
+            self.get(name)
+        except KeyError:
+            return False
+        else:
+            return True
+
     def save(self, name, password_hash):
         cur = self.connection.execute("insert into users (name, password_hash) values (?, ?)",
             [name, password_hash])

@@ -96,9 +96,6 @@ button, input[type="submit"] {
 label {
   margin-top: 15px;
   display: block;
-}
-
-label div {
   font-family: "Choco", sans-serif;
 }
 
@@ -113,18 +110,15 @@ textarea {
   font-family: "Helvetica", "Arial", sans-serif;
 }
 
-form #username, #email, input[type="password"] {
-  direction: ltr;
-}
-
 input[type="submit"] {
   margin-top: 20px;
   width: auto;
+  display: block;
 }
 
 .error {
-  margin-top: 15px;
-  font-size: 14px;
+  margin-top: 2px;
+  font-size: 12px;
   color: #d22;
 }
 
