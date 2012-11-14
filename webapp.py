@@ -45,25 +45,24 @@ def conversation(id, slug=None):
             g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
             return redirect(url_for("conversation", id=id, slug=conv.slug))
         else:
-            messages = g.db.messages.get_by_conversation(id)
+            messages = list(g.db.messages.get_by_conversation(id))
             return render_template("conversation.html", conversation=conv, messages=messages)
     except KeyError:
         return abort(404)
 
-@app.route("/c/<int:id>/history")
-def history(id):
+@app.route("/c/<int:id>/updates")
+def updates(id):
     try:
         after_id = int(request.args.get("after_id", 0))
     except ValueError:
         after_id = 0
     messages = []
-    last_id = 0
-    for msg in g.db.messages.get_by_conversation(id):
-        if msg.id > after_id:
-            messages.append(dict(author=msg.author, text=msg.text))
-        last_id = msg.id
-    conv = g.db.conversations.get(id)
-    return jsonify(messages=messages, last_id=last_id, status=conv.status)
+    last_message_id = -1
+    for msg in g.db.messages.get_updates(id, session["logged_in_user"], after_id):
+        messages.append(dict(id=msg.id, author=msg.author, text=msg.text))
+        last_message_id = msg.id
+    conversation = g.db.conversations.get(id)
+    return jsonify(status=conversation.status, messages=messages, last_message_id=last_message_id)
 
 @app.route("/c/<int:id>/post", methods=["POST"])
 def message(id):

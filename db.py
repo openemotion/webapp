@@ -94,6 +94,14 @@ class Messages(object):
             return obj
         raise KeyError("no messages for convesation with id %s" % conversation_id)
 
+    def get_updates(self, conversation_id, current_user, after_message_id):
+        # FIXME: may not work with current_user == None
+        cmd = "select conversation_id, id, timestamp, author, text from messages "\
+              "where conversation_id = ? and author <> ? and id > ? order by timestamp"
+        cur = self.connection.execute(cmd, [conversation_id, current_user, after_message_id])
+        for row in cur:
+            yield self._make_obj(*row)
+
     def save(self, conversation_id, author, text):
         cur = self.connection.execute("insert into messages (conversation_id, author, text) values (?, ?, ?)",
             [conversation_id, author, text])

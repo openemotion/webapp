@@ -5,47 +5,51 @@ $(function() {
         var text = $("#message").val();
         text = text.replace(/^\n*/, "").replace(/\n*$/, "").replace(/\n/g, "<br>");
         $("#message").val("");
-        $.post("post", {text : text}, function (data, textStatus, jqXHR) {
-            reloadHistory(true);
-        });
+        $("#history").append(formatMessage(chat_user, text, true));
+        $(document).scrollTop($(document).height());
+        $.post("post", {text : text});
     }
 
     var reloading = false; // prevent multiple ajax calls from going out at the same time
-    function reloadHistory(scroll) {
+    function updateHistory(scroll) {
         if (reloading) {
             return;
         }
         reloading = true;
-        $.ajax("history", {
-            data: {after_id: lastMessageId},
+        $.ajax("updates", {
+            data: {after_id: chat_lastMessageId},
             success: function (data, textStatus, jqXHR) {
-                lastMessageId = data.last_id;
+                if (data.last_message_id != -1) {
+                    chat_lastMessageId = data.last_message_id;
+                }
                 var fromBottom = $(document).height() -  $(window).scrollTop() - $(window).height();
-                prevAuthor = null;
                 $.each(data.messages, function (index, message) {
                     $("#history").append(formatMessage(message.author, message.text, true));
-                    prevAuthor = message.author;
                 });
-                if (data.status === "pending") {
-                    $("#facilitate").show();
-                    $("#converse").hide();
-                }
-                else {
-                    $("#facilitate").hide();
-                    $("#converse").show();
-                }
                 if (fromBottom < 50 && scroll) {
                     $(document).scrollTop($(document).height());
                 }
+                updateStatus(data.status);
                 reloading = false;
         }});
     }
 
-    function formatMessage(author, text, newAuthor) {
+    function formatMessage(author, text) {
         msg = $("<div>").addClass("message");
-        msg.append($("<div>").addClass("author").append(newAuthor ? author + ":" : "&nbsp;"));
-        msg.append($("<div>").addClass("message").append(text));
+        msg.append($("<div>").addClass("author").append(author).append(":"));
+        msg.append($("<div>").addClass("text").append(text));
         return msg;
+    }
+
+    function updateStatus(status) {
+        if (status === "pending") {
+            $("#facilitate").show();
+            $("#converse").hide();
+        }
+        else {
+            $("#facilitate").hide();
+            $("#converse").show();
+        }
     }
 
     $("#message").keypress(function(e) {
@@ -58,10 +62,17 @@ $(function() {
         }
     });
 
-    $("#submit").click(function(e) {
+    $("#submit_message").click(function(e) {
         submitMessage();
     });
 
-    reloadHistory(false);
-    setInterval(function () { reloadHistory(true); }, 1000);
+    setInterval(function () { updateHistory(true); }, 1000);
+
+    updateStatus(chat_status);
+
+    // FIXME: code duplication!
+    if (($(document).height() -  $(window).scrollTop() - $(window).height()) < 50 && scroll) {
+        $(document).scrollTop($(document).height());
+    }
+
 });
