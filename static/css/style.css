@@ -15,7 +15,7 @@ html{
 
 body {
   height: 100%;
-  background-color: #ffffdd;
+  background-color: #fff9e7;
 }
 
 #body {
@@ -79,7 +79,7 @@ button, input[type="submit"] {
 #header {
   padding-top: 10px;
   font-family: "Choco", sans-serif;
-  border-bottom: 3px #e5e5e5 solid;
+  border-bottom: 1px #e5e5e5 solid;
 }
 
 #header img {
