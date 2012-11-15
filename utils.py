@@ -1,6 +1,8 @@
 # coding=utf8
-from flask import escape
+import os
+import base64
 import datetime
+from flask import escape
 
 def prettydate(d):
     """
@@ -56,3 +58,6 @@ def text2p(text):
     """
     text = escape(text)
     return "\n".join(("<p>%s</p>" % l) if l else "<br>" for l in text.splitlines())
+
+def generate_token():
+    return base64.b16encode(os.urandom(16)).lower()

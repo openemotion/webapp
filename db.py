@@ -1,7 +1,8 @@
 import re
+import utils
 import sqlite3
 from datetime import datetime
-import utils
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class dictobj(dict):
     __getattr__ = dict.__getitem__
@@ -112,23 +113,34 @@ class Users(object):
     def __init__(self, connection):
         self.connection = connection
 
-    def _make_obj(self, name, password_hash, create_time):
+    def _make_obj(self, id, name, create_time):
         obj = dictobj()
+        obj.id = id
         obj.name = name
-        obj.password_hash = password_hash
         obj.create_time = parse_date(create_time)
         obj.create_time_since = utils.prettydate(obj.create_time)
         return obj
 
-    def get(self, name):
-        cmd = "select name, password_hash, create_time from users where name = ?"
+    def exists(self, name):
+        cmd = "select id from users where name = ?"
         cur = self.connection.execute(cmd, [name])
         for row in cur:
-            return self._make_obj(*row)
-        raise KeyError("no user with name %s" % name)
+            return True
+        return False
 
-    def save(self, name, password_hash):
-        cur = self.connection.execute("insert into users (name, password_hash) values (?, ?)",
-            [name, password_hash])
+    def get_safe(self, id, token):
+        cmd = "select id, name, create_time, token_hash from users where id = ?"
+        cur = self.connection.execute(cmd, [id])
+        for row in cur:
+            token_hash = row[-1]
+            user = self._make_obj(*row[:-1])
+            if check_password_hash(token_hash, token):
+                return user
+        raise KeyError("no user with id %s or bad password" % id)
+
+    def save(self, name, token):
+        token_hash = generate_password_hash(token)
+        cur = self.connection.execute("insert into users (name, token_hash) values (?, ?)", 
+            [name, token_hash])
         self.connection.commit()
         return cur.lastrowid

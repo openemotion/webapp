@@ -6,7 +6,7 @@ create table users (
   id integer primary key autoincrement,
   create_time datetime default current_timestamp,
   name string,
-  password_hash string
+  token_hash string
 );
 
 create index users_id on users(id);

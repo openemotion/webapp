@@ -2,18 +2,8 @@
 {% block body %}
     <h1>כניסה</h1>
 
-    <form method="post">
-      <label><div>שם בדוי</div><input type="text" id="name" name="name" value="{{request.args.get("name", "")}}"></label>
-      <label><div>סיסמא</div><input  type="password" id="password" name="password"></label>
-      {% if request.args.get("error") == "no_name" %}
-      <div class="error">שכחת להזין שם?</div>
-      {% elif request.args.get("error") == "no_password" %}
-      <div class="error">שכחת להזין סיסמא?</div>
-      {% elif request.args.get("error") == "bad_password" %}
-      <div class="error">הסיסמא לא נכונה, נסו שנית.</div>
-      {% endif %}
-      <input id="login" type="submit" value="התחבר">
-    </form>
-    <script type="text/javascript">document.getElementById("name").focus()</script>
+    {% if error == "bad_password" %}
+    <div class="error">הסיסמא לא נכונה</div>
+    {% endif %}
 
 {% endblock %}

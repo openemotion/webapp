@@ -90,49 +90,36 @@ def profile(name):
 def register():
     if request.method == "POST":
         name = request.form["name"]
-        password = request.form["password"]
-        password2 = request.form["password2"]
-        if not name:
-            return redirect(url_for("register", error="no_name"))
-        if not password:
-            return redirect(url_for("register", error="no_password", name=name))
-        if not password2:
-            return redirect(url_for("register", error="no_password2", name=name))
-        try:
-            existing = g.db.users.get(name)
-        except KeyError:
-            pass
-        else:
-            return redirect(url_for("register", error="user_exists", name=existing.name))
-        if password != password2:
-            return redirect(url_for("register", error="password_mismatch", name=name))
-        password_hash = utils.encrypt_password(password.encode("utf8"), name.encode("utf8"))
-        g.db.users.save(name, password_hash)
-        session["logged_in_user"] = name
-        return redirect(urldecode(request.args.get("goto")) or url_for("main"))
+        if not name.strip():
+            return redirect(url_for("register", goto=request.args.get("goto"), error="no_name"))
+        if g.db.users.exists(name):
+            return redirect(url_for("register", goto=request.args.get("goto"), error="user_exists"))
+        token = utils.generate_token()
+        user_id = g.db.users.save(name, token)
+        login_url = url_for("login", _external=True, user_id=user_id, token=token)
+        return redirect(url_for("post_register", login_url=login_url, goto=request.args.get("goto")))
+        # return render_template("post_register.html", login_url=login_url)
     else:
         return render_template("register.html")
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/post_register")
+def post_register():
+    login_url = request.args.get("login_url")
+    goto = request.args.get("goto")
+    if not login_url:
+        abort(403)
+    return render_template("post_register.html", login_url=login_url, goto=goto)
+
+@app.route("/login")
 def login():
-    if request.method == "POST":
-        name = request.form["name"]
-        password = request.form["password"]
-        if not name:
-            return redirect(url_for("login", error="no_name"))
-        if not password:
-            return redirect(url_for("login", error="no_password", name=name))
-        try:
-            user = g.db.users.get(name)
-        except KeyError:
-            return redirect(url_for("login", error="bad_password", name=name))
-        password_hash = utils.encrypt_password(password, name)
-        if user.password_hash != password_hash:
-            return redirect(url_for("login", error="bad_password", name=name))
-        session["logged_in_user"] = request.form["name"]
-        return redirect(urldecode(request.args.get("goto")) or url_for("main"))
-    else:
-        return render_template("login.html")
+    user_id = request.args.get("user_id")
+    token = request.args.get("token")
+    try:
+        user = g.db.users.get_safe(user_id, token)
+    except KeyError:
+        return render_template("login.html", error="bad_password")
+    session["logged_in_user"] = user.name
+    return redirect(url_for("main"))
 
 @app.route("/logout")
 def logout():
