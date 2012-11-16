@@ -4,12 +4,30 @@
 
     <form method="post">
 
+      <input type="hidden" id="title" name="title" value="שיתוף חדש"></input>
       <div class="note">שימו לב, השורה הראשונה של ההודעה תהפוך לכותרת</div>
       <label for="message">מה מציק לך?</label>
       <textarea style="width: 100%" rows="15" id="message" name="message"></textarea>
 
       <div><input id="submit" type="submit" value="שתף"></div>
     </form>
-    <script type="text/javascript">document.getElementById("title").focus()</script>
+
+    <script>
+    $(function () {
+      originalHeading = $("h1").html()
+
+      // focus on the message field
+      $("#message").focus();
+
+      // update title while typing
+      $("#message").keyup(function(e) {
+        var title = $("#message").val().split("\n")[0];
+          title = $.trim(title);
+          $("#title").val(title);
+          heading = title ? title : originalHeading
+          $("h1").empty().append(heading);
+      });
+    });
+    </script>
 
 {% endblock %}
