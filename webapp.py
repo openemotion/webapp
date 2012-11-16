@@ -74,7 +74,8 @@ def new_conversation():
     if not session["logged_in_user"]:
         abort(401)
     if request.method == "POST":
-        id = g.db.conversations.save(session["logged_in_user"], request.form["title"])
+        title = utils.extract_title(request.form["message"])
+        id = g.db.conversations.save(session["logged_in_user"], title)
         g.db.messages.save(id, session["logged_in_user"], request.form["message"])
         return redirect(url_for("conversation", id=id))
     else:

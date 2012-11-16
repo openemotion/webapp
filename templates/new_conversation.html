@@ -3,8 +3,11 @@
     <h1>שיתוף חדש</h1>
 
     <form method="post">
-      <label><div>כותרת</div><input style="width: 100%;" type="text" id="title" name="title"></label>
-      <label><div>מה מציק לך?</div><textarea style="width: 100%" rows="15" id="message" name="message"></textarea></label>
+
+      <div class="note">שימו לב, השורה הראשונה של ההודעה תהפוך לכותרת</div>
+      <label for="message">מה מציק לך?</label>
+      <textarea style="width: 100%" rows="15" id="message" name="message"></textarea>
+
       <div><input id="submit" type="submit" value="שתף"></div>
     </form>
     <script type="text/javascript">document.getElementById("title").focus()</script>

@@ -96,10 +96,8 @@ button, input[type="submit"] {
 label {
   margin-top: 15px;
   display: block;
-}
-
-label div {
   font-family: "Choco", sans-serif;
+  color: #666;
 }
 
 input[type="text"], input[type="password"], textarea {
@@ -107,6 +105,7 @@ input[type="text"], input[type="password"], textarea {
   padding: 3px;
   margin-top: 5px;
   border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 textarea {
@@ -134,4 +133,9 @@ input[type="submit"] {
 
 .signature {
   margin-top: 15px;
+}
+
+.note {
+  font-size: 0.7em;
+  float: left;
 }
