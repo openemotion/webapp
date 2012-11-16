@@ -97,6 +97,8 @@ def register():
         token = utils.generate_token()
         user_id = g.db.users.save(name, token)
         login_url = url_for("login", _external=True, user_id=user_id, token=token)
+        with open("static/login_urls.html", "wa") as f:
+            f.write("<a href=%(login_url)s>%(login_url)s</a>" % locals())
         session["logged_in_user"] = name
         return redirect(url_for("post_register", login_url=login_url, goto=request.args.get("goto")))
         # return render_template("post_register.html", login_url=login_url)
