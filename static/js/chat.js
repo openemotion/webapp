@@ -35,8 +35,9 @@ $(function() {
     }
 
     function formatMessage(author, text) {
-        msg = $("<div>").addClass("message");
-        msg.append($("<div>").addClass("author").append(author).append(":"));
+        msgClass = author === chat_user ? "me" : "other";
+        msg = $("<div>").addClass("message").addClass(msgClass);
+        msg.append($("<div>").addClass("author").addClass().append(author).append(":"));
         msg.append($("<div>").addClass("text").append(text));
         return msg;
     }

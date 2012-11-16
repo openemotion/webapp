@@ -16,7 +16,11 @@
 
     <div id="history">
         {% for message in messages %}
-        <div class="message">
+        {% if message.author == session.logged_in_user %}
+        <div class="message me">
+        {% else %}
+        <div class="message other">
+        {% endif %}
             <div class="author">{{ message.author }}: </div>
             <div class="text">{{ message.text }}</div>
         </div>

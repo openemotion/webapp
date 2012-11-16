@@ -10,29 +10,29 @@
   margin-top: 10px;
 }
 
-/*#facilitate {
-    display :none;
-}
-
-#converse {
-    display :none;
-}
-
-*/.note {
+.note {
   font-size: 0.7em;
   float: left;
 }
 
 .message {
-    margin-bottom: 10px;
+    padding: 5px 5px 5px 5px;
 }
 
 .author {
-    display: inline;
     font-weight: bold;
     width: 50px;
     float: right;
     clear: right;
+}
+
+.me {
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.other {
+  color: #333;
 }
 
 .text {
