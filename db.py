@@ -66,20 +66,24 @@ class Conversations(object):
         self.connection.commit()
 
 class Messages(object):
+    # FIXME: move the __fields__ to abstract class and reuse in other classes here
+    __fields__ = ["id", "conversation_id", "timestamp", "author", "type", "text"]
+    __select__ = "select %s from messages " % ", ".join(__fields__)
+
+    TYPE_TALKER = "talker"
+    TYPE_LISTENER = "listener"
+    TYPE_OTHER = "listener"
+
     def __init__(self, connection):
         self.connection = connection
 
-    def _make_obj(self, conversation_id, id, timestamp, author, text):
-        obj = utils.dictobj()
-        obj.conversation_id = conversation_id
-        obj.id = id
-        obj.timestamp = parse_date(timestamp)
-        obj.author = author
-        obj.text = text
+    def _make_obj(self, *args):
+        obj = utils.dictobj(zip(self.__fields__, args))
+        obj.timestamp = parse_date(obj.timestamp)
         return obj
 
     def get_by_conversation(self, conversation_id):
-        cmd = "select conversation_id, id, timestamp, author, text from messages where conversation_id = ? order by timestamp"
+        cmd = self.__select__ + "where conversation_id = ? order by timestamp"
         cur = self.connection.execute(cmd, [conversation_id])
         for row in cur:
             yield self._make_obj(*row)
@@ -92,15 +96,14 @@ class Messages(object):
     def get_updates(self, conversation_id, current_user, after_message_id):
         if not current_user:
             current_user = ""
-        cmd = "select conversation_id, id, timestamp, author, text from messages "\
-              "where conversation_id = ? and author <> ? and id > ? order by timestamp"
+        cmd = cmd = self.__select__ + "where conversation_id = ? and author <> ? and id > ? order by timestamp"
         cur = self.connection.execute(cmd, [conversation_id, current_user, after_message_id])
         for row in cur:
             yield self._make_obj(*row)
 
-    def save(self, conversation_id, author, text):
-        cur = self.connection.execute("insert into messages (conversation_id, author, text) values (?, ?, ?)",
-            [conversation_id, author, text])
+    def save(self, conversation_id, author, type, text):
+        cur = self.connection.execute("insert into messages (conversation_id, author, type, text) values (?, ?, ?, ?)",
+            [conversation_id, author, type, text])
         self.connection.commit()
         return cur.lastrowid
 

@@ -1,6 +1,6 @@
 import urllib
 import utils
-from db import Database
+from db import Database, Messages
 
 from flask import (Flask, render_template, request, g, session, redirect,
     url_for, abort, Markup, jsonify)
@@ -43,20 +43,26 @@ def conversations():
 def conversation(id, slug=None):
     try:
         conv = g.db.conversations.get(id)
-        if slug is None:
-            return redirect(url_for("conversation", id=id, slug=conv.slug))
-
-        if request.method == "POST" and conv.status == g.db.conversations.STATUS_PENDING:
-            g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
-            return redirect(url_for("conversation", id=id, slug=conv.slug))
-        else:
-            messages = list(g.db.messages.get_by_conversation(id))
-            return render_template("conversation.html", conversation=conv, messages=messages)
     except KeyError:
         return abort(404)
 
+    if slug is None:
+        return redirect(url_for("conversation", id=id, slug=conv.slug))
+
+    if request.method == "POST" and conv.status == g.db.conversations.STATUS_PENDING:
+        g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
+        return redirect(url_for("conversation", id=id, slug=conv.slug))
+    else:
+        messages = list(g.db.messages.get_by_conversation(id))
+        message_type = detect_user_message_type(conv)
+        return render_template("conversation.html", conversation=conv, messages=messages, user_message_type=message_type)
+
 @app.route("/c/<int:id>/updates")
 def updates(id):
+    try:
+        conv = g.db.conversations.get(id)
+    except KeyError:
+        return abort(404)
     try:
         after_id = int(request.args.get("after_id", 0))
     except ValueError:
@@ -64,7 +70,7 @@ def updates(id):
     messages = []
     last_message_id = -1
     for msg in g.db.messages.get_updates(id, session.get("logged_in_user"), after_id):
-        messages.append(dict(id=msg.id, author=msg.author, text=msg.text))
+        messages.append(dict(id=msg.id, author=msg.author, text=msg.text, type=msg.type))
         last_message_id = msg.id
     conversation = g.db.conversations.get(id)
     return jsonify(status=conversation.status, messages=messages, last_message_id=last_message_id)
@@ -72,7 +78,12 @@ def updates(id):
 @app.route("/c/<int:id>/post", methods=["POST"])
 #FIXME: maybe join this function with /updates
 def post_message(id):
-    g.db.messages.save(id, session["logged_in_user"], request.form["text"])
+    try:
+        conv = g.db.conversations.get(id)
+    except KeyError:
+        return abort(404)
+    message_type = detect_user_message_type(conv)
+    g.db.messages.save(id, session["logged_in_user"], message_type,request.form["text"])
     return ""
 
 @app.route("/c/new", methods=["GET", "POST"])
@@ -81,7 +92,7 @@ def new_conversation():
         abort(401)
     if request.method == "POST":
         id = g.db.conversations.save(session["logged_in_user"], request.form["title"])
-        g.db.messages.save(id, session["logged_in_user"], request.form["message"])
+        g.db.messages.save(id, session["logged_in_user"], g.db.messages.TYPE_TALKER, request.form["message"])
         return redirect(url_for("conversation", id=id))
     else:
         return render_template("new_conversation.html")
@@ -160,6 +171,14 @@ def urldecode(s):
     if isinstance(s, unicode):
         s = s.encode("utf8")
     return urllib.unquote(s).decode("utf8")
+
+def detect_user_message_type(conv):
+    if session["logged_in_user"] == conv.listener_name:
+        return g.db.messages.TYPE_LISTENER
+    elif session["logged_in_user"] == conv.talker_name:
+        return g.db.messages.TYPE_TALKER
+    else:
+        return g.db.messages.TYPE_OTHER
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")

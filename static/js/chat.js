@@ -5,7 +5,7 @@ $(function() {
         var text = $("#message").val();
         text = text.replace(/^\n*/, "").replace(/\n*$/, "").replace(/\n/g, "<br>");
         $("#message").val("");
-        $("#history").append(formatMessage(chat_user, text, true));
+        $("#history").append(formatMessage(chat_user, chat_userMessageType, text, true));
         $(document).scrollTop($(document).height());
         $.post("post", {text : text});
     }
@@ -24,7 +24,7 @@ $(function() {
                 }
                 var fromBottom = $(document).height() -  $(window).scrollTop() - $(window).height();
                 $.each(data.messages, function (index, message) {
-                    $("#history").append(formatMessage(message.author, message.text, true));
+                    $("#history").append(formatMessage(message.author, message.type, message.text, true));
                 });
                 if (fromBottom < 50 && scroll) {
                     $(document).scrollTop($(document).height());
@@ -34,9 +34,8 @@ $(function() {
         }});
     }
 
-    function formatMessage(author, text) {
-        msgClass = author === chat_user ? "me" : "other";
-        msg = $("<div>").addClass("message").addClass(msgClass);
+    function formatMessage(author, type, text) {
+        msg = $("<div>").addClass("message").addClass(type);
         msg.append($("<div>").addClass("author").addClass().append(author).append(":"));
         msg.append($("<div>").addClass("text").append(text));
         return msg;

@@ -9,7 +9,8 @@
     <script type="text/javascript">
         chat_lastMessageId = '{{ messages[-1].id if messages else 0 }}';
         chat_status = '{{ conversation.status }}';
-        chat_user = '{{ session["logged_in_user"] }}';
+        chat_user = '{{ session.get("logged_in_user", "") }}';
+        chat_userMessageType = '{{ user_message_type }}'
     </script>
 {% endblock %}
 
@@ -19,11 +20,7 @@
 
     <div id="history">
         {% for message in messages %}
-        {% if message.author == session.logged_in_user %}
-        <div class="message me">
-        {% else %}
-        <div class="message other">
-        {% endif %}
+        <div class="message {{message.type}}">
             <div class="author">{{ message.author }}: </div>
             <div class="text">{{ message.text }}</div>
         </div>

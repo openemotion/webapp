@@ -24,7 +24,8 @@ sample_conversation = dictobj(
 sample_message = dictobj(
     id=1,
     author="me",
-    text="some text"
+    text="some text",
+    type="listener"
 )
 
 @patch("webapp.Database")

@@ -1,17 +1,6 @@
 {% extends "layout.html" %}
-{% block body %}
-    <h1>שיתוף חדש</h1>
 
-    <form method="post">
-
-      <input type="hidden" id="title" name="title" value="שיתוף חדש"></input>
-      <div class="note">שימו לב, השורה הראשונה של ההודעה תהפוך לכותרת</div>
-      <label for="message">מה מציק לך?</label>
-      <textarea style="width: 100%" rows="15" id="message" name="message"></textarea>
-
-      <div><input id="submit" type="submit" value="שתף"></div>
-    </form>
-
+{% block js %}
     <script>
     $(function () {
       originalHeading = $("h1").html()
@@ -29,5 +18,18 @@
       });
     });
     </script>
+{% endblock %}
 
+{% block body %}
+    <h1>שיתוף חדש</h1>
+
+    <form method="post">
+
+      <input type="hidden" id="title" name="title" value="שיתוף חדש"></input>
+      <div class="note">שימו לב, השורה הראשונה של ההודעה תהפוך לכותרת</div>
+      <label for="message">מה מציק לך?</label>
+      <textarea style="width: 100%" rows="15" id="message" name="message"></textarea>
+
+      <div><input id="submit" type="submit" value="שתף"></div>
+    </form>
 {% endblock %}
