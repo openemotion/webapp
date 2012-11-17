@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
-{% block head %}
+
+{% block js %}
     <script type="text/javascript" src="/static/js/conv_list_reload.js"></script>
 {% endblock %}
+
 {% block body %}
     <div>
       {% if session.logged_in_user %}
