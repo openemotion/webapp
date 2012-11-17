@@ -33,6 +33,11 @@ def terms():
 def contact():
     return render_template("contact.html")
 
+@app.route("/conversations")
+def conversations():
+    conversations = g.db.conversations.get_all()
+    return render_template("_conversation_list.html", conversations=conversations)
+
 @app.route("/c/<int:id>/", methods=["GET", "POST"])
 @app.route("/c/<int:id>/<slug>", methods=["GET", "POST"])
 def conversation(id, slug=None):
@@ -81,11 +86,16 @@ def new_conversation():
     else:
         return render_template("new_conversation.html")
 
-@app.route("/profile/<name>")
+@app.route("/profile/<name>/")
 def profile(name):
     user = g.db.users.get(name)
     conversations = g.db.conversations.get_by_talker(name)
     return render_template("profile.html", user=user, conversations=conversations)
+
+@app.route("/profile/<name>/conversations")
+def profile_conversations(name):
+    conversations = g.db.conversations.get_by_talker(name)
+    return render_template("_conversation_list.html", conversations=conversations)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():

@@ -26,7 +26,7 @@ def prettydate(d):
         return u"{} ימים".format(diff.days)
     elif s < 15:
         return u"כמה שניות"
-    elif s < 90:
+    elif s < 120:
         return u"כדקה"
     elif s < 3600:
         return u"{} דקות".format(s / 60)

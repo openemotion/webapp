@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
+{% block head %}
+    <script type="text/javascript" src="/static/js/conv_list_reload.js"></script>
+{% endblock %}
 {% block body %}
     <div>
       {% if session.logged_in_user %}
@@ -6,5 +9,5 @@
       {% endif %}
       <h1>שיתופים אחרונים</h1>
     </div>
-    {% include "conversations.html" %}
+    {% include "_conversation_list.html" %}
 {% endblock %}

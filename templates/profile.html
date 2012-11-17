@@ -1,7 +1,10 @@
 {% extends "layout.html" %}
+{% block head %}
+    <script type="text/javascript" src="/static/js/conv_list_reload.js"></script>
+{% endblock %}
 {% block body %}
     <h1>{{user.name}}
     <span class="subtitle">נרשם לפני {{user.create_time_since}}</span>
     </h1>
-    {% include "conversations.html" %}
+    {% include "_conversation_list.html" %}
 {% endblock %}
