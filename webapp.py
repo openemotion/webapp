@@ -93,19 +93,19 @@ def register():
         password = request.form["password"]
         password2 = request.form["password2"]
         if not name:
-            return redirect(url_for("register", error="no_name"))
+            return redirect(url_for("register", error="no_name", goto=request.args.get("goto")))
         if not password:
-            return redirect(url_for("register", error="no_password", name=name))
+            return redirect(url_for("register", error="no_password", name=name, goto=request.args.get("goto")))
         if not password2:
-            return redirect(url_for("register", error="no_password2", name=name))
+            return redirect(url_for("register", error="no_password2", name=name, goto=request.args.get("goto")))
         try:
             existing = g.db.users.get(name)
         except KeyError:
             pass
         else:
-            return redirect(url_for("register", error="user_exists", name=existing.name))
+            return redirect(url_for("register", error="user_exists", name=existing.name, goto=request.args.get("goto")))
         if password != password2:
-            return redirect(url_for("register", error="password_mismatch", name=name))
+            return redirect(url_for("register", error="password_mismatch", name=name, goto=request.args.get("goto")))
         password_hash = utils.encrypt_password(password.encode("utf8"), name.encode("utf8"))
         g.db.users.save(name, password_hash)
         session["logged_in_user"] = name
@@ -119,16 +119,16 @@ def login():
         name = request.form["name"]
         password = request.form["password"]
         if not name:
-            return redirect(url_for("login", error="no_name"))
+            return redirect(url_for("login", error="no_name", goto=request.args.get("goto")))
         if not password:
-            return redirect(url_for("login", error="no_password", name=name))
+            return redirect(url_for("login", error="no_password", name=name, goto=request.args.get("goto")))
         try:
             user = g.db.users.get(name)
         except KeyError:
-            return redirect(url_for("login", error="bad_password", name=name))
+            return redirect(url_for("login", error="bad_password", name=name, goto=request.args.get("goto")))
         password_hash = utils.encrypt_password(password, name)
         if user.password_hash != password_hash:
-            return redirect(url_for("login", error="bad_password", name=name))
+            return redirect(url_for("login", error="bad_password", name=name, goto=request.args.get("goto")))
         session["logged_in_user"] = request.form["name"]
         return redirect(urldecode(request.args.get("goto")) or url_for("main"))
     else:
