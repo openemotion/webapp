@@ -90,7 +90,8 @@ class Messages(object):
         raise KeyError("no messages for convesation with id %s" % conversation_id)
 
     def get_updates(self, conversation_id, current_user, after_message_id):
-        # FIXME: may not work with current_user == None
+        if not current_user:
+            current_user = ""
         cmd = "select conversation_id, id, timestamp, author, text from messages "\
               "where conversation_id = ? and author <> ? and id > ? order by timestamp"
         cur = self.connection.execute(cmd, [conversation_id, current_user, after_message_id])

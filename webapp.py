@@ -58,14 +58,15 @@ def updates(id):
         after_id = 0
     messages = []
     last_message_id = -1
-    for msg in g.db.messages.get_updates(id, session["logged_in_user"], after_id):
+    for msg in g.db.messages.get_updates(id, session.get("logged_in_user"), after_id):
         messages.append(dict(id=msg.id, author=msg.author, text=msg.text))
         last_message_id = msg.id
     conversation = g.db.conversations.get(id)
     return jsonify(status=conversation.status, messages=messages, last_message_id=last_message_id)
 
 @app.route("/c/<int:id>/post", methods=["POST"])
-def message(id):
+#FIXME: maybe join this function with /updates
+def post_message(id):
     g.db.messages.save(id, session["logged_in_user"], request.form["text"])
     return ""
 
