@@ -3,11 +3,6 @@ import sqlite3
 from datetime import datetime
 import utils
 
-class dictobj(dict):
-    __getattr__ = dict.__getitem__
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
-
 def parse_date(s):
     return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
 
@@ -29,7 +24,7 @@ class Conversations(object):
         self.connection = connection
 
     def _make_obj(self, id, start_time, talker_name, listener_name, title, status):
-        obj = dictobj()
+        obj = utils.dictobj()
         obj.id = id
         obj.start_time = parse_date(start_time)
         obj.talker_name = talker_name
@@ -75,7 +70,7 @@ class Messages(object):
         self.connection = connection
 
     def _make_obj(self, conversation_id, id, timestamp, author, text):
-        obj = dictobj()
+        obj = utils.dictobj()
         obj.conversation_id = conversation_id
         obj.id = id
         obj.timestamp = parse_date(timestamp)
@@ -113,7 +108,7 @@ class Users(object):
         self.connection = connection
 
     def _make_obj(self, name, password_hash, create_time):
-        obj = dictobj()
+        obj = utils.dictobj()
         obj.name = name
         obj.password_hash = password_hash
         obj.create_time = parse_date(create_time)

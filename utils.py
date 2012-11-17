@@ -2,6 +2,11 @@
 from flask import escape
 import datetime
 
+class dictobj(dict):
+    __getattr__ = dict.__getitem__
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
 def prettydate(d):
     """
     Converts a date into an estimate of how long has passed.
