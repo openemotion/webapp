@@ -173,9 +173,10 @@ def urldecode(s):
     return urllib.unquote(s).decode("utf8")
 
 def detect_user_message_type(conv):
-    if session["logged_in_user"] == conv.listener_name:
+    user = session.get("logged_in_user")
+    if user == conv.listener_name:
         return g.db.messages.TYPE_LISTENER
-    elif session["logged_in_user"] == conv.talker_name:
+    elif user == conv.talker_name:
         return g.db.messages.TYPE_TALKER
     else:
         return g.db.messages.TYPE_OTHER
