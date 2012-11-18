@@ -66,6 +66,7 @@ $(function() {
         submitMessage();
     });
 
+    // FIXME: use long polling to reduce number of requests and speed things up
     setInterval(function () { updateHistory(true); }, 1000);
 
     updateStatus(chat_status);
