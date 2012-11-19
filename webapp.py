@@ -46,7 +46,7 @@ def conversation(id, slug=None):
     except KeyError:
         return abort(404)
 
-    if slug is None:
+    if slug != conv.slug:
         return redirect(url_for("conversation", id=id, slug=conv.slug))
 
     if request.method == "POST" and conv.status == g.db.conversations.STATUS_PENDING:
