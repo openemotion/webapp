@@ -11,13 +11,14 @@ $(function() {
     }
 
     var reloading = false; // prevent multiple ajax calls from going out at the same time
-    function updateHistory(scroll) {
+    function updateHistory() {
         if (reloading) {
             return;
         }
         reloading = true;
         $.ajax("updates", {
-            data: {after_id: chat_lastMessageId},
+            data: { after_id: chat_lastMessageId },
+            timeout: 15000, // long polling
             success: function (data, textStatus, jqXHR) {
                 if (data.last_message_id != -1) {
                     chat_lastMessageId = data.last_message_id;
@@ -26,12 +27,16 @@ $(function() {
                 $.each(data.messages, function (index, message) {
                     $("#history").append(formatMessage(message.author, message.type, message.text, true));
                 });
-                if (fromBottom < 50 && scroll) {
+                if (fromBottom < 50) {
                     $(document).scrollTop($(document).height());
                 }
                 updateStatus(data.status);
                 reloading = false;
-        }});
+            },
+            complete: function () {
+                updateHistory();
+            }
+        });
     }
 
     function formatMessage(author, type, text) {
@@ -67,12 +72,13 @@ $(function() {
     });
 
     // FIXME: use long polling to reduce number of requests and speed things up
-    setInterval(function () { updateHistory(true); }, 1000);
+    // setInterval(function () { updateHistory(true); }, 1000);
+    updateHistory();
 
     updateStatus(chat_status);
 
     // FIXME: code duplication!
-    if (($(document).height() -  $(window).scrollTop() - $(window).height()) < 50 && scroll) {
+    if (($(document).height() -  $(window).scrollTop() - $(window).height()) < 50) {
         $(document).scrollTop($(document).height());
     }
 
