@@ -1,3 +1,4 @@
+import time
 import urllib
 import utils
 from db import Database, Messages
@@ -67,13 +68,23 @@ def updates(id):
         after_id = int(request.args.get("after_id", 0))
     except ValueError:
         after_id = 0
+
+    # long polling - wait until there are updates to send
+    updates = []
+    while True:
+        updates = list(g.db.messages.get_updates(id, session.get("logged_in_user"), after_id))
+        if updates:
+            break
+        time.sleep(0.5)
+
+    # convert updates for jsonify
     messages = []
     last_message_id = -1
-    for msg in g.db.messages.get_updates(id, session.get("logged_in_user"), after_id):
+    for msg in updates:
         messages.append(dict(id=msg.id, author=msg.author, text=msg.text, type=msg.type))
         last_message_id = msg.id
-    conversation = g.db.conversations.get(id)
-    return jsonify(status=conversation.status, messages=messages, last_message_id=last_message_id)
+
+    return jsonify(status=conv.status, messages=messages, last_message_id=last_message_id)
 
 @app.route("/c/<int:id>/post", methods=["POST"])
 #FIXME: maybe join this function with /updates
