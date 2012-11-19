@@ -59,6 +59,8 @@ def conversation(id, slug=None):
         return render_template("conversation.html", conversation=conv, messages=messages, user_message_type=message_type)
 
 @app.route("/conversations/<int:id>/updates")
+# FIXME: long polling doesn't work for updating the conversation status
+# FIXME: when client disconnects due to timeout, we get a broken pipe error in the console
 def updates(id):
     try:
         conv = g.db.conversations.get(id)
@@ -193,4 +195,4 @@ def detect_user_message_type(conv):
         return g.db.messages.TYPE_OTHER
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", threaded=True)

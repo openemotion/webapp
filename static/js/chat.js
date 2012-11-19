@@ -18,7 +18,7 @@ $(function() {
         reloading = true;
         $.ajax("updates", {
             data: { after_id: chat_lastMessageId },
-            timeout: 15000, // long polling
+            timeout: 30 * 1000, // long polling with retry every 30 seconds
             success: function (data, textStatus, jqXHR) {
                 if (data.last_message_id != -1) {
                     chat_lastMessageId = data.last_message_id;
@@ -31,9 +31,9 @@ $(function() {
                     $(document).scrollTop($(document).height());
                 }
                 updateStatus(data.status);
-                reloading = false;
             },
             complete: function () {
+                reloading = false;
                 updateHistory();
             }
         });
@@ -71,8 +71,7 @@ $(function() {
         submitMessage();
     });
 
-    // FIXME: use long polling to reduce number of requests and speed things up
-    // setInterval(function () { updateHistory(true); }, 1000);
+    // start long polling
     updateHistory();
 
     updateStatus(chat_status);
