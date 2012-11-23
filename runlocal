@@ -1,5 +1,12 @@
-#!/bin/sh
-while true; do
-    python webapp.py
-    sleep 1
-done
+#!/bin/bash
+control_c()
+{
+    pkill -9 -f webapp.py
+    echo
+    echo "killed!"
+    exit $?
+}
+
+trap control_c SIGINT
+
+python webapp.py
