@@ -26,12 +26,12 @@ class Conversations(object):
     def _make_obj(self, id, start_time, talker_name, listener_name, title, status):
         obj = utils.dictobj()
         obj.id = id
-        obj.start_time = parse_date(start_time)
+        # obj.start_time = parse_date(start_time)
         obj.talker_name = talker_name
         obj.listener_name = listener_name
         obj.title = title
         obj.status = status
-        obj.start_time_since = utils.prettydate(obj.start_time)
+        obj.start_time_since = utils.prettydate(parse_date(start_time))
         obj.slug = re.compile("\W+", re.UNICODE).sub("_", obj.title)
         return obj
 
@@ -79,7 +79,7 @@ class Messages(object):
 
     def _make_obj(self, *args):
         obj = utils.dictobj(zip(self.__fields__, args))
-        obj.timestamp = parse_date(obj.timestamp)
+        # obj.timestamp = parse_date(obj.timestamp)
         return obj
 
     def get_by_conversation(self, conversation_id):
@@ -96,10 +96,16 @@ class Messages(object):
     def get_updates(self, conversation_id, current_user, after_message_id):
         if not current_user:
             current_user = ""
-        cmd = cmd = self.__select__ + "where conversation_id = ? and author <> ? and id > ? order by timestamp"
+        cmd = self.__select__ + "where conversation_id = ? and author <> ? and id > ? order by timestamp"
         cur = self.connection.execute(cmd, [conversation_id, current_user, after_message_id])
         for row in cur:
             yield self._make_obj(*row)
+
+    def has_updates(self, conversation_id, current_user, after_message_id):
+        cmd = "select count(*) from messages where conversation_id = ? and author <> ? and id > ?"
+        cur = self.connection.execute(cmd, [conversation_id, current_user or "", after_message_id])
+        row = cur.fetchone()
+        return row[0] != 0
 
     def save(self, conversation_id, author, type, text):
         cur = self.connection.execute("insert into messages (conversation_id, author, type, text) values (?, ?, ?, ?)",

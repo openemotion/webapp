@@ -1,6 +1,7 @@
 $(function() {
     var lastMessageId = 0;
 
+    // add a message to history and submit it to the server
     function submitMessage() {
         var text = $("#message").val();
         text = text.replace(/^\n*/, "").replace(/\n*$/, "").replace(/\n/g, "<br>");
@@ -10,6 +11,22 @@ $(function() {
         $.post("post", {text : text});
     }
 
+    // long poll - continuosly query the server for new messages
+    function longPoll() {
+        $.ajax("poll", {
+            data: { last_message_id: chat_lastMessageId },
+            timeout: 30 * 1000,
+            success: function (data, textStatus, jqXHR) {
+                // when poll returns successfully, update the messages
+                updateHistory();
+            },
+            complete: function () {
+                longPoll();
+            }
+        });
+    }
+
+    // get message updates from the server
     var reloading = false; // prevent multiple ajax calls from going out at the same time
     function updateHistory() {
         if (reloading) {
@@ -17,28 +34,26 @@ $(function() {
         }
         reloading = true;
         $.ajax("updates", {
-            data: { after_id: chat_lastMessageId },
-            timeout: 30 * 1000, // long polling with retry every 30 seconds
+            data: { last_message_id: chat_lastMessageId },
             success: function (data, textStatus, jqXHR) {
-                if (data.last_message_id != -1) {
-                    chat_lastMessageId = data.last_message_id;
-                }
-                var fromBottom = $(document).height() -  $(window).scrollTop() - $(window).height();
+                chat_lastMessageId = data.last_message_id;
+                var doScroll = isCloseToBottom();
                 $.each(data.messages, function (index, message) {
                     $("#history").append(formatMessage(message.author, message.type, message.text, true));
                 });
-                if (fromBottom < 50) {
-                    $(document).scrollTop($(document).height());
+                if (doScroll) {
+                    scrollToBottom();
                 }
-                updateStatus(data.status);
+                updateStatus(data.conversation.status);
             },
             complete: function () {
                 reloading = false;
-                updateHistory();
             }
         });
     }
 
+    // format a single message
+    // FIXME: this is a duplication of the server-side message formatting code
     function formatMessage(author, type, text) {
         msg = $("<div>").addClass("message").addClass(type);
         msg.append($("<div>").addClass("author").addClass().append(author).append(":"));
@@ -57,6 +72,15 @@ $(function() {
         }
     }
 
+    function isCloseToBottom() {
+        fromBottom = $(document).height() -  $(window).scrollTop() - $(window).height();
+        return (fromBottom < 50);
+    }
+
+    function scrollToBottom() {
+        $(document).scrollTop($(document).height());
+    }
+
     $("#message").keypress(function(e) {
         var text = $("#message").val();
         if (e.keyCode === 13 && text.match(/\n$/)) {
@@ -72,13 +96,14 @@ $(function() {
     });
 
     // start long polling
-    updateHistory();
+    longPoll();
 
+    // start periodic updates
+    setInterval(updateHistory, 5000);
     updateStatus(chat_status);
 
-    // FIXME: code duplication!
-    if (($(document).height() -  $(window).scrollTop() - $(window).height()) < 50) {
-        $(document).scrollTop($(document).height());
+    // when page is reloaded scroll to the bottom if already there
+    if (isCloseToBottom()) {
+        scrollToBottom();
     }
-
 });

@@ -43,60 +43,63 @@ def conversations():
 @app.route("/conversations/<int:id>/<slug>", methods=["GET", "POST"])
 def conversation(id, slug=None):
     try:
-        conv = g.db.conversations.get(id)
+        conversation = g.db.conversations.get(id)
     except KeyError:
         return abort(404)
 
-    if slug != conv.slug:
-        return redirect(url_for("conversation", id=id, slug=conv.slug))
+    if slug != conversation.slug:
+        return redirect(url_for("conversation", id=id, slug=conversation.slug))
 
-    if request.method == "POST" and conv.status == g.db.conversations.STATUS_PENDING:
-        g.db.conversations.update(conv.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
-        return redirect(url_for("conversation", id=id, slug=conv.slug))
+    if request.method == "POST" and conversation.status == g.db.conversations.STATUS_PENDING:
+        g.db.conversations.update(conversation.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
+        return redirect(url_for("conversation", id=id, slug=conversation.slug))
     else:
         messages = list(g.db.messages.get_by_conversation(id))
-        message_type = detect_user_message_type(conv)
-        return render_template("conversation.html", conversation=conv, messages=messages, user_message_type=message_type)
+        message_type = detect_user_message_type(conversation)
+        return render_template("conversation.html", conversation=conversation, messages=messages, user_message_type=message_type)
 
 @app.route("/conversations/<int:id>/updates")
-# FIXME: long polling doesn't work for updating the conversation status
-# FIXME: when client disconnects due to timeout, we get a broken pipe error in the console
 def updates(id):
+    # FIXME : factor out to get_conversation_or_404
     try:
-        conv = g.db.conversations.get(id)
+        conversation = g.db.conversations.get(id)
     except KeyError:
         return abort(404)
-    try:
-        after_id = int(request.args.get("after_id", 0))
-    except ValueError:
-        after_id = 0
 
-    # long polling - wait until there are updates to send
-    updates = []
+    last_message_id = int(request.args.get("last_message_id", -1, type=int))
+    messages = list(g.db.messages.get_updates(id, session.get("logged_in_user"), last_message_id))
+    last_message_id = messages[-1].id if messages else last_message_id
+
+    return jsonify(conversation=conversation, messages=messages, last_message_id=last_message_id)
+
+# FIXME: long polling doesn't work for updating the conversation status
+# FIXME: when client disconnects due to timeout, we get a broken pipe error in the console
+@app.route("/conversations/<int:id>/poll")
+def poll(id):
+    try:
+        conversation = g.db.conversations.get(id)
+    except KeyError:
+        return abort(404)
+
+    last_message_id = int(request.args.get("last_message_id", -1, type=int))
     while True:
-        updates = list(g.db.messages.get_updates(id, session.get("logged_in_user"), after_id))
-        if updates:
+        has_updates = g.db.messages.has_updates(id, session.get("logged_in_user"), last_message_id)
+        if has_updates:
             break
         time.sleep(0.5)
 
-    # convert updates for jsonify
-    messages = []
-    last_message_id = -1
-    for msg in updates:
-        messages.append(dict(id=msg.id, author=msg.author, text=msg.text, type=msg.type))
-        last_message_id = msg.id
-
-    return jsonify(status=conv.status, messages=messages, last_message_id=last_message_id)
+    return "updated!"
 
 @app.route("/conversations/<int:id>/post", methods=["POST"])
-#FIXME: maybe join this function with /updates
 def post_message(id):
     try:
-        conv = g.db.conversations.get(id)
+        conversation = g.db.conversations.get(id)
     except KeyError:
         return abort(404)
-    message_type = detect_user_message_type(conv)
+
+    message_type = detect_user_message_type(conversation)
     g.db.messages.save(id, session["logged_in_user"], message_type,request.form["text"])
+
     return ""
 
 @app.route("/conversations/new", methods=["GET", "POST"])
@@ -185,11 +188,11 @@ def urldecode(s):
         s = s.encode("utf8")
     return urllib.unquote(s).decode("utf8")
 
-def detect_user_message_type(conv):
+def detect_user_message_type(conversation):
     user = session.get("logged_in_user")
-    if user == conv.listener_name:
+    if user == conversation.listener_name:
         return g.db.messages.TYPE_LISTENER
-    elif user == conv.talker_name:
+    elif user == conversation.talker_name:
         return g.db.messages.TYPE_TALKER
     else:
         return g.db.messages.TYPE_OTHER

@@ -11,6 +11,12 @@ import json
 def parse_json(text):
     return json.loads(text, object_hook=dictobj)
 
+def return_values_iter(values):
+    values_iter = iter(values)
+    def next_value(*args, **kwargs):
+        return values_iter.next()
+    return next_value
+
 sample_conversation = dictobj(
     id=1,
     title="some title",
@@ -46,20 +52,34 @@ class MainTests(unittest.TestCase):
         assert "some title" == d(".title > a").html()
 
     def test_no_updates(self, Database):
-        Database.return_value.conversations.get.return_value.status = "active"
-        d = parse_json(self.app.get('/c/1/updates').data)
-        assert d.status == "active"
+        Database.return_value.conversations.get.return_value = dictobj(status="active")
+        d = parse_json(self.app.get('/conversations/1/updates').data)
+        assert d.conversation.status == "active"
         assert d.last_message_id == -1
         assert d.messages == []
 
     def test_updates(self, Database):
         Database.return_value.conversations.get.return_value = dictobj(sample_conversation)
         Database.return_value.messages.get_updates.return_value = [sample_message]
-        d = parse_json(self.app.get('/c/1/updates').data)
-        assert d.status == "active"
+        d = parse_json(self.app.get('/conversations/1/updates').data)
+        assert d.conversation.status == "active"
         assert d.last_message_id == 1
         assert len(d.messages) == 1
         assert d.messages == [sample_message]
+
+    def test_poll_with_updates(self, Database):
+        Database.return_value.conversations.get.return_value = dictobj(sample_conversation)
+        Database.return_value.messages.has_updates.return_value = True
+        d = self.app.get('/conversations/1/poll').data
+        assert d == "updated!"
+
+    def test_poll_no_updates(self, Database):
+        Database.return_value.conversations.get.return_value = dictobj(sample_conversation)
+        Database.return_value.messages.has_updates.side_effect = return_values_iter([False, False, True])
+        with patch("time.sleep") as sleep:
+            d = self.app.get('/conversations/1/poll').data
+            assert d == "updated!"
+            assert sleep.call_count == 2
 
 if __name__ == '__main__':
     import pytest
