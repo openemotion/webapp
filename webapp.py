@@ -38,8 +38,8 @@ def conversations():
     conversations = g.db.conversations.get_all()
     return render_template("_conversation_list.html", conversations=conversations)
 
-@app.route("/c/<int:id>/", methods=["GET", "POST"])
-@app.route("/c/<int:id>/<slug>", methods=["GET", "POST"])
+@app.route("/conversations/<int:id>/", methods=["GET", "POST"])
+@app.route("/conversations/<int:id>/<slug>", methods=["GET", "POST"])
 def conversation(id, slug=None):
     try:
         conv = g.db.conversations.get(id)
@@ -57,7 +57,7 @@ def conversation(id, slug=None):
         message_type = detect_user_message_type(conv)
         return render_template("conversation.html", conversation=conv, messages=messages, user_message_type=message_type)
 
-@app.route("/c/<int:id>/updates")
+@app.route("/conversations/<int:id>/updates")
 def updates(id):
     try:
         conv = g.db.conversations.get(id)
@@ -75,7 +75,7 @@ def updates(id):
     conversation = g.db.conversations.get(id)
     return jsonify(status=conversation.status, messages=messages, last_message_id=last_message_id)
 
-@app.route("/c/<int:id>/post", methods=["POST"])
+@app.route("/conversations/<int:id>/post", methods=["POST"])
 #FIXME: maybe join this function with /updates
 def post_message(id):
     try:
@@ -86,7 +86,7 @@ def post_message(id):
     g.db.messages.save(id, session["logged_in_user"], message_type,request.form["text"])
     return ""
 
-@app.route("/c/new", methods=["GET", "POST"])
+@app.route("/conversations/new", methods=["GET", "POST"])
 def new_conversation():
     if not session["logged_in_user"]:
         abort(401)
@@ -97,14 +97,14 @@ def new_conversation():
     else:
         return render_template("new_conversation.html")
 
-@app.route("/profile/<name>/")
-def profile(name):
+@app.route("/user/<name>/")
+def user(name):
     user = g.db.users.get(name)
     conversations = g.db.conversations.get_by_talker(name)
-    return render_template("profile.html", user=user, conversations=conversations)
+    return render_template("user.html", user=user, conversations=conversations)
 
-@app.route("/profile/<name>/conversations")
-def profile_conversations(name):
+@app.route("/user/<name>/conversations")
+def user_conversations(name):
     conversations = g.db.conversations.get_by_talker(name)
     return render_template("_conversation_list.html", conversations=conversations)
 
