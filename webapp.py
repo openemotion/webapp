@@ -1,10 +1,11 @@
+import re
 import time
 import urllib
 import utils
 from db import Database, Messages
 
 from flask import (Flask, render_template, request, g, session, redirect,
-    url_for, abort, Markup, jsonify)
+    url_for, abort, Markup, jsonify, escape)
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -106,7 +107,7 @@ def post_message(id):
         return abort(404)
 
     message_type = detect_user_message_type(conversation)
-    g.db.messages.save(id, session["logged_in_user"], message_type,request.form["text"])
+    g.db.messages.save(id, session["logged_in_user"], message_type, escape(request.form["text"]))
 
     return ""
 
@@ -190,6 +191,11 @@ def urlencode_filter(s):
     if isinstance(s, unicode):
         s = s.encode("utf8")
     return Markup(urllib.quote_plus(s))
+
+@app.template_filter("multiline")
+def multiline_filter(s):
+    s = re.sub(r"(\r?\n)+", "<br>", s)
+    return Markup(s)
 
 def urldecode(s):
     if isinstance(s, unicode):

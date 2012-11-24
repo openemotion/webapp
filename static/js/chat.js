@@ -4,7 +4,6 @@ $(function() {
     // add a message to history and submit it to the server
     function submitMessage() {
         var text = $("#message").val();
-        text = text.replace(/^\n*/, "").replace(/\n*$/, "").replace(/\n/g, "<br>");
         $("#message").val("");
         $("#history").append(formatMessage(chat_user, chat_userMessageType, text, true));
         $(document).scrollTop($(document).height());
@@ -39,7 +38,7 @@ $(function() {
                 chat_lastMessageId = data.last_message_id;
                 var doScroll = isCloseToBottom();
                 $.each(data.messages, function (index, message) {
-                    $("#history").append(formatMessage(message.author, message.type, message.text, true));
+                    $("#history").append(formatMessage(message.author, message.type, message.text, false));
                 });
                 if (doScroll) {
                     scrollToBottom();
@@ -54,9 +53,13 @@ $(function() {
 
     // format a single message
     // FIXME: this is a duplication of the server-side message formatting code
-    function formatMessage(author, type, text) {
+    function formatMessage(author, type, text, escape) {
+        if (escape) {
+            text = $("<div/>").text(text).html();
+        }
+        text = text.replace(/(\r?\n)+/g,"<br>");
         msg = $("<div>").addClass("message").addClass(type);
-        msg.append($("<div>").addClass("author").addClass().append(author).append(":"));
+        msg.append($("<div>").addClass("author").addClass().append(author + ":"));
         msg.append($("<div>").addClass("text").append(text));
         return msg;
     }
@@ -101,6 +104,8 @@ $(function() {
 
     // start periodic updates
     setInterval(updateHistory, 5000);
+
+    // update status
     updateStatus(chat_status);
 
     // when page is reloaded scroll to the bottom if already there
