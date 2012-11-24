@@ -69,6 +69,7 @@ $(function() {
         else {
             $("#facilitate").hide();
             $("#converse").show();
+            $("#status").hide();
         }
     }
 

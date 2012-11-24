@@ -10,6 +10,14 @@
   margin-top: 10px;
 }
 
+#status {
+  font-family: "Choco", sans-serif;
+  font-size: 16px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  color: #6a6;
+}
+
 .message {
     padding: 5px 5px 5px 5px;
 }
@@ -32,4 +40,8 @@
 
 .text {
     margin-right: 50px;
+}
+
+#facilitate {
+  clear: right;
 }

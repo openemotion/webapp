@@ -18,6 +18,10 @@
 
     <h1>{{conversation.title}}</h1>
 
+    {% if conversation.status == "pending" %}
+    <div id="status">השיתוף ממתין לתמיכה מלפני {{conversation.start_time_since}}</div>
+    {% endif %}
+
     <div id="history">
         {% for message in messages %}
         <div class="message {{message.type}}">

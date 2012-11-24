@@ -127,12 +127,12 @@ input[type="submit"] {
   color: #d22;
 }
 
-.error-help {
-  margin-top: 5px;
+.error a {
   font-size: 14px;
 }
 
-.error a {
+.error-help {
+  margin-top: 5px;
   font-size: 14px;
 }
 
