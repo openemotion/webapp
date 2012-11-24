@@ -122,13 +122,13 @@ def new_conversation():
     else:
         return render_template("new_conversation.html")
 
-@app.route("/user/<name>/")
+@app.route("/users/<name>/")
 def user(name):
     user = g.db.users.get(name)
     conversations = g.db.conversations.get_by_talker(name)
-    return render_template("user.html", user=user, conversations=conversations)
+    return render_template("profile.html", user=user, conversations=conversations)
 
-@app.route("/user/<name>/conversations")
+@app.route("/users/<name>/conversations")
 def user_conversations(name):
     conversations = g.db.conversations.get_by_talker(name)
     return render_template("_conversation_list.html", conversations=conversations)
