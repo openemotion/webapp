@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ -f /home/dotcloud/data/data.db ]; then
+    echo "skipping, database exists"
+else
+    echo "initializing new database"
+    mkdir -p /home/dotcloud/data
+    sqlite3 /home/dotcloud/data/data.db < /home/dotcloud/current/schema.sql
+    sqlite3 /home/dotcloud/data/data.db < /home/dotcloud/current/test_data.sql
+fi

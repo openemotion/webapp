@@ -1,6 +1,5 @@
 www:
     type: python
-    prebuild: ./initdb
     environment:
         MODE: production
     config:
