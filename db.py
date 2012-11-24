@@ -23,38 +23,35 @@ class Database(object):
         self.connection.close()
 
 class Conversations(object):
+    __fields__ = ["id", "start_time", "talker_name", "listener_name", "title", "status"]
+    __select__ = "select %s from conversations " % ", ".join(__fields__)
+
     STATUS_PENDING = "pending"
     STATUS_ACTIVE = "active"
 
     def __init__(self, connection):
         self.connection = connection
 
-    def _make_obj(self, id, start_time, talker_name, listener_name, title, status):
-        obj = utils.dictobj()
-        obj.id = id
-        # obj.start_time = parse_date(start_time)
-        obj.talker_name = talker_name
-        obj.listener_name = listener_name
-        obj.title = title
-        obj.status = status
-        obj.start_time_since = utils.prettydate(parse_date(start_time))
+    def _make_obj(self, *args):
+        obj = utils.dictobj(zip(self.__fields__, args))
+        obj.start_time_since = utils.prettydate(parse_date(obj.start_time))
         obj.slug = re.compile("\W+", re.UNICODE).sub("_", obj.title)
         return obj
 
     def get_all(self):
-        cmd = "select id, start_time, talker_name, listener_name, title, status from conversations order by start_time desc"
+        cmd = self.__select__ + "order by start_time desc"
         cur = self.connection.execute(cmd)
         for row in cur:
             yield self._make_obj(*row)
 
     def get_by_talker(self, name):
-        cmd = "select id, start_time, talker_name, listener_name, title, status from conversations where talker_name = ? order by start_time desc"
+        cmd = self.__select__ + "where talker_name = ? order by start_time desc"
         cur = self.connection.execute(cmd, [name])
         for row in cur:
             yield self._make_obj(*row)
 
     def get(self, id):
-        cmd = "select id, start_time, talker_name, listener_name, title, status from conversations where id = ?"
+        cmd = self.__select__ + "where id = ?"
         cur = self.connection.execute(cmd, [id])
         for row in cur:
             return self._make_obj(*row)
@@ -72,7 +69,6 @@ class Conversations(object):
         self.connection.commit()
 
 class Messages(object):
-    # FIXME: move the __fields__ to abstract class and reuse in other classes here
     __fields__ = ["id", "conversation_id", "timestamp", "author", "type", "text"]
     __select__ = "select %s from messages " % ", ".join(__fields__)
 
@@ -85,7 +81,6 @@ class Messages(object):
 
     def _make_obj(self, *args):
         obj = utils.dictobj(zip(self.__fields__, args))
-        # obj.timestamp = parse_date(obj.timestamp)
         return obj
 
     def get_by_conversation(self, conversation_id):
