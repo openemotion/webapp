@@ -18,6 +18,11 @@ a:hover {
   text-decoration: underline;
 }
 
+a[href^="mailto"] {
+  background: url(/static/images/gmail.png) no-repeat 0px -1px;
+  padding-left: 20px;
+}
+
 body {
   direction: rtl;
   background-color: #ffffff;
