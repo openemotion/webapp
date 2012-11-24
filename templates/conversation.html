@@ -33,7 +33,7 @@
 
     <div id="facilitate">
         {% if session.logged_in_user and session.logged_in_user != conversation.talker_name %}
-        <form method="post">
+        <form action="facilitate" method="post">
         <input type="submit" id="submit_listen" value="תמוך ב{{conversation.talker_name}}"></input>
         </form>
         {% endif %}

@@ -39,8 +39,8 @@ def conversations():
     conversations = g.db.conversations.get_all()
     return render_template("_conversation_list.html", conversations=conversations)
 
-@app.route("/conversations/<int:id>/", methods=["GET", "POST"])
-@app.route("/conversations/<int:id>/<slug>", methods=["GET", "POST"])
+@app.route("/conversations/<int:id>/")
+@app.route("/conversations/<int:id>/<slug>")
 def conversation(id, slug=None):
     try:
         conversation = g.db.conversations.get(id)
@@ -50,13 +50,21 @@ def conversation(id, slug=None):
     if slug != conversation.slug:
         return redirect(url_for("conversation", id=id, slug=conversation.slug))
 
-    if request.method == "POST" and conversation.status == g.db.conversations.STATUS_PENDING:
+    messages = list(g.db.messages.get_by_conversation(id))
+    message_type = detect_user_message_type(conversation)
+    return render_template("conversation.html", conversation=conversation, messages=messages, user_message_type=message_type)
+
+@app.route("/conversations/<int:id>/facilitate", methods=["POST"])
+def facilitate(id):
+    try:
+        conversation = g.db.conversations.get(id)
+    except KeyError:
+        return abort(404)
+
+    if conversation.status == g.db.conversations.STATUS_PENDING:
         g.db.conversations.update(conversation.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
-        return redirect(url_for("conversation", id=id, slug=conversation.slug))
-    else:
-        messages = list(g.db.messages.get_by_conversation(id))
-        message_type = detect_user_message_type(conversation)
-        return render_template("conversation.html", conversation=conversation, messages=messages, user_message_type=message_type)
+
+    return redirect(url_for("conversation", id=id, slug=conversation.slug))
 
 @app.route("/conversations/<int:id>/updates")
 def updates(id):
