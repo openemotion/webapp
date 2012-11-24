@@ -1,7 +1,10 @@
 import re
+import os
 import sqlite3
 from datetime import datetime
 import utils
+
+root_dir = os.path.dirname(__file__)
 
 def parse_date(s):
     return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
@@ -12,6 +15,9 @@ class Database(object):
         self.conversations = Conversations(self.connection)
         self.users = Users(self.connection)
         self.messages = Messages(self.connection)
+
+    def init(self):
+        self.connection.cursor().executescript(open(os.path.join(root_dir, "schema.sql")).read())
 
     def close(self):
         self.connection.close()

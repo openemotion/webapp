@@ -36,5 +36,3 @@ create table messages (
 
 create index messages_id on messages(id);
 create index messages_conversation on messages(conversation_id);
-
-.quit
