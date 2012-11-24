@@ -19,14 +19,14 @@
 }
 
 .message {
-    padding: 5px 5px 5px 5px;
+  padding: 5px 5px 5px 5px;
 }
 
 .author {
-    font-weight: bold;
-    width: 50px;
-    float: right;
-    clear: right;
+  margin-left: 10px;
+  font-weight: bold;
+  float: right;
+  clear: right;
 }
 
 .talker {
@@ -39,7 +39,7 @@
 }
 
 .text {
-    margin-right: 50px;
+  margin-right: 50px;
 }
 
 #facilitate {
