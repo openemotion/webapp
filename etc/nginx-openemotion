@@ -14,12 +14,17 @@ server {
 
     server_name alpha.openemotion.org;
 
+    location /static/ {
+        alias /home/openemotion/webapp/static/;
+    }
+
     location / {
         auth_basic         "openemotion";
         auth_basic_user_file  htpasswd;
 
         proxy_pass         http://webapp;
         proxy_redirect     off;
+        proxy_buffering    off;    # Allow streaming
 
         proxy_set_header   Host             $host;
         proxy_set_header   X-Real-IP        $remote_addr;
