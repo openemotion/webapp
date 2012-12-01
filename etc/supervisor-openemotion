@@ -1,0 +1,9 @@
+# /etc/supervisor/conf.d/openemotion.conf
+
+[program:openemotion]
+command=/home/openemotion/.virtualenvs/webapp/bin/gunicorn -c /home/openemotion/webapp/gunicorn.conf.py webapp:app
+directory=/home/openemotion/webapp
+user=openemotion
+autostart=true
+autorestart=true
+redirect_stderr=True
