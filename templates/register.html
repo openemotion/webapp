@@ -5,7 +5,7 @@
     <form method="post">
      <label><div>שם בדוי</div><input type ="text" id="name" name="name" value={{request.args.get("name", "")}}></label>
       <label><div>סיסמא</div><input  type="password" id="password" name="password"></label>
-      <label><div>שוב סיסמא</div><input type="password" id="password" name="password2"></label>
+      <label><div>שוב סיסמא</div><input type="password" id="password2" name="password2"></label>
       {% if request.args.get("error") == "user_exists" %}
       <div class="error">מישהו כבר נרשם עם השם {{request.args.get("name", "")}}.</div>
       <div class="error-help">אנחנו ממליצים להוסיף לשם שלכם שם של מקום, מקצוע או משהו שמאפיין אתכם.</div>

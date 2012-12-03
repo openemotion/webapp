@@ -28,3 +28,6 @@ pip-log.txt
 
 # Sqlite Databases
 *.db
+
+# Logs
+*.log

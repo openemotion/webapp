@@ -100,10 +100,12 @@ $(function() {
     });
 
     // start long polling
-    longPoll();
+    if (globalConfig.ENABLE_LONG_POLL) {
+        longPoll();
+    }
 
     // start periodic updates
-    setInterval(updateHistory, 5000);
+    setInterval(updateHistory, globalConfig.UPDATE_INTERVAL);
 
     // update status
     updateStatus(chat_status);

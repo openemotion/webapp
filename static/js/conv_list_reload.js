@@ -8,5 +8,5 @@ $(function() {
         });
     }
 
-    setInterval(reloadConversationList, 5000);
+    setInterval(reloadConversationList, globalConfig.UPDATE_INTERVAL);
 });
