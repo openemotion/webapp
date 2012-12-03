@@ -124,9 +124,10 @@ class ClientTest(unittest.TestCase):
 
         time.sleep(UPDATE_INTERVAL)
 
-        for i, ipsum in enumerate(LOREM_IPSUM):
+        for i, ipsum in enumerate(LOREM_IPSUM[:6]):
             #FIXME: add asserts that the messages are actually being shown
-            submitter = random.choice([talker, talker, listener])
+            # submitter = random.choice([talker, talker, listener])
+            submitter = talker if i % 2 == 0 else listener
             submitter.find_element_by_id('message').send_keys(ipsum)
             submitter.find_element_by_id('message').send_keys(Keys.RETURN)
             submitter.find_element_by_id('message').send_keys(Keys.RETURN)
