@@ -53,12 +53,7 @@ def conversation(id, slug=None):
 
     messages = list(g.db.messages.get_by_conversation(id))
     message_type = detect_user_message_type(conversation)
-    return render_template("conversation.html", 
-        conversation=conversation, 
-        messages=messages, 
-        user_message_type=message_type, 
-        enable_long_poll=app.config["ENABLE_LONG_POLL"],
-        update_interval=app.config["UPDATE_INTERVAL"])
+    return render_template("conversation.html", conversation=conversation, messages=messages, user_message_type=message_type)
 
 @app.route("/conversations/<int:id>/facilitate", methods=["POST"])
 def facilitate(id):

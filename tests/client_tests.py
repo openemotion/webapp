@@ -27,7 +27,7 @@ UPDATE_INTERVAL = app.config['UPDATE_INTERVAL'] / 1000.0
 HOST = 'localhost'
 PORT = 5001
 ROOT_URL = 'http://%s:%s/' % (HOST, PORT)
-LEAVE_CHROME_OPEN = True
+LEAVE_CHROME_OPEN = False
 
 # Load lorem ipsum
 LOREM_IPSUM = open('lorem.txt').read().decode('utf8').splitlines()
