@@ -7,10 +7,12 @@
 {% block js %}
     <script type="text/javascript" src="/static/js/chat.js"></script>
     <script type="text/javascript">
-        chat_lastMessageId = '{{ messages[-1].id if messages else 0 }}';
-        chat_status = '{{ conversation.status }}';
-        chat_user = '{{ session.get("logged_in_user", "") }}';
-        chat_userMessageType = '{{ user_message_type }}';
+        chatConfig = {
+            lastMessageId : '{{ messages[-1].id if messages else 0 }}',
+            status : '{{ conversation.status }}',
+            user : '{{ session.get("logged_in_user", "") }}',
+            userMessageType : '{{ user_message_type }}'
+        }
     </script>
 {% endblock %}
 

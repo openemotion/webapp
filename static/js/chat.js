@@ -5,7 +5,7 @@ $(function() {
     function submitMessage() {
         var text = $("#message").val();
         $("#message").val("");
-        $("#history").append(formatMessage(chat_user, chat_userMessageType, text, true));
+        $("#history").append(formatMessage(chatConfig.user, chatConfig.userMessageType, text, true));
         $(document).scrollTop($(document).height());
         $.post("post", {text : text});
     }
@@ -13,7 +13,7 @@ $(function() {
     // long poll - continuosly query the server for new messages
     function longPoll() {
         $.ajax("poll", {
-            data: { last_message_id: chat_lastMessageId },
+            data: { last_message_id: chatConfig.lastMessageId },
             timeout: 30 * 1000,
             success: function (data, textStatus, jqXHR) {
                 // when poll returns successfully, update the messages
@@ -33,9 +33,9 @@ $(function() {
         }
         reloading = true;
         $.ajax("updates", {
-            data: { last_message_id: chat_lastMessageId },
+            data: { last_message_id: chatConfig.lastMessageId },
             success: function (data, textStatus, jqXHR) {
-                chat_lastMessageId = data.last_message_id;
+                chatConfig.lastMessageId = data.last_message_id;
                 var doScroll = isCloseToBottom();
                 $.each(data.messages, function (index, message) {
                     $("#history").append(formatMessage(message.author, message.type, message.text, false));
@@ -108,7 +108,7 @@ $(function() {
     setInterval(updateHistory, globalConfig.UPDATE_INTERVAL);
 
     // update status
-    updateStatus(chat_status);
+    updateStatus(chatConfig.status);
 
     // when page is reloaded scroll to the bottom if already there
     if (isCloseToBottom()) {
