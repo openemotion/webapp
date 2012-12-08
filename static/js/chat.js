@@ -18,9 +18,10 @@ $(function() {
             success: function (data, textStatus, jqXHR) {
                 // when poll returns successfully, update the messages
                 updateHistory();
+                setTimeout(longPoll, 0);
             },
-            complete: function () {
-                longPoll();
+            error: function (jqXHR, textStatus, errorThrown) {
+                setTimeout(longPoll, 2000);
             }
         });
     }
