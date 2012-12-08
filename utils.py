@@ -16,9 +16,7 @@ def prettydate(d):
     """
     diff = datetime.datetime.utcnow() - d
     s = diff.seconds
-    if diff.days > 7 or diff.days < 0:
-        return d.strftime("%d %b %y")
-    elif diff.days == 1:
+    if diff.days == 1:
         return u"יום"
     elif diff.days == 2:
         return u"יומיים"
