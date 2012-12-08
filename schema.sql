@@ -30,7 +30,7 @@ create table messages (
   conversation_id integer references conversations(id),
   timestamp datetime default current_timestamp,
   author string,
-  type string,
+  type string, -- listener / talker / other
   text string
 );
 

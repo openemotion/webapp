@@ -74,7 +74,7 @@ class Messages(object):
 
     TYPE_TALKER = "talker"
     TYPE_LISTENER = "listener"
-    TYPE_OTHER = "listener"
+    TYPE_OTHER = "other"
 
     def __init__(self, connection):
         self.connection = connection
