@@ -24,6 +24,7 @@ sample_conversation = dictobj(
     status="active",
     talker_name="me",
     listener_name="somebody",
+    start_time="2012-12-12 08:00:00",
     start_time_since="3 days ago"
 )
 
@@ -31,7 +32,8 @@ sample_message = dictobj(
     id=1,
     author="me",
     text="some text",
-    type="listener"
+    type="listener",
+    timestamp="2012-12-12 08:00:00",
 )
 
 @patch("webapp.Database")
@@ -80,6 +82,13 @@ class MainTests(unittest.TestCase):
             d = self.app.get('/conversations/1/poll').data
             assert d == "updated!"
             assert sleep.call_count == 2
+
+    def test_atom(self, Database):
+        Database.return_value.conversations.get_all.return_value = [sample_conversation]
+        Database.return_value.messages.get_by_conversation.return_value = [sample_message]
+        #FIXME: add asserts
+        data = self.app.get('/conversations/atom').data
+        assert "http://www.w3.org/2005/Atom" in data
 
 if __name__ == '__main__':
     import pytest

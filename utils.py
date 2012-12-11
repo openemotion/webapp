@@ -1,6 +1,7 @@
 # coding=utf8
 from flask import escape
 import datetime
+from urlparse import urljoin
 
 class dictobj(dict):
     __getattr__ = dict.__getitem__
@@ -65,3 +66,4 @@ def extract_title(text, maxlen=40):
     if len(title) > maxlen:
         title = title[:maxlen-3] + "..."
     return title
+

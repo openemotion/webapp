@@ -1,14 +1,18 @@
 import re
 import time
 import urllib
+from urlparse import urljoin
 import utils
-from db import Database, Messages
+from db import Database, Messages, parse_date
 
 from flask import (Flask, render_template, request, g, session, redirect,
     url_for, abort, Markup, jsonify, escape)
 
+from werkzeug.contrib.atom import AtomFeed
+
 app = Flask(__name__)
 app.config.from_object("config")
+
 
 @app.before_request
 def before_request():
@@ -39,6 +43,21 @@ def terms():
 def conversations():
     conversations = g.db.conversations.get_all()
     return render_template("_conversation_list.html", conversations=conversations)
+
+@app.route('/conversations/atom')
+def recent_feed():
+    feed = AtomFeed(u'Open Emotion Conversations', feed_url=request.url, url=request.url_root)
+    conversations = list(g.db.conversations.get_all())
+    for conv in conversations:
+        messages = list(g.db.messages.get_by_conversation(conv.id))
+        feed.add(conv.title,
+                 messages[0].text,
+                 content_type='html',
+                 author='%s - %s' % (conv.talker_name, conv.listener_name),
+                 url=make_external('/conversations/%d' % conv.id),
+                 updated=parse_date(messages[-1].timestamp),
+                 published=parse_date(conv.start_time))
+    return feed.get_response()
 
 @app.route("/conversations/<int:id>/")
 @app.route("/conversations/<int:id>/<slug>")
@@ -210,6 +229,9 @@ def detect_user_message_type(conversation):
         return g.db.messages.TYPE_TALKER
     else:
         return g.db.messages.TYPE_OTHER
+
+def make_external(url):
+    return urljoin(request.url_root, url)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", threaded=True)
