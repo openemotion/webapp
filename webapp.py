@@ -27,6 +27,21 @@ def main():
     conversations = g.db.conversations.get_all()
     return render_template("main.html", conversations=conversations)
 
+@app.route('/atom')
+def recent_feed():
+    feed = AtomFeed(u'Open Emotion Conversations', feed_url=request.url, url=request.url_root)
+    conversations = list(g.db.conversations.get_all())
+    for conv in conversations:
+        messages = list(g.db.messages.get_by_conversation(conv.id))
+        feed.add(conv.title,
+                 messages[0].text,
+                 content_type='html',
+                 author='%s - %s' % (conv.talker_name, conv.listener_name),
+                 url=make_external('/conversations/%d' % conv.id),
+                 updated=parse_date(messages[-1].timestamp),
+                 published=parse_date(conv.start_time))
+    return feed.get_response()
+
 @app.route("/faq")
 def faq():
     return render_template("faq.html")
@@ -43,21 +58,6 @@ def terms():
 def conversations():
     conversations = g.db.conversations.get_all()
     return render_template("_conversation_list.html", conversations=conversations)
-
-@app.route('/conversations/atom')
-def recent_feed():
-    feed = AtomFeed(u'Open Emotion Conversations', feed_url=request.url, url=request.url_root)
-    conversations = list(g.db.conversations.get_all())
-    for conv in conversations:
-        messages = list(g.db.messages.get_by_conversation(conv.id))
-        feed.add(conv.title,
-                 messages[0].text,
-                 content_type='html',
-                 author='%s - %s' % (conv.talker_name, conv.listener_name),
-                 url=make_external('/conversations/%d' % conv.id),
-                 updated=parse_date(messages[-1].timestamp),
-                 published=parse_date(conv.start_time))
-    return feed.get_response()
 
 @app.route("/conversations/<int:id>/")
 @app.route("/conversations/<int:id>/<slug>")
