@@ -1,7 +1,7 @@
 # /etc/supervisor/conf.d/staging.conf
 
 [program:staging]
-command=/home/openemotion/.virtualenvs/webapp/bin/gunicorn -c /home/openemotion/webapp/gunicorn.conf.py webapp:app
+command=/home/staging/.virtualenvs/webapp/bin/gunicorn -c /home/staging/webapp/gunicorn.conf.py webapp:app
 directory=/home/staging/webapp
 user=staging
 autostart=true
