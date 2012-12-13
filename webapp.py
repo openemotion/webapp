@@ -13,7 +13,6 @@ from werkzeug.contrib.atom import AtomFeed
 app = Flask(__name__)
 app.config.from_object("config")
 
-
 @app.before_request
 def before_request():
     g.db = Database(app.config["DATABASE"])
@@ -28,7 +27,7 @@ def main():
     return render_template("main.html", conversations=conversations)
 
 @app.route('/atom')
-def recent_feed():
+def main_feed():
     feed = AtomFeed(u'Open Emotion Conversations', feed_url=request.url, url=request.url_root)
     conversations = list(g.db.conversations.get_all())
     for conv in conversations:
@@ -73,6 +72,24 @@ def conversation(id, slug=None):
     messages = list(g.db.messages.get_by_conversation(id))
     message_type = detect_user_message_type(conversation)
     return render_template("conversation.html", conversation=conversation, messages=messages, user_message_type=message_type)
+
+@app.route("/conversations/<int:id>/atom")
+def conversation_feed(id):
+    try:
+        conversation = g.db.conversations.get(id)
+    except KeyError:
+        return abort(404)
+    feed = AtomFeed(conversation.title, feed_url=request.url, url=request.url_root)
+    messages = list(g.db.messages.get_by_conversation(conversation.id))
+    for message in messages:
+        feed.add(message.text.splitlines()[0],
+                 message.text,
+                 content_type='html',
+                 author=message.author,
+                 url=request.url_root,
+                 updated=parse_date(message.timestamp),
+                 published=parse_date(message.timestamp))
+    return feed.get_response()
 
 @app.route("/conversations/<int:id>/facilitate", methods=["POST"])
 def facilitate(id):

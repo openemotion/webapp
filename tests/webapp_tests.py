@@ -86,8 +86,15 @@ class MainTests(unittest.TestCase):
     def test_atom(self, Database):
         Database.return_value.conversations.get_all.return_value = [sample_conversation]
         Database.return_value.messages.get_by_conversation.return_value = [sample_message]
-        #FIXME: add asserts
-        data = self.app.get('/conversations/atom').data
+        data = self.app.get('/atom').data
+        assert "http://www.w3.org/2005/Atom" in data
+
+    def test_conversation_atom(self, Database):
+        Database.return_value.messages.get_by_conversation.return_value = [
+            sample_message,
+            sample_message,
+        ]
+        data = self.app.get('/conversations/1/atom').data
         assert "http://www.w3.org/2005/Atom" in data
 
 if __name__ == '__main__':
