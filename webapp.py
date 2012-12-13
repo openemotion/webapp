@@ -126,12 +126,13 @@ def poll(id):
     except KeyError:
         return abort(404)
 
+    interval = 0.5
     last_message_id = int(request.args.get("last_message_id", -1, type=int))
-    while True:
+    for i in xrange(int(30/interval)):
         has_updates = g.db.messages.has_updates(id, session.get("logged_in_user"), last_message_id)
         if has_updates:
             break
-        time.sleep(0.5)
+        time.sleep(interval)
 
     return "updated!"
 
