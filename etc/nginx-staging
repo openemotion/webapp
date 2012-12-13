@@ -1,6 +1,6 @@
 # /etc/nginx/sites-available/staging
 
-upstream webapp {
+upstream staging-webapp {
     server unix:/home/staging/webapp/var/gunicorn.sock fail_timeout=0;
 }
 
