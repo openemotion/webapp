@@ -22,7 +22,7 @@ server {
         auth_basic         "openemotion-staging";
         auth_basic_user_file  htpasswd;
 
-        proxy_pass         http://webapp;
+        proxy_pass         http://staging-webapp;
         proxy_redirect     off;
         proxy_buffering    off;    # Allow streaming
 
