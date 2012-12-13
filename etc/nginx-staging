@@ -1,0 +1,33 @@
+# /etc/nginx/sites-available/staging
+
+upstream webapp {
+    server unix:/home/staging/webapp/var/gunicorn.sock fail_timeout=0;
+}
+
+server {
+    listen 8080;
+    server_name _;
+}
+
+server {
+    listen 8080;
+
+    server_name alpha.openemotion.org;
+
+    location /static/ {
+        alias /home/staging/webapp/static/;
+    }
+
+    location / {
+        auth_basic         "openemotion-staging";
+        auth_basic_user_file  htpasswd;
+
+        proxy_pass         http://webapp;
+        proxy_redirect     off;
+        proxy_buffering    off;    # Allow streaming
+
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    }
+}
