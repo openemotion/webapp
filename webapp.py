@@ -67,7 +67,7 @@ def conversation(id, slug=None):
         return abort(404)
 
     if slug != conversation.slug:
-        return redirect(url_for("conversation", id=id, slug=conversation.slug))
+        return redirect(url_for("conversation", _external=True, id=id, slug=conversation.slug))
 
     messages = list(g.db.messages.get_by_conversation(id))
     message_type = detect_user_message_type(conversation)
