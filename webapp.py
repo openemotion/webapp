@@ -234,4 +234,4 @@ def make_external(url):
     return urljoin(request.url_root, url)
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", threaded=True)
+    app.run(host="0.0.0.0", debug=True, threaded=True)

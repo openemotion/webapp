@@ -1,6 +1,0 @@
-www:
-    type: python
-    environment:
-        MODE: production
-    config:
-        python_version: v2.7
