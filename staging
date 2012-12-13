@@ -1,2 +1,0 @@
-#!/bin/sh
-ssh staging@alpha.openemotion.org "cd ~/webapp && git pull && sudo supervisorctl restart staging"
