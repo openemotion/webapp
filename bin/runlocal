@@ -1,4 +1,6 @@
 #!/bin/bash
+APPROOT=$(readlink -m $(dirname $0)/..)
+
 control_c()
 {
     pkill -9 -f webapp.py
@@ -9,4 +11,4 @@ control_c()
 
 trap control_c SIGINT
 
-python webapp.py
+python $APPROOT/webapp.py

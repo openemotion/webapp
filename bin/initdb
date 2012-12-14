@@ -1,0 +1,5 @@
+#!/bin/sh
+APPROOT=$(readlink -m $(dirname $0)/..)
+echo "writing to $APPROOT/data.db..."
+sqlite3 $APPROOT/data.db < $APPROOT/sql/schema.sql
+sqlite3 $APPROOT/data.db < $APPROOT/sql/test_data.sql
