@@ -1,2 +1,9 @@
 #!/bin/sh
-ssh staging@alpha.openemotion.org "cd ~/webapp && git pull && sudo supervisorctl restart staging"
+ssh staging@alpha.openemotion.org /bin/bash <<EOF
+cd ~/webapp
+echo -n "last commit: "
+git --no-pager log -1 --pretty="format:%s (%an)%n"
+sudo supervisorctl restart staging
+sudo nginx -s reload
+echo nginx: reloaded
+EOF
