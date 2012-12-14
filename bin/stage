@@ -2,6 +2,8 @@
 ssh staging@alpha.openemotion.org /bin/bash <<EOF
 cd ~/webapp
 git pull
+echo -n "last commit: "
+git --no-pager log -1 --pretty="format:%s (%an)%n"
 sudo supervisorctl restart staging
 sudo nginx -s reload
 echo nginx: reloaded

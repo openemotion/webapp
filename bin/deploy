@@ -1,9 +1,10 @@
 #!/bin/sh
-if [ `whoami` <> "staging" ]; then
-    echo "please run this script from staging@alpha.openemotion.org"
-    exit 1
-fi
-sudo -u openemotion "cd /home/openemotion/webapp && git pull"
+ssh openemotion@alpha.openemotion.org /bin/bash <<EOF
+cd ~/webapp
+git pull
+echo -n "last commit: "
+git --no-pager log -1 --pretty="format:%s (%an)%n"
 sudo supervisorctl restart openemotion
 sudo nginx -s reload
 echo nginx: reloaded
+EOF
