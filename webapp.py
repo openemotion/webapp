@@ -231,7 +231,7 @@ def urlencode_filter(s):
 
 @app.template_filter("multiline")
 def multiline_filter(s):
-    s = re.sub(r"(\r?\n)+", "<br>", s)
+    s = re.sub(r"(\r?\n)", "<br>", s)
     return Markup(s)
 
 def urldecode(s):
