@@ -214,7 +214,7 @@ def login():
         if user.password_hash != password_hash:
             return redirect(url_for("login", error="bad_password", name=name, goto=request.args.get("goto")))
         session["logged_in_user"] = request.form["name"]
-        return redirect(urldecode(request.args.get("goto")) or url_for("main"))
+        return redirect(urldecode(request.args.get("goto") or "") or url_for("main"))
     else:
         return render_template("login.html")
 
