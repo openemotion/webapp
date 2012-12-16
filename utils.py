@@ -2,39 +2,12 @@
 from flask import escape
 import datetime
 from urlparse import urljoin
+from prettydate import prettydate
 
 class dictobj(dict):
     __getattr__ = dict.__getitem__
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
-
-def prettydate(d):
-    """
-    Converts a date into an estimate of how long has passed.
-    Assumes d and the system date are in the same time zone
-    (usually GMT).
-    Note that the result is in Hebrew.
-    """
-    diff = datetime.datetime.utcnow() - d
-    s = diff.seconds
-    if diff.days == 1:
-        return u"יום"
-    elif diff.days == 2:
-        return u"יומיים"
-    elif diff.days > 2:
-        return u"{} ימים".format(diff.days)
-    elif s < 15:
-        return u"כמה שניות"
-    elif s < 120:
-        return u"כדקה"
-    elif s < 3600:
-        return u"{} דקות".format(s / 60)
-    elif s < 3600 * 1.5:
-        return u"כשעה"
-    elif s < 3600 * 2.5:
-        return u"כשעתיים"
-    else:
-        return u"{} שעות".format(s / 3600)
 
 def encrypt_password(password, salt):
     """
