@@ -17,7 +17,7 @@ class Database(object):
         self.messages = Messages(self.connection)
 
     def init(self):
-        self.connection.cursor().executescript(open(os.path.join(root_dir, "schema.sql")).read())
+        self.connection.cursor().executescript(open(os.path.join(root_dir, "sql/schema.sql")).read())
 
     def close(self):
         self.connection.close()
