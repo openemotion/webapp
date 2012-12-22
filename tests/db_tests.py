@@ -34,6 +34,13 @@ class DbTests(unittest.TestCase):
         # FIXME: should probably raise an exception
         self.db.conversations.update(2, "active")
 
+    def test_update_update_time(self):
+        self.db.conversations.update(1, update_time="2012-12-22 08:00:00")
+        conversations = list(self.db.conversations.get_all())
+        assert len(conversations) == 1
+        assert conversations[0].update_time == u"2012-12-22 08:00:00"
+        assert conversations[0].status == u"pending"
+
     def test_get(self):
         conv = self.db.conversations.get(1)
         assert conv.id == 1

@@ -2,6 +2,8 @@ import re
 import time
 import urllib
 from urlparse import urljoin
+from datetime import datetime
+
 import utils
 from db import Database, Messages, parse_date
 
@@ -118,6 +120,7 @@ def post_message(id):
 
     message_type = detect_user_message_type(conversation)
     g.db.messages.save(id, session["logged_in_user"], message_type, escape(request.form["text"]))
+    g.db.conversations.update(conversation.id, update_time=datetime.utcnow())
 
     return ""
 

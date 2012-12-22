@@ -9,6 +9,9 @@ root_dir = os.path.dirname(__file__)
 def parse_date(s):
     return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
 
+def format_date(d):
+    return datetime.strftime(d, "%Y-%m-%d %H:%M:%S")
+
 class Database(object):
     def __init__(self, filename):
         self.connection = sqlite3.connect(filename)
@@ -23,7 +26,7 @@ class Database(object):
         self.connection.close()
 
 class Conversations(object):
-    __fields__ = ["id", "start_time", "talker_name", "title", "status"]
+    __fields__ = ["id", "start_time", "update_time", "talker_name", "title", "status"]
     __select__ = "select %s from conversations " % ", ".join(__fields__)
 
     STATUS_PENDING = "pending"
@@ -35,6 +38,7 @@ class Conversations(object):
     def _make_obj(self, *args):
         obj = utils.dictobj(zip(self.__fields__, args))
         obj.start_time_since = utils.prettydate(parse_date(obj.start_time))
+        obj.update_time_since = utils.prettydate(parse_date(obj.update_time)) if obj.update_time else ''
         obj.slug = re.compile("\W+", re.UNICODE).sub("_", obj.title)
         return obj
 
@@ -63,9 +67,15 @@ class Conversations(object):
         self.connection.commit()
         return cur.lastrowid
 
-    def update(self, id, status):
-        self.connection.execute("update conversations set status = ? where id = ?",
-            [status, id])
+    def update(self, id, status=None, update_time=None):
+        values = {}
+        if status:
+            values["status"] = status
+        if update_time:
+            values["update_time"] = format_date(update_time)
+        fields = ", ".join("%s = ?"  % n for n in values.keys())
+        self.connection.execute("update conversations set %s where id = ?" % fields,
+            values.values() + [id])
         self.connection.commit()
 
 class Messages(object):
