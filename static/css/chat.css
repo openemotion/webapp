@@ -19,17 +19,16 @@
 }
 
 .message {
+  padding: 3px 7px 6px 7px;
   margin-bottom: 3px;
 }
 
 .message.talker {
-  padding: 3px;
   border-radius: 3px;
   background-color: #eee;
 }
 
 .message.listener {
-  padding: 3px;
 }
 
 .author {
