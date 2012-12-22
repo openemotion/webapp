@@ -101,9 +101,11 @@ $(function() {
     });
 
     // start long polling
+    /*
     if (globalConfig.ENABLE_LONG_POLL) {
         longPoll();
     }
+    */
 
     // start periodic updates
     setInterval(updateHistory, globalConfig.UPDATE_INTERVAL);

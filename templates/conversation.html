@@ -27,7 +27,7 @@
     <div id="history">
         {% for message in messages %}
         <div class="message {{message.type}}">
-            <div class="author">{{ message.author }}: </div>
+            <div class="author">{{ message.author }}</div>
             <div class="text">{{ message.text|multiline }}</div>
         </div>
         {% endfor %}

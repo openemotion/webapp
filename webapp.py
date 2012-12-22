@@ -193,7 +193,7 @@ def register():
         password_hash = utils.encrypt_password(password.encode("utf8"), name.encode("utf8"))
         g.db.users.save(name, password_hash)
         session["logged_in_user"] = name
-        return redirect(urldecode(request.args.get("goto")) or url_for("main"))
+        return redirect(urldecode(request.args.get("goto", "")) or url_for("main"))
     else:
         return render_template("register.html")
 

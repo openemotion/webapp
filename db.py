@@ -81,6 +81,7 @@ class Messages(object):
 
     def _make_obj(self, *args):
         obj = utils.dictobj(zip(self.__fields__, args))
+        obj.timestamp_since = utils.prettydate(parse_date(obj.timestamp))
         return obj
 
     def get_by_conversation(self, conversation_id):
