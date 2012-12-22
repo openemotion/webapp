@@ -33,10 +33,3 @@ def text2p(text):
     """
     text = escape(text)
     return "\n".join(("<p>%s</p>" % l) if l else "<br>" for l in text.splitlines())
-
-def extract_title(text, maxlen=40):
-    title = text.splitlines()[0].split(".")[0]
-    if len(title) > maxlen:
-        title = title[:maxlen-3] + "..."
-    return title
-

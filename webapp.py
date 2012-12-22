@@ -212,6 +212,13 @@ def multiline_filter(s):
     s = re.sub(r"(\r?\n)", "<br>", s)
     return Markup(s)
 
+@app.template_filter("shorten")
+def shorten_filter(s, maxlen=40):
+    if len(s) < maxlen:
+        return s
+    else:
+        return s[:maxlen-3] + "..."
+
 def urldecode(s):
     if isinstance(s, unicode):
         s = s.encode("utf8")

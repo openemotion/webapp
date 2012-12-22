@@ -1,7 +1,7 @@
     <div id="conversation_list">
       {% for conv in conversations %}
       <div class="conversation_link">
-        <div class="title"><a href="/conversations/{{conv.id}}/{{conv.slug}}" >{{conv.title}}</a></div>
+        <div class="title"><a href="/conversations/{{conv.id}}/{{conv.slug}}" >{{conv.title|shorten}}</a></div>
         {% if conv.status == "pending" %}
           <div>שיתוף של <a href="/users/{{conv.talker_name}}">{{conv.talker_name}}</a>
           ממתין לתומך מלפני {{conv.start_time_since}}</div>
