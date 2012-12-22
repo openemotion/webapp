@@ -15,7 +15,7 @@ create index users_name on users(name);
 create table conversations (
   id integer primary key autoincrement,
   start_time datetime default current_timestamp,
-  update_time datetime,
+  update_time datetime default current_timestamp,
   talker_name string,
   title string,
   status string -- pending / active
