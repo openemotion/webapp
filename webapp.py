@@ -1,6 +1,7 @@
 import re
 import time
 import urllib
+import logging
 from urlparse import urljoin
 from datetime import datetime
 
@@ -14,6 +15,7 @@ from werkzeug.contrib.atom import AtomFeed
 
 app = Flask(__name__)
 app.config.from_object("config")
+app.logger.addHandler(logging.FileHandler(app.config["LOGFILE"]))
 
 @app.before_request
 def before_request():
