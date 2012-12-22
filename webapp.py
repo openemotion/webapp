@@ -35,7 +35,7 @@ def main_feed():
         feed.add(conv.title,
                  messages[0].text,
                  content_type='html',
-                 author='%s - %s' % (conv.talker_name, conv.listener_name),
+                 author=conv.talker_name,
                  url=make_external('/conversations/%d' % conv.id),
                  updated=parse_date(messages[-1].timestamp),
                  published=parse_date(conv.start_time))
@@ -91,18 +91,6 @@ def conversation_feed(id):
                  published=parse_date(message.timestamp))
     return feed.get_response()
 
-@app.route("/conversations/<int:id>/facilitate", methods=["POST"])
-def facilitate(id):
-    try:
-        conversation = g.db.conversations.get(id)
-    except KeyError:
-        return abort(404)
-
-    if conversation.status == g.db.conversations.STATUS_PENDING:
-        g.db.conversations.update(conversation.id, g.db.conversations.STATUS_ACTIVE, session["logged_in_user"])
-
-    return redirect(url_for("conversation", id=id, slug=conversation.slug))
-
 @app.route("/conversations/<int:id>/updates")
 def updates(id):
     # FIXME : factor out to get_conversation_or_404
@@ -117,31 +105,16 @@ def updates(id):
 
     return jsonify(conversation=conversation, messages=messages, last_message_id=last_message_id)
 
-# FIXME: long polling doesn't work for updating the conversation status
-# FIXME: when client disconnects due to timeout, we get a broken pipe error in the console
-@app.route("/conversations/<int:id>/poll")
-def poll(id):
-    try:
-        conversation = g.db.conversations.get(id)
-    except KeyError:
-        return abort(404)
-
-    interval = 0.5
-    last_message_id = int(request.args.get("last_message_id", -1, type=int))
-    for i in xrange(int(30/interval)):
-        has_updates = g.db.messages.has_updates(id, session.get("logged_in_user"), last_message_id)
-        if has_updates:
-            break
-        time.sleep(interval)
-
-    return "updated!"
-
 @app.route("/conversations/<int:id>/post", methods=["POST"])
 def post_message(id):
     try:
         conversation = g.db.conversations.get(id)
     except KeyError:
         return abort(404)
+
+    if (conversation.talker_name != session["logged_in_user"] and
+        conversation.status == g.db.conversations.STATUS_PENDING):
+        g.db.conversations.update(conversation.id, g.db.conversations.STATUS_ACTIVE)
 
     message_type = detect_user_message_type(conversation)
     g.db.messages.save(id, session["logged_in_user"], message_type, escape(request.form["text"]))
@@ -241,12 +214,10 @@ def urldecode(s):
 
 def detect_user_message_type(conversation):
     user = session.get("logged_in_user")
-    if user == conversation.listener_name:
-        return g.db.messages.TYPE_LISTENER
-    elif user == conversation.talker_name:
+    if user == conversation.talker_name:
         return g.db.messages.TYPE_TALKER
     else:
-        return g.db.messages.TYPE_OTHER
+        return g.db.messages.TYPE_LISTENER
 
 def make_external(url):
     return urljoin(request.url_root, url)

@@ -33,20 +33,10 @@
         {% endfor %}
     </div>
 
-    <div id="facilitate">
-        {% if session.logged_in_user and session.logged_in_user != conversation.talker_name %}
-        <form action="facilitate" method="post">
-        <input type="submit" id="submit_listen" value="תמוך ב{{conversation.talker_name}}"></input>
-        </form>
-        {% endif %}
-    </div>
-
     <div id="converse">
-        {% if session.logged_in_user in (conversation.talker_name, conversation.listener_name) %}
         <textarea id="message"></textarea>
         <p class="note">לחץ פעמיים על Enter בכדי לשלוח.</p>
         <button id="submit_message">שלח הודעה</button>
-        {% endif %}
     </div>
 
 {% endblock %}

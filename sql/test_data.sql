@@ -2,8 +2,8 @@
 begin;
 
 -- a real conversation about relationships
-insert into conversations (id, talker_name, listener_name, title, status)
-values (1, 'ענת', 'אלון', 'אני מפחדת להרוס את היחסים', 'active');
+insert into conversations (id, talker_name, title, status)
+values (1, 'ענת', 'אני מפחדת להרוס את היחסים', 'active');
 
 insert into messages (conversation_id, author, type, text) values (1, 'ענת', 'talker', 'אני בטיפול ממושך להבראת דפוסים לא בריאים');
 insert into messages (conversation_id, author, type, text) values (1, 'ענת', 'talker', 'אחרי שבמשך שנים החרבתי מערכות יחסים בזו אחר זו');
@@ -284,8 +284,8 @@ insert into messages (conversation_id, author, type, text) values (1, 'אלון'
 
 -- a real conversation about career
 
-insert into conversations (id, talker_name, listener_name, title, status)
-values (2, 'תומר', 'אלון', 'אני מתלבט אם לקחת אחריות ולהיות מנהל', 'active');
+insert into conversations (id, talker_name, title, status)
+values (2, 'תומר', 'אני מתלבט אם לקחת אחריות ולהיות מנהל', 'active');
 
 insert into messages (conversation_id, author, type, text) values (2, 'תומר', 'talker', 'אני בהתלבטות מאד קשה, ורוצה קצת שיקופים');
 insert into messages (conversation_id, author, type, text) values (2, 'תומר', 'talker', 'בעקבות הסדנה, בהמלצה של המאמנת, התחלתי קצת לכתוב דברים (ואני לא מתכוון לקוד)');

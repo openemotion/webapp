@@ -36,14 +36,13 @@ class ClientTest(unittest.TestCase):
 
         # accept conversation
         listener.open(title)
-        listener.accept()
 
         # view conversation        
         viewer.open(title)
 
         # converse
-        talker.wait_accepted()
         for i, ipsum in enumerate(LOREM_IPSUM[:6]):
+
             sender, receiver = (talker, listener) if i % 2 == 0 else (listener, talker)
             sender.send(ipsum)
             receiver.wait_updated()

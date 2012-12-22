@@ -19,10 +19,9 @@ class DbTests(unittest.TestCase):
         assert conversations[0].slug == u"some_conversation"
         assert conversations[0].title == u"some conversation"
         assert conversations[0].talker_name == u"eli"
-        assert conversations[0].listener_name == None
 
     def test_update(self):
-        self.db.conversations.update(1, "active", "moshe")
+        self.db.conversations.update(1, "active")
         conversations = list(self.db.conversations.get_all())
         assert len(conversations) == 1
         assert conversations[0].id == 1
@@ -30,11 +29,10 @@ class DbTests(unittest.TestCase):
         assert conversations[0].slug == u"some_conversation"
         assert conversations[0].title == u"some conversation"
         assert conversations[0].talker_name == u"eli"
-        assert conversations[0].listener_name == u"moshe"
 
     def test_update_not_found(self):
         # FIXME: should probably raise an exception
-        self.db.conversations.update(2, "active", "moshe")
+        self.db.conversations.update(2, "active")
 
     def test_get(self):
         conv = self.db.conversations.get(1)
@@ -43,7 +41,6 @@ class DbTests(unittest.TestCase):
         assert conv.slug == u"some_conversation"
         assert conv.title == u"some conversation"
         assert conv.talker_name == u"eli"
-        assert conv.listener_name == None
 
     def test_get_not_found(self):
         with self.assertRaises(KeyError):

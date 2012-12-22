@@ -10,7 +10,6 @@ from db import Database
 
 app.config['DATABASE']  = 'test_data.db'
 app.config['UPDATE_INTERVAL'] = 1000
-app.config['ENABLE_LONG_POLL'] = False
 
 UPDATE_INTERVAL = app.config['UPDATE_INTERVAL'] / 1000.0
 

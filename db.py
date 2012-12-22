@@ -23,7 +23,7 @@ class Database(object):
         self.connection.close()
 
 class Conversations(object):
-    __fields__ = ["id", "start_time", "talker_name", "listener_name", "title", "status"]
+    __fields__ = ["id", "start_time", "talker_name", "title", "status"]
     __select__ = "select %s from conversations " % ", ".join(__fields__)
 
     STATUS_PENDING = "pending"
@@ -63,9 +63,9 @@ class Conversations(object):
         self.connection.commit()
         return cur.lastrowid
 
-    def update(self, id, status, listener_name):
-        self.connection.execute("update conversations set status = ?, listener_name = ? where id = ?",
-            [status, listener_name, id])
+    def update(self, id, status):
+        self.connection.execute("update conversations set status = ? where id = ?",
+            [status, id])
         self.connection.commit()
 
 class Messages(object):
@@ -74,7 +74,6 @@ class Messages(object):
 
     TYPE_TALKER = "talker"
     TYPE_LISTENER = "listener"
-    TYPE_OTHER = "other"
 
     def __init__(self, connection):
         self.connection = connection

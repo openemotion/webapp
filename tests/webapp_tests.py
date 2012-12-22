@@ -23,7 +23,6 @@ sample_conversation = dictobj(
     slug="some_title",
     status="active",
     talker_name="me",
-    listener_name="somebody",
     start_time="2012-12-12 08:00:00",
     start_time_since="3 days ago"
 )
@@ -68,20 +67,6 @@ class MainTests(unittest.TestCase):
         assert d.last_message_id == 1
         assert len(d.messages) == 1
         assert d.messages == [sample_message]
-
-    def test_poll_with_updates(self, Database):
-        Database.return_value.conversations.get.return_value = dictobj(sample_conversation)
-        Database.return_value.messages.has_updates.return_value = True
-        d = self.app.get('/conversations/1/poll').data
-        assert d == "updated!"
-
-    def test_poll_no_updates(self, Database):
-        Database.return_value.conversations.get.return_value = dictobj(sample_conversation)
-        Database.return_value.messages.has_updates.side_effect = return_values_iter([False, False, True])
-        with patch("time.sleep") as sleep:
-            d = self.app.get('/conversations/1/poll').data
-            assert d == "updated!"
-            assert sleep.call_count == 2
 
     def test_atom(self, Database):
         Database.return_value.conversations.get_all.return_value = [sample_conversation]

@@ -67,16 +67,6 @@ class TestUser(object):
         assert self.driver.find_element_by_tag_name('h1').text == title
         assert self.driver.current_url.startswith(self.url + "conversations/1/")
 
-    def accept(self):
-        self.driver.find_element_by_id('submit_listen').click()
-
-    def wait_accepted(self):
-        for i in xrange(10):
-            if self.driver.find_element_by_id('converse').is_displayed():
-                return
-            time.sleep(SLEEP_INTERVAL)
-        raise AssertionError("conversation wasn't accepted")
-
     def open(self, title):
         for i in xrange(10):
             convs = self.driver.find_elements_by_class_name('conversation_link')

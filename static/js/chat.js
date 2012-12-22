@@ -7,23 +7,7 @@ $(function() {
         $("#message").val("");
         $("#history").append(formatMessage(chatConfig.user, chatConfig.userMessageType, text, true));
         $(document).scrollTop($(document).height());
-        $.post("post", {text : text});
-    }
-
-    // long poll - continuosly query the server for new messages
-    function longPoll() {
-        $.ajax("poll", {
-            data: { last_message_id: chatConfig.lastMessageId },
-            timeout: 30 * 1000,
-            success: function (data, textStatus, jqXHR) {
-                // when poll returns successfully, update the messages
-                updateHistory();
-                setTimeout(longPoll, 0);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                setTimeout(longPoll, 2000);
-            }
-        });
+        $.post("post", {text:text});
     }
 
     // get message updates from the server
@@ -60,19 +44,13 @@ $(function() {
         }
         text = text.replace(/(\r?\n)+/g,"<br>");
         msg = $("<div>").addClass("message").addClass(type);
-        msg.append($("<div>").addClass("author").addClass().append(author + ":"));
+        msg.append($("<div>").addClass("author").addClass().append(author));
         msg.append($("<div>").addClass("text").append(text));
         return msg;
     }
 
     function updateStatus(status) {
-        if (status === "pending") {
-            $("#facilitate").show();
-            $("#converse").hide();
-        }
-        else {
-            $("#facilitate").hide();
-            $("#converse").show();
+        if (status !== "pending") {
             $("#status").hide();
         }
     }
@@ -99,13 +77,6 @@ $(function() {
     $("#submit_message").click(function(e) {
         submitMessage();
     });
-
-    // start long polling
-    /*
-    if (globalConfig.ENABLE_LONG_POLL) {
-        longPoll();
-    }
-    */
 
     // start periodic updates
     setInterval(updateHistory, globalConfig.UPDATE_INTERVAL);

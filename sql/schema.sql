@@ -16,21 +16,19 @@ create table conversations (
   id integer primary key autoincrement,
   start_time datetime default current_timestamp,
   talker_name string,
-  listener_name string,
   title string,
-  status string -- pending / active / closed
+  status string -- pending / active
 );
 
 create index conversations_id on conversations(id);
-create index conversations_sharer on conversations(talker_name);
-create index conversations_facilitator on conversations(listener_name);
+create index conversations_talker on conversations(talker_name);
 
 create table messages (
   id integer primary key autoincrement,
   conversation_id integer references conversations(id),
   timestamp datetime default current_timestamp,
   author string,
-  type string, -- listener / talker / other
+  type string, -- talker / listener
   text string
 );
 
