@@ -7,6 +7,7 @@ $(function() {
         $("#message").val("");
         $("#history").append(formatMessage(chatConfig.user, chatConfig.userMessageType, text, true));
         $(document).scrollTop($(document).height());
+        $("#message").focus();
         $.post("post", {text:text});
     }
 

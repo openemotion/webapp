@@ -155,3 +155,13 @@ input[type="submit"] {
   font-size: 0.7em;
   float: left;
 }
+
+.info {
+  font-family: "Choco", sans-serif;
+  color: #666;
+  margin-right: 5px;
+  border: 1px solid #eee;
+  background-color: #ffd;
+  border-radius: 3px;
+  padding: 10px 5px 5px 5px;
+}
