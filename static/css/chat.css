@@ -29,6 +29,8 @@
 }
 
 .message.listener {
+  border-radius: 3px;
+  background-color: #fcfcfc;
 }
 
 .author {

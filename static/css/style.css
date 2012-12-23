@@ -159,7 +159,7 @@ input[type="submit"] {
 .info {
   font-family: "Choco", sans-serif;
   color: #666;
-  margin-right: 5px;
+  /*margin-right: 5px;*/
   border: 1px solid #eee;
   background-color: #ffd;
   border-radius: 3px;
