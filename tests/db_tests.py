@@ -1,7 +1,7 @@
 import sys
 import unittest
 sys.path.append("..")
-from db import Database
+from db import Database, parse_date
 from utils import dictobj
 
 class DbTests(unittest.TestCase):
@@ -35,7 +35,7 @@ class DbTests(unittest.TestCase):
         self.db.conversations.update(2, "active")
 
     def test_update_update_time(self):
-        self.db.conversations.update(1, update_time="2012-12-22 08:00:00")
+        self.db.conversations.update(1, update_time=parse_date("2012-12-22 08:00:00"))
         conversations = list(self.db.conversations.get_all())
         assert len(conversations) == 1
         assert conversations[0].update_time == u"2012-12-22 08:00:00"
@@ -58,6 +58,20 @@ class DbTests(unittest.TestCase):
         assert len(list(self.db.conversations.get_by_talker("eli"))) == 1
         assert len(list(self.db.conversations.get_by_talker("moshe"))) == 1
         assert len(list(self.db.conversations.get_by_talker("shaul"))) == 0
+
+class VisitTests(unittest.TestCase):
+    def setUp(self):
+        self.db = Database(":memory:")
+        self.db.init()
+
+    def test(self):
+        assert 0 == len(list(self.db.visits.get_by_user('eli')))
+        self.db.visits.save(1, 'eli', parse_date("2012-12-22 08:00:00"))
+        assert 1 == len(list(self.db.visits.get_by_user('eli')))
+        self.db.visits.save(1, 'eli', parse_date("2012-12-22 08:10:00"))
+        assert 1 == len(list(self.db.visits.get_by_user('eli')))
+        self.db.visits.save(2, 'eli', parse_date("2012-12-22 08:10:00"))
+        assert 2 == len(list(self.db.visits.get_by_user('eli')))
 
 if __name__ == '__main__':
     import pytest

@@ -27,7 +27,7 @@ def teardown_request(exception):
 
 @app.route("/")
 def main():
-    conversations = g.db.conversations.get_all()
+    conversations = g.db.conversations.get_all_with_unread(session.get("logged_in_user"))
     return render_template("main.html", conversations=conversations)
 
 @app.route('/atom')
@@ -59,7 +59,7 @@ def terms():
 
 @app.route("/conversations")
 def conversations():
-    conversations = g.db.conversations.get_all()
+    conversations = g.db.conversations.get_all_with_unread(session.get("logged_in_user"))
     return render_template("_conversation_list.html", conversations=conversations)
 
 @app.route("/conversations/<int:id>/")
@@ -72,6 +72,10 @@ def conversation(id, slug=None):
 
     if slug != conversation.slug:
         return redirect(url_for("conversation", _external=True, id=id, slug=conversation.slug))
+
+    # mark conversation as read
+    if session.get("logged_in_user"):
+        g.db.visits.save(conversation.id, session.get("logged_in_user"), datetime.utcnow())
 
     messages = list(g.db.messages.get_by_conversation(id))
     message_type = detect_user_message_type(conversation)
@@ -140,12 +144,12 @@ def new_conversation():
 @app.route("/users/<name>/")
 def user(name):
     user = g.db.users.get(name)
-    conversations = g.db.conversations.get_by_talker(name)
+    conversations = g.db.conversations.get_by_talker_with_unread(name, session.get("logged_in_user"))
     return render_template("profile.html", user=user, conversations=conversations)
 
 @app.route("/users/<name>/conversations")
 def user_conversations(name):
-    conversations = g.db.conversations.get_by_talker(name)
+    conversations = g.db.conversations.get_by_talker_with_unread(name, session.get("logged_in_user"))
     return render_template("_conversation_list.html", conversations=conversations)
 
 @app.route("/register", methods=["GET", "POST"])
@@ -230,6 +234,13 @@ def detect_user_message_type(conversation):
         return g.db.messages.TYPE_TALKER
     else:
         return g.db.messages.TYPE_LISTENER
+
+def nocache(f): 
+    def new_func(*args, **kwargs): 
+        resp = make_response(f(*args, **kwargs)) 
+        resp.cache_control.no_cache = True 
+        return resp 
+    return update_wrapper(new_func, f) 
 
 def make_external(url):
     return urljoin(request.url_root, url)

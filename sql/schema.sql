@@ -35,3 +35,12 @@ create table messages (
 
 create index messages_id on messages(id);
 create index messages_conversation on messages(conversation_id);
+
+create table visits (
+  conversation_id integer references conversations(id),
+  user string,
+  last_message integer,
+  unique(conversation_id, user) on conflict replace
+);
+
+create index visits_unique on visits(conversation_id, user);

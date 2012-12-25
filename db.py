@@ -15,9 +15,10 @@ def format_date(d):
 class Database(object):
     def __init__(self, filename):
         self.connection = sqlite3.connect(filename)
-        self.conversations = Conversations(self.connection)
-        self.users = Users(self.connection)
-        self.messages = Messages(self.connection)
+        self.conversations = Conversations(self)
+        self.users = Users(self)
+        self.messages = Messages(self)
+        self.visits = Visits(self)
 
     def init(self):
         self.connection.cursor().executescript(open(os.path.join(root_dir, "sql/schema.sql")).read())
@@ -32,16 +33,19 @@ class Conversations(object):
     STATUS_PENDING = "pending"
     STATUS_ACTIVE = "active"
 
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, db):
+        self.db = db
+        self.connection = db.connection
 
     def _make_obj(self, *args):
         obj = utils.dictobj(zip(self.__fields__, args))
         if not obj.update_time:
             obj.update_time = obj.start_time
+        #FIXME: parse dates start_time and update_time
         obj.start_time_since = utils.prettydate(parse_date(obj.start_time))
         obj.update_time_since = utils.prettydate(parse_date(obj.update_time))
         obj.slug = re.compile("\W+", re.UNICODE).sub("_", obj.title)
+        obj.unread = ""
         return obj
 
     def get_all(self):
@@ -55,6 +59,20 @@ class Conversations(object):
         cur = self.connection.execute(cmd, [name])
         for row in cur:
             yield self._make_obj(*row)
+
+    def get_all_with_unread(self, current_user):
+        return self._get_with_unread(self.get_all(), current_user)
+
+    def get_by_talker_with_unread(self, talker_name, current_user):
+        return self._get_with_unread(self.get_by_talker(talker_name), current_user)
+
+    def _get_with_unread(self, conversations, current_user):
+        visits = self.db.visits.get_dict_by_user(current_user)
+        for conv in conversations:
+            if current_user:
+                if (not visits.get(conv.id) or (parse_date(conv.update_time or conv.start_time) > visits.get(conv.id))):
+                    conv.unread = "unread"
+            yield conv
 
     def get(self, id):
         cmd = self.__select__ + "where id = ?"
@@ -87,8 +105,9 @@ class Messages(object):
     TYPE_TALKER = "talker"
     TYPE_LISTENER = "listener"
 
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, db):
+        self.db = db
+        self.connection = db.connection
 
     def _make_obj(self, *args):
         obj = utils.dictobj(zip(self.__fields__, args))
@@ -127,8 +146,9 @@ class Messages(object):
         return cur.lastrowid
 
 class Users(object):
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, db):
+        self.db = db
+        self.connection = db.connection
 
     def _make_obj(self, name, password_hash, create_time):
         obj = utils.dictobj()
@@ -150,3 +170,32 @@ class Users(object):
             [name, password_hash])
         self.connection.commit()
         return cur.lastrowid
+
+class Visits(object):
+    def __init__(self, db):
+        self.db = db
+        self.connection = db.connection
+
+    def _make_obj(self, conversation_id, user, visit_date):
+        obj = utils.dictobj()
+        obj.conversation_id = conversation_id
+        obj.user = user
+        obj.visit_date = parse_date(visit_date)
+        return obj
+
+    def get_by_user(self, user):
+        cmd = "select conversation_id, user, visit_date from visits where user = ?"
+        cur = self.connection.execute(cmd, [user])
+        for row in cur:
+            yield self._make_obj(*row)
+
+    def get_dict_by_user(self, user):
+        visits = {}
+        for visit in self.get_by_user(user):
+            visits[visit.conversation_id] = visit.visit_date
+        return visits
+
+    def save(self, conversation_id, user, visit_date):
+        cur = self.connection.execute("replace into visits (conversation_id, user, visit_date) values (?, ?, ?)",
+            [conversation_id, user, format_date(visit_date)])
+        self.connection.commit()

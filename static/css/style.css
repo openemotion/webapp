@@ -95,6 +95,11 @@ button, input[type="submit"] {
   margin-bottom: 10px;
 }
 
+.conversation_link.unread {
+  /*border: 1px #666 solid;*/
+  box-shadow: 1px 1px 5px #888888;
+}
+
 .conversation_link .title {
   margin-bottom: 5px;
 }
