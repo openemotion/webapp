@@ -43,7 +43,7 @@ class Conversations(object):
         return obj
 
     def get_all(self):
-        cmd = self.__select__ + "order by start_time desc"
+        cmd = self.__select__ + "order by update_time desc"
         cur = self.connection.execute(cmd)
         for row in cur:
             yield self._make_obj(*row)
