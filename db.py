@@ -37,8 +37,10 @@ class Conversations(object):
 
     def _make_obj(self, *args):
         obj = utils.dictobj(zip(self.__fields__, args))
+        if not obj.update_time:
+            obj.update_time = obj.start_time
         obj.start_time_since = utils.prettydate(parse_date(obj.start_time))
-        obj.update_time_since = utils.prettydate(parse_date(obj.update_time)) if obj.update_time else ''
+        obj.update_time_since = utils.prettydate(parse_date(obj.update_time))
         obj.slug = re.compile("\W+", re.UNICODE).sub("_", obj.title)
         return obj
 
