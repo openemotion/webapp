@@ -43,13 +43,13 @@ class Conversations(object):
         return obj
 
     def get_all(self):
-        cmd = self.__select__ + "order by update_time desc"
+        cmd = self.__select__ + "order by coalesce(update_time, start_time) desc"
         cur = self.connection.execute(cmd)
         for row in cur:
             yield self._make_obj(*row)
 
     def get_by_talker(self, name):
-        cmd = self.__select__ + "where talker_name = ? order by start_time desc"
+        cmd = self.__select__ + "where talker_name = ? order by coalesce(update_time, start_time) desc"
         cur = self.connection.execute(cmd, [name])
         for row in cur:
             yield self._make_obj(*row)
