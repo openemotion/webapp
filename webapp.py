@@ -73,9 +73,7 @@ def conversation(id, slug=None):
     if slug != conversation.slug:
         return redirect(url_for("conversation", _external=True, id=id, slug=conversation.slug))
 
-    # mark conversation as read
-    if session.get("logged_in_user"):
-        g.db.visits.save(conversation.id, session.get("logged_in_user"), datetime.utcnow())
+    update_visit_time(conversation)
 
     messages = list(g.db.messages.get_by_conversation(id))
     message_type = detect_user_message_type(conversation)
@@ -111,6 +109,8 @@ def updates(id):
     messages = list(g.db.messages.get_updates(id, session.get("logged_in_user"), last_message_id))
     last_message_id = messages[-1].id if messages else last_message_id
 
+    update_visit_time(conversation)
+
     return jsonify(conversation=conversation, messages=messages, last_message_id=last_message_id)
 
 @app.route("/conversations/<int:id>/post", methods=["POST"])
@@ -123,6 +123,8 @@ def post_message(id):
     if (conversation.talker_name != session["logged_in_user"] and
         conversation.status == g.db.conversations.STATUS_PENDING):
         g.db.conversations.update(conversation.id, g.db.conversations.STATUS_ACTIVE)
+
+    update_visit_time(conversation)
 
     message_type = detect_user_message_type(conversation)
     g.db.messages.save(id, session["logged_in_user"], message_type, escape(request.form["text"]))
@@ -237,6 +239,10 @@ def detect_user_message_type(conversation):
 
 def make_external(url):
     return urljoin(request.url_root, url)
+
+def update_visit_time(conversation):
+    if session.get("logged_in_user"):
+        g.db.visits.save(conversation.id, session.get("logged_in_user"), datetime.utcnow())
 
 if __name__ == '__main__':
     # override configuration for development
