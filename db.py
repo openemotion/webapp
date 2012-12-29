@@ -6,11 +6,15 @@ import utils
 
 root_dir = os.path.dirname(__file__)
 
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+
 def parse_date(s):
-    return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+    if "." not in s:
+        s += ".000000"
+    return datetime.strptime(s, DATE_FORMAT)
 
 def format_date(d):
-    return datetime.strftime(d, "%Y-%m-%d %H:%M:%S")
+    return datetime.strftime(d, DATE_FORMAT)
 
 class Database(object):
     def __init__(self, filename):

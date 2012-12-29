@@ -1,7 +1,7 @@
 $(function() {
     function reloadConversationList() {
         $.ajax("conversations", {
-            ifModified: true,
+            cache: false,
             success: function (data, textStatus, jqXHR) {
                 $("#conversation_list").empty().append(data);
             }
@@ -9,4 +9,6 @@ $(function() {
     }
 
     setInterval(reloadConversationList, globalConfig.UPDATE_INTERVAL);
+
+    reloadConversationList();
 });
