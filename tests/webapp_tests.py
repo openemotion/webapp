@@ -24,7 +24,10 @@ sample_conversation = dictobj(
     status="active",
     talker_name="me",
     start_time="2012-12-12 08:00:00",
-    start_time_since="3 days ago"
+    start_time_since="3 days ago",
+    update_time="2012-12-12 08:00:00",
+    update_time_since="3 days ago",
+    unread="True"
 )
 
 sample_message = dictobj(
@@ -35,23 +38,27 @@ sample_message = dictobj(
     timestamp="2012-12-12 08:00:00",
 )
 
-@patch("webapp.Database")
-class MainTests(unittest.TestCase):
+class Base(unittest.TestCase):
     def setUp(self):
         webapp.app.config["DATABASE"] = ":memory:"
         webapp.app.config["TESTING"] = True
         self.app = webapp.app.test_client()
+
+@patch("webapp.Database")
+class MainTests(Base):
 
     def test_empty(self, Database):
         d = PyQuery(self.app.get('/').data)
         assert 0 == len(d(".conversation_link"))
 
     def test_one_conversation(self, Database):
-        Database.return_value.conversations.get_all.return_value = [sample_conversation]
+        Database.return_value.conversations.get_all_with_unread.return_value = [sample_conversation]
         d = PyQuery(self.app.get('/').data)
         assert 1 == len(d(".conversation_link"))
         assert "some title" == d(".title > a").html()
 
+@patch("webapp.Database")
+class ConversationTests(Base):
     def test_no_updates(self, Database):
         Database.return_value.conversations.get.return_value = dictobj(status="active")
         d = parse_json(self.app.get('/conversations/1/updates').data)
@@ -68,6 +75,8 @@ class MainTests(unittest.TestCase):
         assert len(d.messages) == 1
         assert d.messages == [sample_message]
 
+@patch("webapp.Database")
+class AtomTests(Base):
     def test_atom(self, Database):
         Database.return_value.conversations.get_all.return_value = [sample_conversation]
         Database.return_value.messages.get_by_conversation.return_value = [sample_message]

@@ -39,7 +39,7 @@ create index messages_conversation on messages(conversation_id);
 create table visits (
   conversation_id integer references conversations(id),
   user string,
-  last_message integer,
+  visit_date integer,
   unique(conversation_id, user) on conflict replace
 );
 
