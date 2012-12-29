@@ -235,13 +235,6 @@ def detect_user_message_type(conversation):
     else:
         return g.db.messages.TYPE_LISTENER
 
-def nocache(f): 
-    def new_func(*args, **kwargs): 
-        resp = make_response(f(*args, **kwargs)) 
-        resp.cache_control.no_cache = True 
-        return resp 
-    return update_wrapper(new_func, f) 
-
 def make_external(url):
     return urljoin(request.url_root, url)
 
