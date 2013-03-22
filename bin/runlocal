@@ -1,6 +1,5 @@
 #!/bin/bash
-APPROOT=$(readlink -m $(dirname $0)/..)
-
+APPROOT=$(cd "$(dirname "$0")/.."; pwd)
 control_c()
 {
     pkill -9 -f webapp.py
