@@ -10,7 +10,7 @@ import selenium.webdriver.chrome.service as service
 SLEEP_INTERVAL = 1.0
 
 LEAVE_CHROME_OPEN = False
-CHROME_SERVICE = service.Service('/usr/bin/chromedriver')
+CHROME_SERVICE = service.Service('/usr/local/bin/chromedriver')
 def start_selenium():
     CHROME_SERVICE.start()
     def stop_chrome_service():

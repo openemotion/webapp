@@ -1,3 +1,4 @@
+import os
 import sys
 import urllib
 import threading
@@ -6,7 +7,7 @@ sys.path.append("..")
 
 from webapp import app
 from flask import request
-from db import Database
+from orm import Database
 
 app.config['DATABASE']  = 'test_data.db'
 app.config['UPDATE_INTERVAL'] = 1000
@@ -23,7 +24,10 @@ app.logger.addHandler(StreamHandler())
 server = threading.Thread(target=lambda: app.run(host=HOST, port=PORT, debug=False))
 
 def start_test_server():
-    Database(app.config["DATABASE"]).init()
+    db = app.config["DATABASE"] 
+    if os.path.exists(db):
+        os.unlink(db)
+    Database(db).init()
     server.start()
 
 def shutdown_test_server():

@@ -1,21 +1,43 @@
 import re
-import time
+import json
 import urllib
 import logging
 from urlparse import urljoin
 from datetime import datetime
 
 import utils
-from db import Database, Messages, parse_date
+from orm import Database, Messages, parse_date, format_date
 
 from flask import (Flask, render_template, request, g, session, redirect,
-    url_for, abort, Markup, jsonify, escape)
+    url_for, abort, Markup, escape)
 
 from werkzeug.contrib.atom import AtomFeed
 
 app = Flask(__name__)
 app.config.from_object("config")
 app.logger.addHandler(logging.FileHandler(app.config["LOGFILE"]))
+
+def jsonify(*args, **kwargs):
+    # FIXME: move this function to utils
+    """
+    My own version of jsonify that supports objects.
+    """
+    class ObjectEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if hasattr(obj, '__json__'):
+                return obj.__json__()
+            if isinstance(obj, datetime):
+                return format_date(obj)
+            return json.JSONEncoder.default(self, obj)
+
+    return app.response_class(
+        json.dumps(
+                dict(*args, **kwargs),
+                indent=None if request.is_xhr else 2,
+                cls=ObjectEncoder
+            ), 
+            mimetype='application/json',
+        )
 
 @app.before_request
 def before_request():
@@ -241,6 +263,8 @@ def make_external(url):
     return urljoin(request.url_root, url)
 
 def update_visit_time(conversation):
+    return
+    # FIXME: restore visit management
     if session.get("logged_in_user"):
         g.db.visits.save(conversation.id, session.get("logged_in_user"), datetime.utcnow())
 
