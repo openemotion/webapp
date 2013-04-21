@@ -10,21 +10,23 @@ import selenium.webdriver.chrome.service as service
 SLEEP_INTERVAL = 1.0
 
 LEAVE_CHROME_OPEN = False
-CHROME_SERVICE = service.Service('/usr/bin/chromedriver')
-def start_selenium():
-    CHROME_SERVICE.start()
-    def stop_chrome_service():
-        try:
-            CHROME_SERVICE.stop()
-        except:
-            pass
-    atexit.register(stop_chrome_service)
+CHROME_SERVICE = service.Service('/usr/local/bin/chromedriver')
+CHROME_SERVICE.start()
+
+def stop_chrome_service():
+    try:
+        CHROME_SERVICE.stop()
+    except:
+        pass
+atexit.register(stop_chrome_service)
+
 CHROME_INSTANCES = 0
+
 PLACEMENTS = [
     dict(position=(0,0), size=(800,500)),
-    dict(position=(800,0), size=(800,500)),
-    dict(position=(800,500), size=(800,500)),
-    dict(position=(0,500), size=(800,500)),
+    dict(position=(820,0), size=(800,500)),
+    dict(position=(820,550), size=(800,500)),
+    dict(position=(0,550), size=(800,500)),
 ]
 
 class TestUser(object):

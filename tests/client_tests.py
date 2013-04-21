@@ -1,17 +1,16 @@
 # coding=utf8
 
 import unittest
-import test_utils.testapp as testapp
-import test_utils.testobjects as testobjects
+import automation.app as testapp
 
 import logging
 logging.disable(logging.INFO)
 
 LOREM_IPSUM = open('lorem.txt').read().decode('utf8').splitlines()
 
-testobjects.start_selenium()
+from automation.client import TestUser
 
-class ClientTest(unittest.TestCase):
+class ClientTests(unittest.TestCase):
     def setUp(self):
         testapp.start_test_server()
 
@@ -19,9 +18,9 @@ class ClientTest(unittest.TestCase):
         testapp.shutdown_test_server()
 
     def test_conversation(self):
-        talker = testobjects.TestUser(testapp.SERVER_URL)
-        listener = testobjects.TestUser(testapp.SERVER_URL)
-        viewer = testobjects.TestUser(testapp.SERVER_URL)
+        talker = TestUser(testapp.SERVER_URL)
+        listener = TestUser(testapp.SERVER_URL)
+        viewer = TestUser(testapp.SERVER_URL)
 
         # register users
         talker.register(u'אלי', u'אלי', u'אלי')
@@ -51,4 +50,4 @@ class ClientTest(unittest.TestCase):
 
 if __name__ == '__main__':
     import pytest
-    pytest.main(["-s", __file__])
+    pytest.main(['-s', __file__])

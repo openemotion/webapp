@@ -8,7 +8,7 @@
     <script type="text/javascript" src="/static/js/chat.js"></script>
     <script type="text/javascript">
         chatConfig = {
-            lastMessageId : '{{ messages[-1].id if messages else 0 }}',
+            lastMessageId : '{{ conversation.messages[-1].id if messages else 0 }}',
             status : '{{ conversation.status }}',
             user : '{{ session.get("logged_in_user", "") }}',
             userMessageType : '{{ user_message_type }}'
@@ -25,9 +25,9 @@
     {% endif %}
 
     <div id="history">
-        {% for message in messages %}
+        {% for message in conversation.messages %}
         <div class="message {{message.type}}">
-            <div class="author">{{ message.author }}</div>
+            <div class="author">{{ message.author.name }}</div>
             <div class="text">{{ message.text|multiline }}</div>
         </div>
         {% endfor %}

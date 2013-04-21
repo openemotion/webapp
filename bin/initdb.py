@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+import os
+import sys
+APPROOT = os.path.realpath((os.path.split(__file__)[0] or '.') + '/..')
+sys.path.append(APPROOT)
+
+import model
+import test_data
+
+uri = 'sqlite:///{0}/data.db'.format(APPROOT)
+print uri
+with model.temp_db_context(uri) as db:
+    db.drop_all()
+    db.create_all()
+    test_data.create_test_data()
