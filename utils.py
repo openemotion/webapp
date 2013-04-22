@@ -1,8 +1,8 @@
 # coding=utf8
-from flask import escape
-import datetime
-from urlparse import urljoin
+import json
+from datetime import datetime
 from prettydate import prettydate
+from flask import escape, current_app, request
 
 class dictobj(dict):
     __getattr__ = dict.__getitem__
@@ -33,3 +33,25 @@ def text2p(text):
     """
     text = escape(text)
     return "\n".join(("<p>%s</p>" % l) if l else "<br>" for l in text.splitlines())
+
+def jsonify(*args, **kwargs):
+    """
+    A replacement for Flask's jsonify that handles datetime objects
+    and allows customized serialization with __json__ methods on objects.
+    """
+    class ObjectEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if hasattr(obj, '__json__'):
+                return obj.__json__()
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return json.JSONEncoder.default(self, obj)
+
+    return current_app.response_class(
+        json.dumps(
+            dict(*args, **kwargs),
+            indent=None if request.is_xhr else 2,
+            cls=ObjectEncoder
+        ), 
+        mimetype='application/json',
+    )

@@ -1,12 +1,11 @@
 import re
-import json
 import urllib
 import logging
 from urlparse import urljoin
 from datetime import datetime
 
 import utils
-from orm import Database, Messages, parse_date, format_date
+from orm import Database
 
 from flask import (Flask, render_template, request, g, session, redirect,
     url_for, abort, Markup, escape)
@@ -16,28 +15,6 @@ from werkzeug.contrib.atom import AtomFeed
 app = Flask(__name__)
 app.config.from_object("config")
 app.logger.addHandler(logging.FileHandler(app.config["LOGFILE"]))
-
-def jsonify(*args, **kwargs):
-    # FIXME: move this function to utils
-    """
-    My own version of jsonify that supports objects.
-    """
-    class ObjectEncoder(json.JSONEncoder):
-        def default(self, obj):
-            if hasattr(obj, '__json__'):
-                return obj.__json__()
-            if isinstance(obj, datetime):
-                return format_date(obj)
-            return json.JSONEncoder.default(self, obj)
-
-    return app.response_class(
-        json.dumps(
-                dict(*args, **kwargs),
-                indent=None if request.is_xhr else 2,
-                cls=ObjectEncoder
-            ), 
-            mimetype='application/json',
-        )
 
 @app.before_request
 def before_request():
@@ -63,8 +40,8 @@ def main_feed():
                  content_type='html',
                  author=conv.talker_name,
                  url=make_external('/conversations/%d' % conv.id),
-                 updated=parse_date(messages[-1].timestamp),
-                 published=parse_date(conv.start_time))
+                 updated=messages[-1].timestamp,
+                 published=conv.start_time)
     return feed.get_response()
 
 @app.route("/faq")
@@ -74,10 +51,6 @@ def faq():
 @app.route("/terms")
 def terms():
     return render_template("terms.html")
-
-# @app.route("/contact")
-# def contact():
-#     return render_template("contact.html")
 
 @app.route("/conversations")
 def conversations():
@@ -115,8 +88,8 @@ def conversation_feed(id):
                  content_type='html',
                  author=message.author,
                  url=request.url_root,
-                 updated=parse_date(message.timestamp),
-                 published=parse_date(message.timestamp))
+                 updated=message.timestamp,
+                 published=message.timestamp)
     return feed.get_response()
 
 @app.route("/conversations/<int:id>/updates")
@@ -133,7 +106,7 @@ def updates(id):
 
     update_visit_time(conversation)
 
-    return jsonify(conversation=conversation, messages=messages, last_message_id=last_message_id)
+    return utils.jsonify(conversation=conversation, messages=messages, last_message_id=last_message_id)
 
 @app.route("/conversations/<int:id>/post", methods=["POST"])
 def post_message(id):

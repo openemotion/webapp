@@ -20,17 +20,6 @@ Base = declarative_base(cls=Model)
 # FIXME: set up creation and initializion of database (i.e. initdb script)
 # FIXME: use Flask-SQLAlchemy
 
-# FIXME: remove formatting function for db
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
-
-def parse_date(s):
-    if "." not in s:
-        s += ".000000"
-    return datetime.strptime(s, DATE_FORMAT)
-
-def format_date(d):
-    return datetime.strftime(d, DATE_FORMAT)
-
 class Database(object):
     def __init__(self, filename):
         self.engine = create_engine('sqlite:///%s' % filename)
@@ -91,7 +80,7 @@ class Conversation(Base):
 
     id = Column(Integer, primary_key=True)
     start_time = Column(DateTime)
-    _update_time = Column(DateTime, name='update_time')
+    update_time = Column(DateTime)
     # FIXME: use the user_id and a foreign key here
     talker_name = Column(String)
     title = Column(String)
@@ -107,27 +96,12 @@ class Conversation(Base):
         return "<Conversation(%d)>" % (self.id)
 
     @property
-    def update_time(self):
-        if self._update_time:
-            return self._update_time.strftime(DATE_FORMAT)
-        else:
-            return self.start_time.strftime(DATE_FORMAT)
-
-    @update_time.setter
-    def update_time(self, value):
-        self._update_time = value
-
-    @property
     def start_time_since(self):
         return utils.prettydate(self.start_time)
 
     @property
     def update_time_since(self):
-        if self._update_time:
-            time = self._update_time
-        else:
-            time = self.start_time
-        return utils.prettydate(time)
+        return utils.prettydate(self.update_time or self.start_time)
 
     @property
     def slug(self):

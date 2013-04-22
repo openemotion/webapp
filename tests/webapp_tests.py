@@ -1,12 +1,14 @@
 import sys
+import json
 import unittest
+from datetime import datetime
+
 from mock import patch
-import flask
 sys.path.append("..")
+
 import webapp
 from utils import dictobj
 from pyquery import PyQuery
-import json
 
 def parse_json(text):
     return json.loads(text, object_hook=dictobj)
@@ -23,9 +25,9 @@ sample_conversation = dictobj(
     slug="some_title",
     status="active",
     talker_name="me",
-    start_time="2012-12-12 08:00:00",
+    start_time=datetime(2012, 12, 12, 8, 0, 0),
     start_time_since="3 days ago",
-    update_time="2012-12-12 08:00:00",
+    update_time=datetime(2012, 12, 12, 8, 0, 0),
     update_time_since="3 days ago",
     unread="True"
 )
@@ -35,7 +37,7 @@ sample_message = dictobj(
     author="me",
     text="some text",
     type="listener",
-    timestamp="2012-12-12 08:00:00",
+    timestamp=datetime(2012, 12, 12, 8, 0, 0),
 )
 
 class Base(unittest.TestCase):
@@ -70,9 +72,11 @@ class ConversationTests(Base):
         Database.return_value.conversations.get.return_value = dictobj(sample_conversation)
         Database.return_value.messages.get_updates.return_value = [sample_message]
         d = parse_json(self.app.get('/conversations/1/updates').data)
-        assert d.conversation.status == "active"
+        assert d.conversation.status == 'active'
         assert d.last_message_id == 1
         assert len(d.messages) == 1
+        for m in d.messages:
+            m.timestamp = datetime.strptime(m.timestamp, '%Y-%m-%dT%H:%M:%S')
         assert d.messages == [sample_message]
 
 @patch("webapp.Database")
