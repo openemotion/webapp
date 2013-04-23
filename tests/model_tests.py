@@ -21,6 +21,7 @@ class UserTests(unittest.TestCase):
 
     def test_create(self):
         u = User('eli', '12345678')
+        db.session.add(u)
         db.session.commit()
         [user] = User.query.all()
         assert user is u
@@ -29,12 +30,12 @@ class UserTests(unittest.TestCase):
 
     def test_conversations_none(self):
         u = User('eli', '12345678')
-        assert u.conversations == []
+        assert list(u.conversations) == []
 
     def test_conversations_one(self):
         u = User('eli', '12345678')
         c = Conversation(u, 'some title')
-        assert u.conversations == [c]
+        assert list(u.conversations) == [c]
 
     def test_messages(self):
         eli = User('eli', '12345678')
@@ -44,11 +45,11 @@ class UserTests(unittest.TestCase):
         m2 = Message(c, moshe, 'first message')
         assert m1.type == 'talker'
         assert m2.type == 'listener'
-        assert c.messages == [m1, m2]
+        assert list(c.messages) == [m1, m2]
         assert m1.conversation == c
         assert m2.conversation == c
 
 if __name__ == '__main__':
     with app.app_context():
         import pytest
-        pytest.main(["-s", __file__])
+        pytest.main(['-s', '-v', __file__])

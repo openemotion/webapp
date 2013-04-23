@@ -8,6 +8,7 @@ import utils
 db = SQLAlchemy()
 
 # FIXME: create indexes
+# FIXME: consider attaching objects to sessions explicitly (remove user from Conversation.__init__ etc)
 
 class User(db.Model, utils.Jsonable):
     __tablename__ = 'users'
@@ -19,13 +20,17 @@ class User(db.Model, utils.Jsonable):
     password_hash = db.Column(db.String)
     create_time = db.Column(db.DateTime)
 
-    def __init__(self, name, password):
+    def __init__(self, name, password, create_time=None):
         self.name = name
         self.password_hash = utils.encrypt_password(password, name)
         self.create_time = datetime.utcnow()
 
     def __repr__(self):
         return "<User('%s')>" % (self.name)
+
+    @classmethod
+    def get(cls, name):
+        return cls.query.filter_by(name=name).first()
 
     @classmethod
     def get_or_404(cls, name):
@@ -46,11 +51,12 @@ class Conversation(db.Model, utils.Jsonable):
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     owner = db.relationship('User', backref=db.backref('conversations', lazy='dynamic'))
 
-    def __init__(self, owner, title, status=STATUS.PENDING):
+    def __init__(self, owner, title, status=STATUS.PENDING, start_time=None):
         self.owner = owner
         self.title = title
         self.status = status
-        self.start_time = datetime.utcnow()
+        self.start_time = start_time or datetime.utcnow()
+        self.update_time = self.start_time
 
     def __repr__(self):
         return '<Conversation(%d)>' % (self.id)
@@ -61,7 +67,7 @@ class Conversation(db.Model, utils.Jsonable):
 
     @property
     def update_time_since(self):
-        return utils.prettydate(self.update_time or self.start_time)
+        return utils.prettydate(self.update_time)
 
     @property
     def slug(self):
@@ -71,8 +77,11 @@ class Conversation(db.Model, utils.Jsonable):
     def unread(self):
         return ''
 
-    def get_updated_messages(self, user, last_message_id):
-        return self.messages.filter(Message.id > last_message_id).filter(User.id != user.id).all()
+    def get_updated_messages(self, last_message_id, for_user=None):
+        q = self.messages.filter(Message.id > last_message_id)
+        if for_user:
+            q = q.filter(Message.author_id != for_user.id)
+        return q.all()
 
 class Message(db.Model, utils.Jsonable):
     __tablename__ = 'messages'
@@ -86,7 +95,7 @@ class Message(db.Model, utils.Jsonable):
     text = db.Column(db.String)
     conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'))
     conversation = db.relationship('Conversation', 
-        backref=db.backref('messages', order_by='Message.timestamp', lazy='dynamic'))
+        backref=db.backref('messages', order_by=timestamp, lazy='dynamic'))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     author = db.relationship('User')
 
@@ -99,12 +108,19 @@ class Message(db.Model, utils.Jsonable):
     def __repr__(self):
         return '<Message (%d)>' % (self.id)
 
+    def __json__(self):
+        data = super(Message, self).__json__()
+        data['author'] = self.author.name
+        data['type'] = self.type
+        return data
+
     @property
     def type(self):
         if self.author is self.conversation.owner:
             return Message.TYPE.TALKER
         else:
             return Message.TYPE.LISTENER
+
 
 @contextmanager
 def temp_db_context(uri, echo=False):
@@ -115,6 +131,7 @@ def temp_db_context(uri, echo=False):
     db.init_app(app)
     with app.app_context():
         yield db
+
 
 if __name__ == '__main__':
     with temp_db_context('sqlite:///:memory:') as db:

@@ -40,6 +40,7 @@ $(function() {
     // format a single message
     // FIXME: this is a duplication of the server-side message formatting code
     function formatMessage(author, type, text, escape) {
+        // FIXME: use a handlebars template to create a message div
         if (escape) {
             text = $("<div/>").text(text).html();
         }

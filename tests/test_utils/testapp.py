@@ -5,6 +5,8 @@ import threading
 
 sys.path.append("..")
 
+# FIXME: update client_tests to work with new model.py and configuration
+
 from webapp import app
 from flask import request
 from orm import Database
