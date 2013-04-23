@@ -69,7 +69,7 @@ class Users(Collection):
             raise KeyError("no user with name %s" % name)
 
     def save(self, name, password_hash):
-        user = User(name, password_hash, datetime.now())
+        user = User(name, password_hash, datetime.utcnow())
         self.db.session.add(user)
         # FIXME: what about transactions?
         self.db.session.commit()
@@ -89,8 +89,8 @@ class Conversation(Base):
     def __init__(self, talker_name, title):
         self.talker_name = talker_name
         self.title = title
-        self.status = Conversations.STATUS_PENDING
-        self.start_time = datetime.now()
+        self.status = Conversations.STATUS.PENDING
+        self.start_time = datetime.utcnow()
 
     def __repr__(self):
         return "<Conversation(%d)>" % (self.id)
@@ -112,8 +112,8 @@ class Conversation(Base):
         return ''
 
 class Conversations(Collection):
-    STATUS_PENDING = "pending"
-    STATUS_ACTIVE = "active"
+    STATUS.PENDING = "pending"
+    STATUS.ACTIVE = "active"
 
     def get(self, id):
         try:
@@ -203,7 +203,7 @@ class Messages(Collection):
 
     def save(self, conversation_id, author, type, text):
         msg = Message(conversation_id, author, type, text)
-        msg.timestamp = datetime.now()
+        msg.timestamp = datetime.utcnow()
         self.db.session.add(msg)
         # FIXME: what about transactions?
         self.db.session.commit()

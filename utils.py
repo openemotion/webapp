@@ -1,8 +1,10 @@
+
 # coding=utf8
 import json
 from datetime import datetime
 from prettydate import prettydate
 from flask import escape, current_app, request
+# from flask.ext.sqlalchemy import BaseQuery
 
 class dictobj(dict):
     __getattr__ = dict.__getitem__
@@ -45,6 +47,8 @@ def jsonify(*args, **kwargs):
                 return obj.__json__()
             if isinstance(obj, datetime):
                 return obj.isoformat()
+            # if isinstance(obj, BaseQuery):
+            #     return list(obj)
             return json.JSONEncoder.default(self, obj)
 
     return current_app.response_class(
@@ -56,7 +60,7 @@ def jsonify(*args, **kwargs):
         mimetype='application/json',
     )
 
-
+# FIXME: move this to model.py
 class Jsonable(object):
     def __json__(self):
         return dict((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_sa_'))

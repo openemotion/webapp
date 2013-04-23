@@ -1,10 +1,13 @@
 import re
 from datetime import datetime
+from contextlib import contextmanager
 from flask.ext.sqlalchemy import SQLAlchemy
 
 import utils
 
 db = SQLAlchemy()
+
+# FIXME: create indexes
 
 class User(db.Model, utils.Jsonable):
     __tablename__ = 'users'
@@ -16,22 +19,24 @@ class User(db.Model, utils.Jsonable):
     password_hash = db.Column(db.String)
     create_time = db.Column(db.DateTime)
 
-    def __init__(self, name, password_hash):
+    def __init__(self, name, password):
         self.name = name
-        # FIXME: encrypt password here, not outside
-        # self.password_hash = utils.encrypt_password(password, self.name)
-        self.password_hash = password_hash
-        self.create_time = datetime.now()
-        db.session.add(self)
+        self.password_hash = utils.encrypt_password(password, name)
+        self.create_time = datetime.utcnow()
 
     def __repr__(self):
         return "<User('%s')>" % (self.name)
 
+    @classmethod
+    def get_or_404(cls, name):
+        return cls.query.filter_by(name=name).first_or_404()
+
 class Conversation(db.Model, utils.Jsonable):
     __tablename__ = 'conversations'
 
-    STATUS_PENDING = 'pending'
-    STATUS_ACTIVE = 'active'
+    class STATUS(object):
+        PENDING = 'pending'
+        ACTIVE = 'active'
 
     id = db.Column(db.Integer, primary_key=True)
     start_time = db.Column(db.DateTime)
@@ -39,14 +44,13 @@ class Conversation(db.Model, utils.Jsonable):
     title = db.Column(db.String)
     status = db.Column(db.String)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    owner = db.relationship('User', backref=db.backref('conversations'))
+    owner = db.relationship('User', backref=db.backref('conversations', lazy='dynamic'))
 
-    def __init__(self, owner, title):
+    def __init__(self, owner, title, status=STATUS.PENDING):
         self.owner = owner
         self.title = title
-        self.status = self.STATUS_PENDING
-        self.start_time = datetime.now()
-        db.session.add(self)
+        self.status = status
+        self.start_time = datetime.utcnow()
 
     def __repr__(self):
         return '<Conversation(%d)>' % (self.id)
@@ -67,22 +71,30 @@ class Conversation(db.Model, utils.Jsonable):
     def unread(self):
         return ''
 
+    def get_updated_messages(self, user, last_message_id):
+        return self.messages.filter(Message.id > last_message_id).filter(User.id != user.id).all()
+
 class Message(db.Model, utils.Jsonable):
     __tablename__ = 'messages'
+
+    class TYPE(object):
+        TALKER = 'talker'
+        LISTENER = 'listener'
 
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime)
     text = db.Column(db.String)
     conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'))
-    conversation = db.relationship('Conversation', backref=db.backref('messages'))
+    conversation = db.relationship('Conversation', 
+        backref=db.backref('messages', order_by='Message.timestamp', lazy='dynamic'))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     author = db.relationship('User')
 
-    def __init__(self, conversation, author, text):
+    def __init__(self, conversation, author, text, timestamp=None):
         self.conversation = conversation
         self.author = author
         self.text = text
-        db.session.add(self)
+        self.timestamp = timestamp or datetime.utcnow()
 
     def __repr__(self):
         return '<Message (%d)>' % (self.id)
@@ -90,15 +102,20 @@ class Message(db.Model, utils.Jsonable):
     @property
     def type(self):
         if self.author is self.conversation.owner:
-            return 'talker'
+            return Message.TYPE.TALKER
         else:
-            return 'listener'
+            return Message.TYPE.LISTENER
 
-if __name__ == '__main__':
+@contextmanager
+def temp_db_context(uri, echo=False):
     from flask import Flask
     app = Flask('dummy')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-    app.config['SQLALCHEMY_ECHO'] = 'True'
+    app.config['SQLALCHEMY_DATABASE_URI'] = uri
+    app.config['SQLALCHEMY_ECHO'] = echo
     db.init_app(app)
     with app.app_context():
+        yield db
+
+if __name__ == '__main__':
+    with temp_db_context('sqlite:///:memory:') as db:
         db.create_all()

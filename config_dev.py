@@ -1,3 +1,3 @@
 # overrides on config.py for development
-DATABASE = "data.db"
+SQLALCHEMY_DATABASE_URI = 'sqlite:///data.db'
 DEBUG = True

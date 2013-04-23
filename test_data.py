@@ -2,11 +2,12 @@
 from model import *
 
 def create_test_data():
-    alon = User(u"אלון", "")
-    anat = User(u"ענת", "")
-    tomer = User(u"תומר", "")
+    alon = User(u"אלון", u"123456")
+    anat = User(u"ענת", u"123456")
+    tomer = User(u"תומר", u"123456")
+    db.session.add_all([alon, anat, tomer])
 
-    relationship = Conversation(anat, u'אני מפחדת להרוס את היחסים')
+    relationship = Conversation(anat, u'אני מפחדת להרוס את היחסים', status=Conversation.STATUS.ACTIVE)
 
     Message(relationship, anat, u"אני בטיפול ממושך להבראת דפוסים לא בריאים\nאחרי שבמשך שנים החרבתי מערכות יחסים בזו אחר זו\nולא תכננתי להכנס למערכת היחסים הזו\nואני מאד חרדה להחריב גם אותה\nואני סובלת, ליטרלי\nכאב\nאמיתי")
     Message(relationship, alon, u"מה יחריב את היחסים?")
@@ -128,7 +129,7 @@ def create_test_data():
     Message(relationship, alon, u"שיעורי בית")
     Message(relationship, anat, u"אחלה\nחפרנו")
 
-    career = Conversation(tomer, u'אני מתלבט אם לקחת אחריות ולהיות מנהל')
+    career = Conversation(tomer, u'אני מתלבט אם לקחת אחריות ולהיות מנהל', status=Conversation.STATUS.ACTIVE)
 
     Message(career, tomer, u"אני בהתלבטות מאד קשה, ורוצה קצת שיקופים\nבעקבות הסדנה, בהמלצה של המאמנת, התחלתי קצת לכתוב דברים (ואני לא מתכוון לקוד)\nופתאום שמתי לב שיש לי עניין לא פתור לגבי החלפת התפקיד שלי בעבודה")
     Message(career, alon, u"‫ואללה\n‫מעניין")

@@ -25,7 +25,7 @@ class UserTests(unittest.TestCase):
         [user] = User.query.all()
         assert user is u
         assert user.id == 1
-        assert datetime.now() - user.create_time < timedelta(0, 1)
+        assert datetime.utcnow() - user.create_time < timedelta(0, 1)
 
     def test_conversations_none(self):
         u = User('eli', '12345678')

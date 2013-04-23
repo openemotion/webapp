@@ -10,6 +10,8 @@ import webapp
 from utils import dictobj
 from pyquery import PyQuery
 
+# FIXME: write new application tests using model.py
+
 def parse_json(text):
     return json.loads(text, object_hook=dictobj)
 
