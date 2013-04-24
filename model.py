@@ -77,6 +77,9 @@ class Conversation(db.Model, utils.Jsonable):
     def unread(self):
         return ''
 
+    def get_first_message(self):
+        return self.messages.first()
+
     def get_updated_messages(self, last_message_id, for_user=None):
         q = self.messages.filter(Message.id > last_message_id)
         if for_user:

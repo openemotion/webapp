@@ -35,13 +35,12 @@ def main():
 def main_feed():
     feed = AtomFeed(u'Open Emotion Conversations', feed_url=request.url, url=request.url_root)
     for conv in model.Conversation.query:
-        messages = list(conv.messages)
         feed.add(conv.title,
-                 messages[0].text,
+                 conv.get_first_message().text,
                  content_type='html',
                  author=conv.owner.name,
                  url=make_external('/conversations/%d' % conv.id),
-                 updated=messages[-1].timestamp,
+                 updated=conv.update_time,
                  published=conv.start_time)
     return feed.get_response()
 
@@ -93,8 +92,7 @@ def conversation_feed(id):
 def updates(id):
     conversation = model.Conversation.query.get_or_404(id)
     last_message_id = int(request.args.get('last_message_id', -1, type=int))
-    # import pdb; pdb.set_trace()
-    messages = conversation.get_updated_messages(last_message_id, get_current_user())
+    messages = conversation.get_updated_messages(last_message_id, get_current_user(required=False))
     last_message_id = messages[-1].id if messages else last_message_id
     update_visit_time(conversation)
     return utils.jsonify(
@@ -106,34 +104,37 @@ def updates(id):
 @app.route('/conversations/<int:id>/post', methods=['POST'])
 def post_message(id):
     user = get_current_user()
-    if not user:
-        abort(403)
     conv = model.Conversation.query.get_or_404(id)
-
+    text = request.form['text']
+    if not text.strip():
+        abort(400)
     if (conv.owner != user and conv.status == model.Conversation.STATUS.PENDING):
         conv.status = model.Conversation.STATUS.ACTIVE
-
     update_visit_time(conv)
 
     # FIXME: perhaps we should add the message to the conversation explicitly
     # conv.messages.append(Message(user, escape(request.form['text'])))
     model.Message(conv, user, escape(request.form['text']))
     conversation.update_time = datetime.utcnow()
-
     db.session.commit()
-
     return ''
 
 @app.route('/conversations/new', methods=['GET', 'POST'])
 def new_conversation():
-    if not session['logged_in_user']:
-        abort(401)
+    user = get_current_user()
+
+    if request.method == 'GET':
+        return render_template('new_conversation.html')
+
     if request.method == 'POST':
-        conv = model.Conversation(get_current_user(), request.form['title'])
+        title = request.form['title']
+        text = request.form['text']
+        if not title or not text:
+            abort(400)
+        conv = model.Conversation(user, request.form['title'])
+        model.Message(conv, user, escape(request.form['text']))
         db.session.commit()
         return redirect(url_for('conversation', id=conv.id))
-    else:
-        return render_template('new_conversation.html')
 
 @app.route('/users/<name>/')
 def user(name):
@@ -235,12 +236,14 @@ def detect_user_message_type(conversation):
     else:
         return model.Message.TYPE.LISTENER
 
-def get_current_user():
+def get_current_user(required=True):
     if session.get('logged_in_user'):
         user = model.User.get(session.get('logged_in_user'))
         if not user:
             abort(403)
         return user
+    if required:
+        abort(403)
     return None
 
 if __name__ == '__main__':

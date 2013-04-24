@@ -1,3 +1,5 @@
+# coding=utf8
+
 import os
 import sys
 import json
@@ -186,7 +188,15 @@ class PostTests(Base):
         r = self.app.post('/conversations/1/post', data=dict(foo='bar'), follow_redirects=True)
         assert r.status == '400 BAD REQUEST'
 
+    def test_empty(self):
+        self.login(self.user1)
+        r = self.app.post('/conversations/1/post', data=dict(text=''), follow_redirects=True)
+        assert r.status == '400 BAD REQUEST'
+
     def test_good_data(self):
+        self.conv.update_time = datetime(2013,1,1)
+        db.session.commit()
+
         self.login(self.user1)
         r = self.app.post('/conversations/1/post', data=dict(text='another message'), follow_redirects=True)
         assert r.status == '200 OK'
@@ -194,6 +204,135 @@ class PostTests(Base):
         d = PyQuery(r.data)
         assert len(d('#history > .message')) == 5
         assert d('#history > .message > .text').eq(4).text() == 'another message'
+
+        # make sure the conversation update_date was updated
+        Conversation.query.get(self.conv.id).update_time != datetime(2013,1,1)
+
+class NewConversationTests(Base):
+    # /conversations/new
+
+    def test_get_not_logged_in(self):
+        r = self.app.get('/conversations/new')
+        assert r.status == '403 FORBIDDEN'
+
+    def test_get_logged_in(self):
+        self.login(self.user1)
+        r = self.app.get('/conversations/new')
+        assert r.status == '200 OK'
+
+    def test_post_not_logged_in(self):
+        r = self.app.post('/conversations/new')
+        assert r.status == '403 FORBIDDEN'
+
+    def test_post(self):
+        self.login(self.user1)
+        r = self.app.post('/conversations/new', data=dict(text='new message', title='some title'))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/conversations/1/'
+
+        r = self.app.get('/conversations/1/some_title')
+        d= PyQuery(r.data)
+        assert len(d('#history > .message')) == 1
+        assert d('#history > .message > .author').text() == 'user1'
+        assert d('#history > .message > .text').text() == 'new message'
+        assert d('h1').text() == 'some title'
+
+    def test_post_empty_title(self):
+        self.login(self.user1)
+        r = self.app.post('/conversations/new', data=dict(text='new message', title=''))
+        assert r.status == '400 BAD REQUEST'
+
+    def test_post_empty_message(self):
+        self.login(self.user1)
+        r = self.app.post('/conversations/new', data=dict(text='', title='some title'))
+        assert r.status == '400 BAD REQUEST'
+
+class RegisterTests(Base):
+    # /register
+    def test_get(self):
+        r = self.app.get('/register')
+        assert r.status == '200 OK'
+
+    def test_no_name(self):
+        r = self.app.post('/register', data=dict(name='', password='', password2=''))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/register?error=no_name'
+
+    def test_no_password(self):
+        r = self.app.post('/register', data=dict(name='momo', password='', password2=''))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/register?name=momo&error=no_password'
+
+    def test_no_password2(self):
+        r = self.app.post('/register', data=dict(name='momo', password='123456', password2=''))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/register?name=momo&error=no_password2'
+
+    def test_password_mismatch(self):
+        r = self.app.post('/register', data=dict(name='momo', password='123456', password2='1234567'))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/register?name=momo&error=password_mismatch'
+
+    def test_existing_user(self):
+        r = self.app.post('/register', data=dict(name='user1', password='123456', password2='123456'))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/register?name=user1&error=user_exists'
+
+    def test_good(self):
+        r = self.app.post('/register', data=dict(name='momo', password='123456', password2='123456'))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/'
+
+    def test_unicode(self):
+        r = self.app.post('/register', data=dict(name='אלי', password='אלי', password2='אלי'))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/'
+
+    def test_redirect(self):
+        self.create_sample_conversation()
+        r = self.app.post(
+            '/register?goto=/conversations/1/post', 
+            data=dict(name='momo', password='123456', password2='123456')
+        )
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/conversations/1/post'
+
+class LoginTests(Base):
+    # /login
+    def test_get(self):
+        r = self.app.get('/login')
+        assert r.status == '200 OK'
+
+    def test_no_name(self):
+        r = self.app.post('/login', data=dict(name='', password=''))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/login?error=no_name'
+
+    def test_no_password(self):
+        r = self.app.post('/login', data=dict(name='momo', password=''))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/login?name=momo&error=no_password'
+
+    def test_no_user(self):
+        r = self.app.post('/login', data=dict(name='momo', password='123456'))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/login?name=momo&error=bad_password'
+
+    def test_bad_password(self):
+        momo = User('momo', '123456')
+        db.session.add(momo)
+        db.session.commit()
+        r = self.app.post('/login', data=dict(name='momo', password='1234567'))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/login?name=momo&error=bad_password'
+
+    def test_good_login(self):
+        momo = User('momo', '123456')
+        db.session.add(momo)
+        db.session.commit()
+        r = self.app.post('/login', data=dict(name='momo', password='123456'))
+        assert r.status == '302 FOUND'
+        assert r.location == 'http://localhost/'
 
 if __name__ == '__main__':
     import pytest

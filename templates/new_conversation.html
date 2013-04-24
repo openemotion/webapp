@@ -11,10 +11,10 @@
       // update title while typing
       $("#message").keyup(function(e) {
         var title = $("#message").val().split("\n")[0];
-          title = $.trim(title);
-          $("#title").val(title);
-          heading = title ? title : originalHeading
-          $("h1").empty().append(heading);
+        title = $.trim(title);
+        $("#title").val(title);
+        heading = title ? title : originalHeading
+        $("h1").empty().append(heading);
       });
     });
     </script>
