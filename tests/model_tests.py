@@ -46,6 +46,12 @@ class UserTests(unittest.TestCase):
         assert c.messages[0].type == 'talker'
         assert c.messages[1].type == 'listener'
 
+    def test_unique_names(self):
+        db.session.add(User('eli', '12345678'))
+        db.session.add(User('eli', '12345678'))
+        with self.assertRaises(db.IntegrityError):
+            db.session.commit()
+
 if __name__ == '__main__':
     with app.app_context():
         import pytest

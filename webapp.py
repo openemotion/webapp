@@ -22,12 +22,10 @@ db = model.db
 db.init_app(app)
 
 # FIXME: create a custome 404 NOT FOUND page and 403 FORBIDDEN PAGE
-# FIXME: rename to cid in all references to conversations
 
 @app.route('/')
 def main():
     # FIXME: main list doesn't show talker name links
-    # import pdb; pdb.set_trace()
     conversations = model.Conversation.query.order_by(model.Conversation.update_time).all()
     return render_template('main.html', conversations=conversations)
 

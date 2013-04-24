@@ -12,10 +12,8 @@ db = SQLAlchemy()
 class User(db.Model, utils.Jsonable):
     __tablename__ = 'users'
 
-    # FIXME: name should be unique
-
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, unique=True, index=True)
     password_hash = db.Column(db.String)
     create_time = db.Column(db.DateTime)
 
@@ -34,6 +32,10 @@ class User(db.Model, utils.Jsonable):
     @classmethod
     def get_or_404(cls, name):
         return cls.query.filter_by(name=name).first_or_404()
+
+    @property
+    def create_time_since(self):
+        return utils.prettydate(self.create_time)
 
 class Conversation(db.Model, utils.Jsonable):
     __tablename__ = 'conversations'
@@ -136,6 +138,17 @@ def temp_db_context(uri, echo=False):
     with app.app_context():
         yield db
 
+def add_sql_errors(db):
+    """
+    Adds exception classes from SQLAlchemy to the SQLAlchemy objects
+    so we can catch SQL exceptions easily with i.e. except db.IntegrityError.
+    """
+    import sqlalchemy.exc
+    for name in dir(sqlalchemy.exc):
+        cls = getattr(sqlalchemy.exc, name)
+        if isinstance(cls, type) and name.endswith('Error'):
+            setattr(db, name, getattr(sqlalchemy.exc, name))
+add_sql_errors(db)
 
 if __name__ == '__main__':
     with temp_db_context('sqlite:///:memory:') as db:
