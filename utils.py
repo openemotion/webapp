@@ -59,8 +59,3 @@ def jsonify(*args, **kwargs):
         ), 
         mimetype='application/json',
     )
-
-# FIXME: move this to model.py
-class Jsonable(object):
-    def __json__(self):
-        return dict((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_sa_'))

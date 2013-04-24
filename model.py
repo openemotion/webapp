@@ -7,9 +7,12 @@ import utils
 
 db = SQLAlchemy()
 
-# FIXME: create indexes
+class Jsonable(object):
+    def __json__(self):
+        # put all data members into json representation
+        return dict((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_sa_'))
 
-class User(db.Model, utils.Jsonable):
+class User(db.Model, Jsonable):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +40,7 @@ class User(db.Model, utils.Jsonable):
     def create_time_since(self):
         return utils.prettydate(self.create_time)
 
-class Conversation(db.Model, utils.Jsonable):
+class Conversation(db.Model, Jsonable):
     __tablename__ = 'conversations'
 
     class STATUS(object):
@@ -45,11 +48,11 @@ class Conversation(db.Model, utils.Jsonable):
         ACTIVE = 'active'
 
     id = db.Column(db.Integer, primary_key=True)
-    start_time = db.Column(db.DateTime)
-    update_time = db.Column(db.DateTime)
+    start_time = db.Column(db.DateTime, index=True)
+    update_time = db.Column(db.DateTime, index=True)
     title = db.Column(db.String)
     status = db.Column(db.String)
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     owner = db.relationship('User', backref=db.backref('conversations', lazy='dynamic'))
 
     def __init__(self, owner, title, status=STATUS.PENDING, start_time=None):
@@ -87,7 +90,7 @@ class Conversation(db.Model, utils.Jsonable):
             q = q.filter(Message.author_id != for_user.id)
         return q.all()
 
-class Message(db.Model, utils.Jsonable):
+class Message(db.Model, Jsonable):
     __tablename__ = 'messages'
 
     class TYPE(object):
@@ -95,12 +98,12 @@ class Message(db.Model, utils.Jsonable):
         LISTENER = 'listener'
 
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime)
+    timestamp = db.Column(db.DateTime, index=True)
     text = db.Column(db.String)
-    conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'))
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'), index=True)
     conversation = db.relationship('Conversation', 
         backref=db.backref('messages', order_by=timestamp, lazy='dynamic'))
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     author = db.relationship('User')
 
     def __init__(self, author, text, timestamp=None):

@@ -25,7 +25,6 @@ db.init_app(app)
 
 @app.route('/')
 def main():
-    # FIXME: main list doesn't show talker name links
     conversations = model.Conversation.query.order_by(model.Conversation.update_time).all()
     return render_template('main.html', conversations=conversations)
 
@@ -123,11 +122,11 @@ def new_conversation():
 
     if request.method == 'POST':
         title = request.form['title']
-        text = request.form['text']
+        text = request.form['message']
         if not title or not text:
             abort(400)
         conv = model.Conversation(user, request.form['title'])
-        conv.messages.append(model.Message(user, escape(request.form['text'])))
+        conv.messages.append(model.Message(user, escape(request.form['message'])))
         db.session.commit()
         return redirect(url_for('conversation', id=conv.id))
 

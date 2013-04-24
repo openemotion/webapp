@@ -52,6 +52,9 @@ class UserTests(unittest.TestCase):
         with self.assertRaises(db.IntegrityError):
             db.session.commit()
 
+# FIXME: add tests for model.Message
+# FIXME: add tests for model.Conversation
+
 if __name__ == '__main__':
     with app.app_context():
         import pytest

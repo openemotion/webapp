@@ -226,7 +226,7 @@ class NewConversationTests(Base):
 
     def test_post(self):
         self.login(self.user1)
-        r = self.app.post('/conversations/new', data=dict(text='new message', title='some title'))
+        r = self.app.post('/conversations/new', data=dict(message='new message', title='some title'))
         assert r.status == '302 FOUND'
         assert r.location == 'http://localhost/conversations/1/'
 
@@ -239,12 +239,12 @@ class NewConversationTests(Base):
 
     def test_post_empty_title(self):
         self.login(self.user1)
-        r = self.app.post('/conversations/new', data=dict(text='new message', title=''))
+        r = self.app.post('/conversations/new', data=dict(message='new message', title=''))
         assert r.status == '400 BAD REQUEST'
 
     def test_post_empty_message(self):
         self.login(self.user1)
-        r = self.app.post('/conversations/new', data=dict(text='', title='some title'))
+        r = self.app.post('/conversations/new', data=dict(message='', title='some title'))
         assert r.status == '400 BAD REQUEST'
 
 class RegisterTests(Base):
