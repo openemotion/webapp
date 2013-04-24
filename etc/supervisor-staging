@@ -1,9 +1,0 @@
-# /etc/supervisor/conf.d/staging.conf
-
-[program:staging]
-command=/home/staging/.virtualenvs/webapp/bin/gunicorn -c /home/staging/webapp/gunicorn.staging.conf.py webapp:app
-directory=/home/staging/webapp
-user=staging
-autostart=true
-autorestart=true
-redirect_stderr=True

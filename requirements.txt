@@ -1,6 +1,8 @@
-# cython is needed to build gevent
-Cython==0.17.2
 Flask==0.9
-git+git://github.com/SiteSupport/gevent.git@1.0rc1#egg=gevent
-gunicorn==0.16.1
-selenium==2.26.0
+Werkzeug==0.8.3
+Jinja2==2.6
+Flask-SQLAlchemy==0.16
+distribute==0.6.36 # required by Flask-SQLAlchemy
+SQLAlchemy==0.8.0
+psycopg2==2.4.6
+gunicorn==0.17.3

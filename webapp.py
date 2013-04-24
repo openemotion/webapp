@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import urllib
 import logging
 from urlparse import urljoin
@@ -14,14 +15,13 @@ from werkzeug.contrib.atom import AtomFeed
 
 app = Flask(__name__)
 app.config.from_object(os.environ.get('OPENEM_CONFIG', 'config.dev'))
-if app.config['LOGFILE']:
-    app.logger.addHandler(logging.FileHandler(app.config['LOGFILE']))
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
 
 import model
 db = model.db
 db.init_app(app)
 
-# FIXME: create a custome 404 NOT FOUND page and 403 FORBIDDEN PAGE
+# FIXME: create a custom 404 NOT FOUND page and 403 FORBIDDEN PAGE
 
 @app.route('/')
 def main():

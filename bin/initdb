@@ -7,7 +7,7 @@ sys.path.append(APPROOT)
 import model
 import test_data
 
-uri = 'sqlite:///{0}/data.db'.format(APPROOT)
+uri = os.environ.get('DATABASE_URL', 'sqlite:///{0}/data.db'.format(APPROOT))
 print uri
 with model.temp_db_context(uri) as db:
     db.drop_all()
