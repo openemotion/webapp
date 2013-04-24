@@ -41,13 +41,10 @@ class UserTests(unittest.TestCase):
         eli = User('eli', '12345678')
         moshe = User('moshe', '87654321')
         c = Conversation(eli, 'some title')
-        m1 = Message(c, eli, 'first message')
-        m2 = Message(c, moshe, 'first message')
-        assert m1.type == 'talker'
-        assert m2.type == 'listener'
-        assert list(c.messages) == [m1, m2]
-        assert m1.conversation == c
-        assert m2.conversation == c
+        c.messages.append(Message(eli, 'first message'))
+        c.messages.append(Message(moshe, 'first message'))
+        assert c.messages[0].type == 'talker'
+        assert c.messages[1].type == 'listener'
 
 if __name__ == '__main__':
     with app.app_context():

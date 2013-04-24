@@ -111,11 +111,8 @@ def post_message(id):
     if (conv.owner != user and conv.status == model.Conversation.STATUS.PENDING):
         conv.status = model.Conversation.STATUS.ACTIVE
     update_visit_time(conv)
-
-    # FIXME: perhaps we should add the message to the conversation explicitly
-    # conv.messages.append(Message(user, escape(request.form['text'])))
-    model.Message(conv, user, escape(request.form['text']))
-    conversation.update_time = datetime.utcnow()
+    conv.messages.append(model.Message(user, escape(request.form['text'])))
+    conv.update_time = datetime.utcnow()
     db.session.commit()
     return ''
 
@@ -132,7 +129,7 @@ def new_conversation():
         if not title or not text:
             abort(400)
         conv = model.Conversation(user, request.form['title'])
-        model.Message(conv, user, escape(request.form['text']))
+        conv.messages.append(model.Message(user, escape(request.form['text'])))
         db.session.commit()
         return redirect(url_for('conversation', id=conv.id))
 

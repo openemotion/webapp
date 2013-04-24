@@ -31,10 +31,10 @@ class Base(unittest.TestCase):
 
     def create_sample_conversation(self, title='some title'):
         self.conv = Conversation(self.user1, title)
-        Message(self.conv, self.user1, 'first message')
-        Message(self.conv, self.user2, 'second message')
-        Message(self.conv, self.user1, 'third message')
-        Message(self.conv, self.user2, 'fourth message')
+        self.conv.messages.append(Message(self.user1, 'first message'))
+        self.conv.messages.append(Message(self.user2, 'second message'))
+        self.conv.messages.append(Message(self.user1, 'third message'))
+        self.conv.messages.append(Message(self.user2, 'fourth message'))
         db.session.commit()
 
     def login(self, user):

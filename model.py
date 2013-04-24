@@ -8,7 +8,6 @@ import utils
 db = SQLAlchemy()
 
 # FIXME: create indexes
-# FIXME: consider attaching objects to sessions explicitly (remove user from Conversation.__init__ etc)
 
 class User(db.Model, utils.Jsonable):
     __tablename__ = 'users'
@@ -102,8 +101,7 @@ class Message(db.Model, utils.Jsonable):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     author = db.relationship('User')
 
-    def __init__(self, conversation, author, text, timestamp=None):
-        self.conversation = conversation
+    def __init__(self, author, text, timestamp=None):
         self.author = author
         self.text = text
         self.timestamp = timestamp or datetime.utcnow()
@@ -119,6 +117,9 @@ class Message(db.Model, utils.Jsonable):
 
     @property
     def type(self):
+        if not self.conversation:
+            raise ValueError('message not connected to conversation')
+
         if self.author is self.conversation.owner:
             return Message.TYPE.TALKER
         else:
