@@ -1,16 +1,17 @@
-    <div id="conversation_list">
-      {% for conv in conversations %}
-      <div class="conversation_link {{conv.unread}}">
-        <div class="title"><a href="/conversations/{{conv.id}}/{{conv.slug}}" >{{conv.title|shorten}}</a></div>
-        {% if conv.status == "pending" %}
-          <div>שיתוף של <a href="/users/{{conv.owner.name}}">{{conv.owner.name}}</a>
-          עודכן לפני {{conv.update_time_since}} <strong>(ממתין לתמיכה)</strong></div>
-        {% else %}
-          <div>שיתוף של <a href="/users/{{conv.owner.name}}">{{conv.owner.name}}</a>
-          עודכן לפני {{conv.update_time_since}}</div>
-        {% endif %}
-      </div>
-      {% else %}
-      <div><em>זה נורא עצוב, אבל אין כאן שום דבר.</em></div>
-      {% endfor %}
+<div id="examples">
+  {% for conv in conversations[:3] %}
+  <div class="example">
+    <div class="by">
+      <span class="author">שיתוף של <a href="/users/{{conv.owner.name}}">{{conv.owner.name}}</a></span>
+      <span class="date">מלפני {{conv.update_time_since}}</span>
     </div>
+    <div class="message">
+      <h3><a href="/conversations/{{conv.id}}/{{conv.slug}}">{{conv.title|shorten}}</a></h3>
+      <p>{{conv.get_first_message().text|multiline}}</p>
+    </div>
+    <a class="more" href="/conversations/{{conv.id}}/{{conv.slug}}">המשך...</a>
+  </div>
+  {% else %}
+  <div><em>זה נורא עצוב, אבל אין כאן שום דבר.</em></div>
+  {% endfor %}
+</div>

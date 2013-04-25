@@ -1,0 +1,37 @@
+@headerColor: #924650;
+@buttonColor: #c98f97;
+@backgroundColor: #ffeecc;
+
+.box() {
+    padding: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    border-radius: 5px;
+    background: #fff;
+}
+
+.fullwidth() {
+    width: 90%;
+    margin: 0 auto;
+    max-width: 1000px;
+}
+
+@gridColumns: 12;
+@gridMargin: 1%;
+@gridColumnWidth: (100% - (@gridColumns - 1) * @gridMargin) / @gridColumns;
+
+// a row of the grid
+.row() {
+    overflow: hidden;
+    margin-top: @gridMargin;
+    padding-bottom: @gridMargin;
+}
+
+// a column of the grid (size is the number of virtual 1/12 columns to use)
+.column(@size) {
+    width: (@gridColumnWidth * @size) + (@gridMargin * (@size - 1));
+    float: right;
+    margin-right: @gridMargin;
+    &:first-child {
+        margin-right: 0;
+    };
+}

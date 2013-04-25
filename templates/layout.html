@@ -1,30 +1,57 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width" />
-    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet/less" type="text/css" href="/static/css/base.less">
+    <link rel="stylesheet/less" type="text/css" href="/static/css/layout.less">
     {% block css %}{% endblock %}
+    <script type="text/javascript" src="/static/js/less.js"></script>
   </head>
   <body>
-    <div id="header">
-      <a href="/"><img src="/static/images/logo-70.png"></a>
-      <div id="links">
-        <a href="/terms">תנאי שימוש</a> |
-        <a href="/faq">שאלות נפוצות</a> |
-        <a href="mailto:support@openemotion.org">כתבו לנו</a>
-        <div id="login-links">
-        {% if session.logged_in_user %}
-          <span>מחובר כ-</span><a href="/users/{{session.logged_in_user}}">{{session.logged_in_user}}</a> |
-          <a href="/logout?goto={{request.url|urlencode}}">התנתק</a>
-        {% else %}
-          <a href="/register">הרשמה</a> |
-          <a href="/login?goto={{request.url|urlencode}}">כניסה</a>
-        {% endif %}
-        </div>
+    <header>
+      <div id="header-background"></div>
+      <div class="container">
+        <nav>
+          <ul id="links">
+            {% if session.logged_in_user %}
+              <li><span>מחובר כ-</span><a href="/users/{{session.logged_in_user}}">{{session.logged_in_user}}</a></li>
+              <li><a href="/logout?goto={{request.url|urlencode}}">התנתק</a></li>
+            {% else %}
+              <li><a href="/register">הרשמה</a></li>
+              <li><a href="/login?goto={{request.url|urlencode}}">כניסה</a></li>
+            {% endif %}
+          </ul>
+          <div id="logo">
+            <a href="/"><img src="/static/images/openemotion-logo-white.png" alt="openemotion קהילה לתמיכה רגשית"></a>
+            <div id="tagline">קהילה לתמיכה רגשית</div>
+          </div>
+          <div id="description">
+            <p>
+              כאן המקום לדבר על הכל. כל מה שאנחנו מתביישים בו, הפחדים, הכעסים, התסכולים. כל מה שאין לנו למי לספר ואנחנו אפילו לא מעיזים לספר לעצמינו. כאן אפשר לפרוק את העול, לאמר את האמת ולתת מקום לכל הרגשות.
+            </p>
+            <p>
+              כאן אפשר לפתוח את הלב ולקבל אהבה.
+            </p>
+          </div>
+          <div id="buttons">
+            <li><a class="btn" href="/faq">שאלות נפוצות</a></li>
+            <li><a class="btn" href="/terms">תנאי שימוש</a></li>
+            <!-- FIXME: create a support conversation for contacting us -->
+            <li><a class="btn" href="mailto:support@openemotion.org">כתבו לנו</a></li>
+          </div>
+        </nav>
       </div>
+    </header>
+
+    <div id="body">
+      {% block body %}{% endblock %}
     </div>
-    {% block body %}{% endblock %}
+
+    <footer>
+      &nbsp;
+    </footer>
+
     <script type="text/javascript" src="/static/js/jquery-1.8.2.js"></script>
     <script type="text/javascript" >
       globalConfig = {

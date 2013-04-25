@@ -1,0 +1,73 @@
+@import "utils.less";
+
+header {
+    position: relative;
+    padding: 15px 0 0 0;
+    color: #fff;
+
+    #header-background {
+        background: @headerColor;
+        position: absolute;
+        top: 0;
+        bottom: 22px;
+        width: 100%;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+    }
+
+    nav {
+        .fullwidth;
+        position: relative;
+        overflow: hidden;
+        padding-bottom: 15px;
+
+        #logo {
+            #tagline {
+                color: #fff;
+                border: none;
+                font-size: 1.6em;
+                position: relative;
+                top: -12px;
+                margin-right: 10px;
+                display: inline;
+            }
+        }
+
+        #description {
+            max-width: 650px;
+            margin-bottom: 10px;
+        }
+
+        #buttons {
+            float: left;
+            li {
+                display: inline;
+                margin-right: 5px;
+                &:first-child {
+                    margin-right: 0;
+                };
+            }
+        }
+
+        #links {
+            float: left;
+            li {
+                display: inline;
+                margin-right: 5px;
+                a {
+                    color: #fff;
+                }
+            }
+        }
+    }
+}
+
+footer {
+    margin-top: 20px;
+    box-shadow: 0 -1px 5px rgba(0,0,0,0.3);
+    background: @headerColor;
+    height: 50px;
+}
+
+#body {
+    .fullwidth;
+}

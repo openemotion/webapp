@@ -1,15 +1,18 @@
 {% extends "layout.html" %}
 
+{% block css %}
+  <link rel="stylesheet/less" type="text/css" href="/static/css/main.less">
+{% endblock %}
+
 {% block js %}
-    <script type="text/javascript" src="/static/js/conv_list_reload.js"></script>
+  <!-- <script type="text/javascript" src="/static/js/conv_list_reload.js"></script> -->
 {% endblock %}
 
 {% block body %}
-    <div>
-      {% if session.logged_in_user %}
-      <button id="new_share" onclick="window.location='/conversations/new'">שיתוף חדש</button>
-      {% endif %}
-      <h1>שיתופים אחרונים</h1>
-    </div>
-    {% include "_conversation_list.html" %}
+  {% include "_conversation_list.html" %}
+  <div>
+    {% if session.logged_in_user %}
+    <a id="new_conversation" class="btn big" href="/conversations/new">שיתוף חדש</a>
+    {% endif %}
+  </div>
 {% endblock %}
