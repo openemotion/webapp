@@ -35,6 +35,9 @@
             </p>
           </div>
           <div id="buttons">
+            {% if session.logged_in_user %}
+              <li><a class="btn" href="/conversations/new">שיתוף חדש</a></li>
+            {% endif %}
             <li><a class="btn" href="/faq">שאלות נפוצות</a></li>
             <li><a class="btn" href="/terms">תנאי שימוש</a></li>
             <!-- FIXME: create a support conversation for contacting us -->
@@ -44,8 +47,8 @@
       </div>
     </header>
 
-    <div id="body">
-      {% block body %}{% endblock %}
+    <div id="main">
+      {% block main %}{% endblock %}
     </div>
 
     <footer>

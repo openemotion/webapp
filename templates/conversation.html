@@ -16,21 +16,23 @@
     </script>
 {% endblock %}
 
-{% block body %}
+{% block main %}
 
-    <h1>{{conversation.title|shorten}}</h1>
+    <div id="content">
+        <h1>{{conversation.title|shorten}}</h1>
 
-    {% if conversation.status == "pending" %}
-    <div id="status">השיתוף ממתין לתמיכה מלפני {{conversation.start_time_since}}</div>
-    {% endif %}
+        {% if conversation.status == "pending" %}
+        <div id="status">השיתוף ממתין לתמיכה מלפני {{conversation.start_time_since}}</div>
+        {% endif %}
 
-    <div id="history">
-        {% for message in conversation.messages %}
-        <div class="message {{message.type}}">
-            <div class="author">{{ message.author.name }}</div>
-            <div class="text">{{ message.text|multiline }}</div>
+        <div id="history">
+            {% for message in conversation.messages %}
+            <div class="message {{message.type}}">
+                <div class="author">{{ message.author.name }}</div>
+                <div class="text">{{ message.text|multiline }}</div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 
     <div id="converse">

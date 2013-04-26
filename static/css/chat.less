@@ -1,53 +1,60 @@
 @import "utils.less";
 
 .message {
-  .box;
-  position: relative;
-  margin-top: 15px;
-  line-height: 1.2em;
-  border-radius: 3px;
-  padding: 3px 7px 6px 7px;
+    position: relative;
+    padding: 10px 0;
+    line-height: 1.2em;
+    border-bottom: 1px solid #ddd;
 
-  .author {
-    display: inline;
-    color: #999;
-    font-size: 12px;
-    font-weight: bold;
-  }
 
-  .text {
-    margin-top:2px;
-  }
+    &:last-child {
+        border-bottom: none;
+    };
 
-  &.talker {
-    background: #fff;
-  }
+    .author {
+        float: left;
+        margin-right: 5px;
+        margin-top: 2px;
+        color: #999;
+        font-size: 12px;
+        font-weight: bold;
+        border: 1px solid #eee;
+        border-radius: 3px;
+        padding: 0 3px;
+        background: #ffd;
+    }
 
-  &.listener {
-    background: @backgroundColor;
-  }
+    .text {
+        margin-top:2px;
+    }
 }
 
-#message {
-  width: 100%;
-  height: 150px;
-  border: 1px solid #ccc;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-#status {
-  font-size: 16px;
-  margin-top: -10px;
-  margin-bottom: 10px;
-  color: #6a6;
+.message.listener .text {
+    color: #555;
 }
 
 #converse {
-  margin-top: 30px;
+    .box;
+    margin-top: 15px;
+    
+    #message {
+        width: 100%;
+        height: 150px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+}
+
+#status {
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    color: #6a6;
+}
+
+#converse {
 }
 
 #converse textarea {
-  margin-top: 0;
-  border-radius: 3px;
+    margin-top: 0;
 }

@@ -8,11 +8,6 @@
   <!-- <script type="text/javascript" src="/static/js/conv_list_reload.js"></script> -->
 {% endblock %}
 
-{% block body %}
+{% block main %}
   {% include "_conversation_list.html" %}
-  <div>
-    {% if session.logged_in_user %}
-    <a id="new_conversation" class="btn big" href="/conversations/new">שיתוף חדש</a>
-    {% endif %}
-  </div>
 {% endblock %}

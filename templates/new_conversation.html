@@ -20,16 +20,21 @@
     </script>
 {% endblock %}
 
-{% block body %}
-    <h1>שיתוף חדש</h1>
+{% block main %}
 
-    <form method="post">
+    <div id="content">
 
-      <input type="hidden" id="title" name="title" value="שיתוף חדש"></input>
-      <div class="note">שימו לב, השורה הראשונה של ההודעה תהפוך לכותרת</div>
-      <label for="message">מה מציק לך?</label>
-      <textarea style="width: 100%" rows="15" id="message" name="message"></textarea>
+      <h1>שיתוף חדש</h1>
 
-      <div><input id="submit" type="submit" value="שתף"></div>
-    </form>
+      <form method="post">
+
+        <input type="hidden" id="title" name="title" value="שיתוף חדש"></input>
+        <div class="note">שימו לב, השורה הראשונה של ההודעה תהפוך לכותרת</div>
+        <label for="message">מה מציק לך?</label>
+        <textarea style="width: 100%" rows="15" id="message" name="message"></textarea>
+
+        <div><input id="submit" type="submit" value="שתף"></div>
+      </form>
+
+    </div>
 {% endblock %}

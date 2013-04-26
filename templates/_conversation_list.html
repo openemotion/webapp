@@ -1,13 +1,13 @@
 <div id="examples">
-  {% for conv in conversations[:3] %}
+  {% for conv in conversations[:4] %}
   <div class="example">
     <div class="by">
       <span class="author">שיתוף של <a href="/users/{{conv.owner.name}}">{{conv.owner.name}}</a></span>
       <span class="date">מלפני {{conv.update_time_since}}</span>
     </div>
     <div class="message">
-      <h3><a href="/conversations/{{conv.id}}/{{conv.slug}}">{{conv.title|shorten}}</a></h3>
-      <p>{{conv.get_first_message().text|multiline}}</p>
+      <div class="title"><a href="/conversations/{{conv.id}}/{{conv.slug}}">{{conv.title|shorten}}</a></div>
+      <div class="text">{{conv.get_first_message().text|multiline}}</div>
     </div>
     <a class="more" href="/conversations/{{conv.id}}/{{conv.slug}}">המשך...</a>
   </div>

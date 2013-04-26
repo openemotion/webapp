@@ -1,30 +1,50 @@
 @import "utils.less";
 
+#main {
+    padding-bottom: 7px; // for share button shadow
+}
+
 #new_conversation {
     float: left;
 }
 
 #examples {
-    .row;
     .example {
         .box;
         overflow: hidden;
-        .column(4);
+        margin-bottom: 10px;
+
+        .message {
+            margin-bottom: 10px;
+            max-height: 100px;
+            overflow: hidden;
+
+            .title {
+                font-size: 1.4em;
+                font-weight: bold;
+            }
+
+            .text {
+                margin-top: 10px;
+            }
+        }
+
         .by {
             font-size: 0.8em;
             margin: 0 0 7px 0;
-        }
-        .author {
-            font-weight: bold;
-        }
-        .more {
             float: left;
-            font-size: 0.8em;
+            color: #888;
+            a {
+                color: #888;
+            }
+            .author {
+                font-weight: bold;
+            }
         }
-        .message {
-            margin-bottom: 10px;
-            overflow: hidden;
-            height: 300px;
+
+        .more {
+            font-size: 0.8em;
+            display: none;
         }
     }
 }
@@ -33,47 +53,6 @@
     float: left;
     margin-left: 2px;
     margin-top: 10px;
-}
-
-#actions {
-    .row;
-    clear: both;
-    margin-top: 50px;
-
-    #share {
-        .box;
-        margin: 0;
-        .column(8);
-        position: relative;
-        z-index: 0; // fix for button shadow
-
-        h2 {
-            color: @headerColor;
-            font-size: 2.0em;
-            font-weight: bold;
-        }
-
-        .explain {
-            max-width: 500px;
-        }
-
-        textarea {
-            width: 100%;
-            margin-top: 10px;
-            height: 10em;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        #new-share {
-            float: left;
-            margin-top: 10px;
-        }
-    }
-
-    #read {
-        display: none;
-    }
 }
 
 /*

@@ -1,5 +1,18 @@
 @import "utils.less";
 
+@footerHeight: 50px;
+@footerMargin: 20px;
+
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    position: relative;
+    padding-bottom: @footerHeight + @footerMargin; // footer + 10px margin
+}
+
 header {
     position: relative;
     padding: 15px 0 0 0;
@@ -24,7 +37,7 @@ header {
             #tagline {
                 color: #fff;
                 border: none;
-                font-size: 1.6em;
+                font-size: 24px;
                 position: relative;
                 top: -12px;
                 margin-right: 10px;
@@ -62,12 +75,31 @@ header {
 }
 
 footer {
-    margin-top: 20px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
     box-shadow: 0 -1px 5px rgba(0,0,0,0.3);
     background: @headerColor;
-    height: 50px;
+    height: @footerHeight;
 }
 
-#body {
+#main {
     .fullwidth;
+}
+
+
+h1 {
+    border-bottom: 1px solid #ddd;
+}
+
+#content {
+    .box;
+    margin-top: 10px;
+    padding: 20px;
+    p {
+        line-height: 1.2em;
+        &:first-child {
+            margin-top: 0;
+        }
+    }
 }
