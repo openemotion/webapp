@@ -1,0 +1,7 @@
+    <div class="message {{message.type}} {{message.unread}}">
+        <div class="by">
+          <span class="author"><a href="/users/{{message.author.name}}">{{message.author.name}}</a></span>
+          <span class="date">לפני {{message.post_time_since}}</span>
+        </div>
+        <div class="text">{{message.text|multiline}}</div>
+    </div>

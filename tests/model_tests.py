@@ -124,6 +124,12 @@ class UnreadTests(Base):
         [m.text for m in user1messages] == ['third message', 'fourth message']
         [m.text for m in user2messages] == ['fourth message']
 
+    def test_mark_read(self):
+        self.conv.mark_read(self.user1)
+        db.session.commit()
+        user1messages = self.conv.get_unread_messages(for_user=self.user1)
+        assert len(user1messages) == 0
+
 # FIXME: add tests for model.Message
 # FIXME: add tests for model.Conversation
 

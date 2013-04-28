@@ -47,15 +47,15 @@ class ConversationsTests(Base):
     def test_no_conversations(self):
         r = self.app.get(self.path)
         d = PyQuery(r.data)
-        assert len(d('.message')) == 0
+        assert len(d('.conversation')) == 0
 
     def test_one_conversation(self):
         self.create_sample_conversation()
         r = self.app.get(self.path)
         d = PyQuery(r.data)
-        assert len(d('.message')) == 1
-        assert d('.message > .title > a').attr('href') == '/conversations/1/some_title'
-        assert d('.message > .title > a').html() == 'some title'
+        assert len(d('.conversation')) == 1
+        assert d('.conversation > .title > a').attr('href') == '/conversations/1/some_title'
+        assert d('.conversation > .title > a').html() == 'some title'
 
     def test_conversation_sorting(self):
         lastest = Conversation(self.user1, 'lastest', start_time=datetime(2013,1,1))
@@ -67,8 +67,8 @@ class ConversationsTests(Base):
 
         r = self.app.get(self.path)
         d = PyQuery(r.data)
-        assert len(d('.message')) == 4
-        assert [e.text() for e in d('.message > .title > a').items()] == ['first', 'middle', 'last', 'lastest']
+        assert len(d('.conversation')) == 4
+        assert [e.text() for e in d('.conversation > .title > a').items()] == ['lastest', 'last', 'middle', 'first']
 
 class IndexTests(ConversationsTests):
     path = '/'
@@ -132,12 +132,12 @@ class ConversationTests(Base):
         r = self.app.get('/conversations/1/some_title')
         d = PyQuery(r.data)
 
-        [e.text() for e in d('.message > .author').items()] == ['user1', 'user2', 'user1', 'user2']
-        [e.text() for e in d('.message > .text').items()] == ['first message', 'second message', 'third message', 'fourth message']
-        d('.message').eq(0).hasClass('talker')
-        d('.message').eq(1).hasClass('listener')
-        d('.message').eq(2).hasClass('talker')
-        d('.message').eq(3).hasClass('listener')
+        [e.text() for e in d('.conversation > .author').items()] == ['user1', 'user2', 'user1', 'user2']
+        [e.text() for e in d('.conversation > .text').items()] == ['first message', 'second message', 'third message', 'fourth message']
+        d('.conversation').eq(0).hasClass('talker')
+        d('.conversation').eq(1).hasClass('listener')
+        d('.conversation').eq(2).hasClass('talker')
+        d('.conversation').eq(3).hasClass('listener')
 
 class UpdatesTests(Base):
     # /convesations/1/updates
@@ -233,7 +233,7 @@ class NewConversationTests(Base):
         r = self.app.get('/conversations/1/some_title')
         d= PyQuery(r.data)
         assert len(d('#history > .message')) == 1
-        assert d('#history > .message > .author').text() == 'user1'
+        assert d('#history > .message > .by > .author').text() == 'user1'
         assert d('#history > .message > .text').text() == 'new message'
         assert d('h1').text() == 'some title'
 

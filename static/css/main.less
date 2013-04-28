@@ -8,8 +8,8 @@
     float: left;
 }
 
-#messages {
-    .message {
+#conversations {
+    .conversation {
         .box;
         overflow: hidden;
         margin-bottom: 10px;
@@ -19,29 +19,8 @@
             font-weight: bold;
         }
 
-        .text {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            overflow: hidden;
-            max-height: 100px;
-        }
-
-        .by {
-            font-size: 0.8em;
-            margin: 0 0 7px 0;
-            float: left;
-            color: #888;
-            a {
-                color: #888;
-            }
-            .author {
-                font-weight: bold;
-            }
-        }
-
         .more {
             font-size: 0.8em;
-            display: none;
         }
     }
 }
@@ -51,22 +30,3 @@
     margin-left: 2px;
     margin-top: 10px;
 }
-
-/*
-@media (max-width: 1100px) {
-    #examples {
-        .example {
-            .column(6);
-            &:last-child {
-                display: none;
-            };
-        }
-    }
-
-    #actions {
-        #share {
-            .column(12);
-        }
-    }
-}
-*/

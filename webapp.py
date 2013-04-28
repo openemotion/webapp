@@ -25,8 +25,12 @@ db.init_app(app)
 
 @app.route('/')
 def main():
+    user = get_current_user(required=False)
     conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
-    return render_template('main.html', conversations=conversations)
+    if user:
+        return render_template('main_updates.html', conversations=conversations)
+    else:
+        return render_template('main.html', conversations=conversations)
 
 @app.route('/conversations')
 def conversations():
@@ -57,46 +61,51 @@ def terms():
 @app.route('/conversations/<int:id>/')
 @app.route('/conversations/<int:id>/<slug>')
 def conversation(id, slug=None):
-    conversation = model.Conversation.query.get_or_404(id)
-    if slug != conversation.slug:
-        return redirect(url_for('conversation', _external=True, id=id, slug=conversation.slug))
-    update_visit_time(conversation)
-    user_message_type = detect_user_message_type(conversation)
+    conv = model.Conversation.query.get_or_404(id)
+    if slug != conv.slug:
+        return redirect(url_for('conversation', _external=True, id=id, slug=conv.slug))
+    conv.mark_read(get_current_user(required=False))
+    db.session.commit()
+    user_message_type = detect_user_message_type(conv)
     return render_template(
         'conversation.html', 
-        conversation=conversation, 
-        messages=list(conversation.messages), 
+        conversation=conv, 
+        messages=list(conv.messages), 
         user_message_type=user_message_type
     )
 
 @app.route('/conversations/<int:id>/atom')
 def conversation_feed(id):
-    conversation = model.Conversation.query.get_or_404(id)
-    feed = AtomFeed(conversation.title, feed_url=request.url, url=request.url_root)
-    for message in conversation.messages:
+    conv = model.Conversation.query.get_or_404(id)
+    feed = AtomFeed(conv.title, feed_url=request.url, url=request.url_root)
+    for message in conv.messages:
         feed.add (
             message.text.splitlines()[0],
             message.text,
             content_type='html',
             author=message.author.name,
             url=request.url_root,
-            updated=message.timestamp,
-            published=message.timestamp
+            updated=message.post_time,
+            published=message.post_time
         )
     return feed.get_response()
 
 @app.route('/conversations/<int:id>/updates')
 def updates(id):
-    conversation = model.Conversation.query.get_or_404(id)
+    conv = model.Conversation.query.get_or_404(id)
+    user = get_current_user(required=False)
     last_message_id = int(request.args.get('last_message_id', -1, type=int))
-    messages = conversation.get_updated_messages(last_message_id, get_current_user(required=False))
+    messages = conv.get_updated_messages(last_message_id, user)
     last_message_id = messages[-1].id if messages else last_message_id
-    update_visit_time(conversation)
-    return utils.jsonify(
-        conversation=conversation, 
+    conv.mark_read(user)
+    # FIXME: for some reason the Conversation object goes away after commit
+    result = utils.jsonify(
+        conversation=conv,
         messages=messages, 
         last_message_id=last_message_id
     )
+    db.session.commit()
+    return result
 
 @app.route('/conversations/<int:id>/post', methods=['POST'])
 def post_message(id):
@@ -107,7 +116,7 @@ def post_message(id):
         abort(400)
     if (conv.owner != user and conv.status == model.Conversation.STATUS.PENDING):
         conv.status = model.Conversation.STATUS.ACTIVE
-    update_visit_time(conv)
+    conv.mark_read(user)
     conv.messages.append(model.Message(user, escape(request.form['text'])))
     conv.update_time = datetime.utcnow()
     db.session.commit()
@@ -221,11 +230,6 @@ def urldecode(s):
 def make_external(url):
     return urljoin(request.url_root, url)
 
-def update_visit_time(conversation):
-    return
-    # FIXME: restore visit management
-    # FIXME: logged_in_user should hold the user id, not name
-
 def detect_user_message_type(conversation):
     if session.get('logged_in_user') == conversation.owner.name:
         return model.Message.TYPE.TALKER
@@ -234,7 +238,7 @@ def detect_user_message_type(conversation):
 
 def get_current_user(required=True):
     if session.get('logged_in_user'):
-        user = model.User.get(session.get('logged_in_user'))
+        user = model.User.get_current()
         if not user:
             abort(403)
         return user
