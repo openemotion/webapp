@@ -111,7 +111,8 @@ def post_message(id):
     conv.messages.append(model.Message(user, escape(request.form['text'])))
     conv.update_time = datetime.utcnow()
     db.session.commit()
-    return ''
+
+    return 'OK', 201
 
 @app.route('/conversations/new', methods=['GET', 'POST'])
 def new_conversation():
@@ -128,7 +129,7 @@ def new_conversation():
         conv = model.Conversation(user, request.form['title'])
         conv.messages.append(model.Message(user, escape(request.form['message'])))
         db.session.commit()
-        return redirect(url_for('conversation', id=conv.id))
+        return redirect(url_for('conversation', id=conv.id), code=303)
 
 @app.route('/users/<name>/')
 def user(name):
@@ -164,7 +165,7 @@ def register():
         db.session.commit()
 
         session['logged_in_user'] = name
-        return redirect(urldecode(request.args.get('goto', '')) or url_for('main'))
+        return redirect(urldecode(request.args.get('goto', '')) or url_for('main'), code=303)
     else:
         return render_template('register.html')
 
@@ -184,7 +185,7 @@ def login():
         if user.password_hash != password_hash:
             return redirect(url_for('login', error='bad_password', name=name, goto=request.args.get('goto')))
         session['logged_in_user'] = request.form['name']
-        return redirect(urldecode(request.args.get('goto') or '') or url_for('main'))
+        return redirect(urldecode(request.args.get('goto') or '') or url_for('main'), code=303)
     else:
         return render_template('login.html')
 
@@ -201,6 +202,7 @@ def urlencode_filter(s):
 
 @app.template_filter('multiline')
 def multiline_filter(s):
+    s = s or ''
     s = re.sub(r'(\r?\n)', '<br>', s)
     return Markup(s)
 

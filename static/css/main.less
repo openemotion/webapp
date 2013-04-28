@@ -8,25 +8,22 @@
     float: left;
 }
 
-#examples {
-    .example {
+#messages {
+    .message {
         .box;
         overflow: hidden;
         margin-bottom: 10px;
 
-        .message {
+        .title {
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        .text {
+            margin-top: 10px;
             margin-bottom: 10px;
-            max-height: 100px;
             overflow: hidden;
-
-            .title {
-                font-size: 1.4em;
-                font-weight: bold;
-            }
-
-            .text {
-                margin-top: 10px;
-            }
+            max-height: 100px;
         }
 
         .by {

@@ -47,15 +47,15 @@ class ConversationsTests(Base):
     def test_no_conversations(self):
         r = self.app.get(self.path)
         d = PyQuery(r.data)
-        assert len(d('.conversation_link')) == 0
+        assert len(d('.message')) == 0
 
     def test_one_conversation(self):
         self.create_sample_conversation()
         r = self.app.get(self.path)
         d = PyQuery(r.data)
-        assert len(d('.conversation_link')) == 1
-        assert d('.conversation_link > .title > a').attr('href') == '/conversations/1/some_title'
-        assert d('.conversation_link > .title > a').html() == 'some title'
+        assert len(d('.message')) == 1
+        assert d('.message > .title > a').attr('href') == '/conversations/1/some_title'
+        assert d('.message > .title > a').html() == 'some title'
 
     def test_conversation_sorting(self):
         lastest = Conversation(self.user1, 'lastest', start_time=datetime(2013,1,1))
@@ -67,8 +67,8 @@ class ConversationsTests(Base):
 
         r = self.app.get(self.path)
         d = PyQuery(r.data)
-        assert len(d('.conversation_link')) == 4
-        assert [e.text() for e in d('.conversation_link > .title > a').items()] == ['first', 'middle', 'last', 'lastest']
+        assert len(d('.message')) == 4
+        assert [e.text() for e in d('.message > .title > a').items()] == ['first', 'middle', 'last', 'lastest']
 
 class IndexTests(ConversationsTests):
     path = '/'
@@ -77,7 +77,7 @@ class IndexTests(ConversationsTests):
         self.login(self.user1)
         r = self.app.get(self.path)
         d = PyQuery(r.data)
-        assert  d('#login-links > a').eq(0).attr('href') == '/users/user1'
+        assert  d('#links a').eq(0).attr('href') == '/users/user1'
 
 class AtomTests(Base):
     # /atom
@@ -199,7 +199,7 @@ class PostTests(Base):
 
         self.login(self.user1)
         r = self.app.post('/conversations/1/post', data=dict(text='another message'), follow_redirects=True)
-        assert r.status == '200 OK'
+        assert r.status == '201 CREATED'
         r = self.app.get('/conversations/1/some_title')
         d = PyQuery(r.data)
         assert len(d('#history > .message')) == 5
@@ -227,7 +227,7 @@ class NewConversationTests(Base):
     def test_post(self):
         self.login(self.user1)
         r = self.app.post('/conversations/new', data=dict(message='new message', title='some title'))
-        assert r.status == '302 FOUND'
+        assert r.status == '303 SEE OTHER'
         assert r.location == 'http://localhost/conversations/1/'
 
         r = self.app.get('/conversations/1/some_title')
@@ -280,12 +280,12 @@ class RegisterTests(Base):
 
     def test_good(self):
         r = self.app.post('/register', data=dict(name='momo', password='123456', password2='123456'))
-        assert r.status == '302 FOUND'
+        assert r.status == '303 SEE OTHER'
         assert r.location == 'http://localhost/'
 
     def test_unicode(self):
         r = self.app.post('/register', data=dict(name='אלי', password='אלי', password2='אלי'))
-        assert r.status == '302 FOUND'
+        assert r.status == '303 SEE OTHER'
         assert r.location == 'http://localhost/'
 
     def test_redirect(self):
@@ -294,7 +294,7 @@ class RegisterTests(Base):
             '/register?goto=/conversations/1/post', 
             data=dict(name='momo', password='123456', password2='123456')
         )
-        assert r.status == '302 FOUND'
+        assert r.status == '303 SEE OTHER'
         assert r.location == 'http://localhost/conversations/1/post'
 
 class LoginTests(Base):
@@ -331,7 +331,7 @@ class LoginTests(Base):
         db.session.add(momo)
         db.session.commit()
         r = self.app.post('/login', data=dict(name='momo', password='123456'))
-        assert r.status == '302 FOUND'
+        assert r.status == '303 SEE OTHER'
         assert r.location == 'http://localhost/'
 
 if __name__ == '__main__':
