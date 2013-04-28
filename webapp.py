@@ -25,7 +25,7 @@ db.init_app(app)
 
 @app.route('/')
 def main():
-    conversations = model.Conversation.query.order_by(model.Conversation.update_time).all()
+    conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
     return render_template('main.html', conversations=conversations)
 
 @app.route('/atom')
@@ -51,7 +51,7 @@ def terms():
 
 @app.route('/conversations')
 def conversations():
-    conversations = model.Conversation.query.order_by(model.Conversation.update_time).all()
+    conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
     return render_template('_conversation_list.html', conversations=conversations)
 
 @app.route('/conversations/<int:id>/')
