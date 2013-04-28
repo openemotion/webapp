@@ -28,6 +28,11 @@ def main():
     conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
     return render_template('main.html', conversations=conversations)
 
+@app.route('/conversations')
+def conversations():
+    conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
+    return render_template('_conversation_list.html', conversations=conversations)
+
 @app.route('/atom')
 def main_feed():
     feed = AtomFeed(u'Open Emotion Conversations', feed_url=request.url, url=request.url_root)
@@ -48,11 +53,6 @@ def faq():
 @app.route('/terms')
 def terms():
     return render_template('terms.html')
-
-@app.route('/conversations')
-def conversations():
-    conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
-    return render_template('_conversation_list.html', conversations=conversations)
 
 @app.route('/conversations/<int:id>/')
 @app.route('/conversations/<int:id>/<slug>')

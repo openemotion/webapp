@@ -2,6 +2,7 @@ import re
 from datetime import datetime
 from contextlib import contextmanager
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 import utils
 
@@ -19,6 +20,7 @@ class User(db.Model, Jsonable):
     name = db.Column(db.String, unique=True, index=True)
     password_hash = db.Column(db.String)
     create_time = db.Column(db.DateTime)
+    unread = db.relationship('Unread', collection_class=attribute_mapped_collection('conversation_id'))
 
     def __init__(self, name, password, create_time=None):
         self.name = name
@@ -39,6 +41,19 @@ class User(db.Model, Jsonable):
     @property
     def create_time_since(self):
         return utils.prettydate(self.create_time)
+
+    def set_last_read_message(self, conv, message_id):
+        Unread.set(self.id, conv.id, message_id)
+
+    def get_unread_conversations(self):
+        conversations = []
+        last_message_ids = db.session.query(Conversation, db.func.max(Message.id)).join(Message).group_by(Conversation.id).all()
+        unread = db.session.query(Unread).filter(User.id == self.id)
+        last_read_message_ids = dict((ur.conversation_id, ur.last_read_message_id) for ur in unread)
+        for conv, last_message_id in last_message_ids:
+            if last_message_id > last_read_message_ids.get(conv.id, 0):
+                conversations.append(conv)
+        return conversations
 
 class Conversation(db.Model, Jsonable):
     __tablename__ = 'conversations'
@@ -63,7 +78,7 @@ class Conversation(db.Model, Jsonable):
         self.update_time = self.start_time
 
     def __repr__(self):
-        return '<Conversation(%d)>' % (self.id)
+        return '<Conversation(%s)>' % (self.id)
 
     @property
     def start_time_since(self):
@@ -77,10 +92,6 @@ class Conversation(db.Model, Jsonable):
     def slug(self):
         return re.compile('\W+', re.UNICODE).sub('_', self.title)
 
-    @property
-    def unread(self):
-        return ''
-
     def get_first_message(self):
         return self.messages.first()
 
@@ -89,6 +100,11 @@ class Conversation(db.Model, Jsonable):
         if for_user:
             q = q.filter(Message.author_id != for_user.id)
         return q.all()
+
+    def get_unread_messages(self, for_user):
+        unread = Unread.get(for_user.id, self.id)
+        last_read_message_id = unread.last_read_message_id if unread else 0
+        return self.messages.filter(Message.id > last_read_message_id).all()
 
 class Message(db.Model, Jsonable):
     __tablename__ = 'messages'
@@ -112,7 +128,7 @@ class Message(db.Model, Jsonable):
         self.timestamp = timestamp or datetime.utcnow()
 
     def __repr__(self):
-        return '<Message (%d)>' % (self.id)
+        return '<Message (%s)>' % (self.id)
 
     def __json__(self):
         data = super(Message, self).__json__()
@@ -130,9 +146,36 @@ class Message(db.Model, Jsonable):
         else:
             return Message.TYPE.LISTENER
 
+class Unread(db.Model, Jsonable):
+    __tablename__ = 'unread'
+    __table_args__ = (db.PrimaryKeyConstraint('user_id', 'conversation_id'), {})
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'), index=True)
+    last_read_message_id = db.Column(db.Integer, db.ForeignKey('messages.id'), index=True)
+
+    def __init__(self, user_id, conversation_id):
+        self.user_id = user_id
+        self.conversation_id = conversation_id
+
+    def __repr__(self):
+        return '<Unread (user=%s, conversation=%s, message=%s)>' % \
+            (self.user_id, self.conversation_id, self.last_read_message_id)
+
+    @classmethod
+    def get(cls, user_id, conversation_id):
+        return cls.query.filter_by(user_id=user_id, conversation_id=conversation_id).first()
+
+    @classmethod
+    def set(cls, user_id, conversation_id, last_read_message_id):
+        unread = cls.get(user_id, conversation_id)
+        if unread is None:
+            unread = cls(user_id, conversation_id)
+            db.session.add(unread)
+        unread.last_read_message_id = last_read_message_id
 
 @contextmanager
-def temp_db_context(uri, echo=False):
+def temp_db_context(uri='sqlite:///:memory:', echo=False):
     from flask import Flask
     app = Flask('dummy')
     app.config['SQLALCHEMY_DATABASE_URI'] = uri
