@@ -1,40 +1,30 @@
 {% extends "layout.html" %}
 
 {% block js %}
+    <!-- FIXME: move code to external js file -->
     <script>
     $(function () {
-      originalHeading = $("h1").html()
-
-      // focus on the message field
-      $("#message").focus();
-
-      // update title while typing
-      $("#message").keyup(function(e) {
-        var title = $("#message").val().split("\n")[0];
-        title = $.trim(title);
-        $("#title").val(title);
-        heading = title ? title : originalHeading
-        $("h1").empty().append(heading);
+      $("#title").focus();
+      original = $("h1").html();
+      $("#title").keyup(function(e) {
+        value = $.trim($("#title").val());
+        if (value === "") {
+          value = original;
+        }
+        $("h1").empty().append(value);
       });
     });
     </script>
 {% endblock %}
 
 {% block main %}
-
+    <!-- FIXME: move styling to external stylesheet -->
     <div id="content">
-
       <h1>שיתוף חדש</h1>
-
       <form method="post">
-
-        <input type="hidden" id="title" name="title" value="שיתוף חדש"></input>
-        <div class="note">שימו לב, השורה הראשונה של ההודעה תהפוך לכותרת</div>
-        <label for="message">מה מציק לך?</label>
-        <textarea style="width: 100%" rows="15" id="message" name="message"></textarea>
-
+        <input style="width: 100%" type="text" id="title" name="title" placeholder="נושא"></input>
+        <textarea style="width: 100%; margin-top: 15px;" rows="15" id="message" name="message" placeholder="מה מציק לך?"></textarea>
         <div><input id="submit" type="submit" value="שתף"></div>
       </form>
-
     </div>
 {% endblock %}

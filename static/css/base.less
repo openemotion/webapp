@@ -91,7 +91,7 @@ input[type="text"], input[type="password"], textarea {
     padding: 3px;
     margin-top: 5px;
     border: 1px solid #ccc;
-    box-sizing: border-box;
+    border-radius: 3px;
 }
 
 textarea {
@@ -165,17 +165,12 @@ input[type="submit"] {
             font-weight: bold;
         }
     }
-
-    .text {
-        margin-top:2px;
-    }
-
-    .listener .text {
-        color: #555;
-    }
-
 }
 
-.message.unread {
-    background: #f00;
+.message.listener .text {
+    color: #685d4b;
+}
+
+.message.listener .by {
+    background: #f5f5ff;
 }

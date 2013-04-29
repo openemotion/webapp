@@ -1,7 +1,7 @@
 <div id="conversations">
   {% for conv in conversations %}
   <div class="conversation">
-    <div class="title"><a href="/conversations/{{conv.id}}/{{conv.slug}}">{{conv.title|shorten}}</a></div>
+    <div class="title"><a href="/conversations/{{conv.id}}/{{conv.slug}}">{{conv.title}}</a></div>
     {% for message in conv.get_unread_messages_for_current_user() %}
       {% include "_message.html" %}
     {% else %}

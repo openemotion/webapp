@@ -6,7 +6,8 @@ $(function() {
         var text = $("#message").val();
         $("#message").val("");
         $("#history").append(formatMessage(chatConfig.user, chatConfig.userMessageType, text, true));
-        $(document).scrollTop($(document).height());
+        // FIXME: doesn't scroll to bottom on Safari, probably works badly on phones
+        scrollToBottom();
         $("#message").focus();
         $.post("post", {text:text});
     }
@@ -39,13 +40,16 @@ $(function() {
 
     // format a single message
     // FIXME: this is a duplication of the server-side message formatting code
+    // FIXME: no time is added when the user types a message
     function formatMessage(author, type, text, escape) {
         if (escape) {
             text = $("<div/>").text(text).html();
         }
         text = text.replace(/(\r?\n)+/g,"<br>");
         msg = $("<div>").addClass("message").addClass(type);
-        msg.append($("<div>").addClass("author").addClass().append(author));
+        by = $("<div>").addClass("by");
+        by.append($("<div>").addClass("author").addClass().append(author));
+        msg.append(by);
         msg.append($("<div>").addClass("text").append(text));
         return msg;
     }
@@ -64,16 +68,6 @@ $(function() {
     function scrollToBottom() {
         $(document).scrollTop($(document).height());
     }
-
-    $("#message").keypress(function(e) {
-        var text = $("#message").val();
-        if (e.keyCode === 13 && text.match(/\n$/)) {
-            if (text.replace(/\n/g, "") !== "") {
-                submitMessage();
-            }
-            e.preventDefault();
-        }
-    });
 
     $("#submit_message").click(function(e) {
         submitMessage();
