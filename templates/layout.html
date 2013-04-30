@@ -13,13 +13,14 @@
       <div id="header-background"></div>
       <div class="container">
         <nav>
-          <ul id="links">
+          <ul class="nav-links">
             {% if session.logged_in_user %}
               <li><span>מחובר כ-</span><a href="/users/{{session.logged_in_user}}">{{session.logged_in_user}}</a></li>
               <li><a href="/logout?goto={{request.url|urlencode}}">התנתק</a></li>
             {% else %}
-              <li><a href="/register">הרשמה</a></li>
-              <li><a href="/login?goto={{request.url|urlencode}}">כניסה</a></li>
+              <li><a href="/faq">שאלות נפוצות</a></li>
+              <li><a href="/terms">תנאי שימוש</a></li>
+              <li><a href="mailto:support@openemotion.org">כתבו לנו</a></li>
             {% endif %}
           </ul>
           <div id="logo">
@@ -37,11 +38,11 @@
           <div id="buttons">
             {% if session.logged_in_user %}
               <li><a class="btn" href="/conversations/new">שיתוף חדש</a></li>
+              <li><a class="btn" href="mailto:support@openemotion.org">כתבו לנו</a></li>
+            {% else %}
+              <li><a class="btn" href="/register">הרשמה</a></li>
+              <li><a class="btn" href="/login?goto={{request.url|urlencode}}">כניסה</a></li>
             {% endif %}
-            <li><a class="btn" href="/faq">שאלות נפוצות</a></li>
-            <li><a class="btn" href="/terms">תנאי שימוש</a></li>
-            <!-- FIXME: create a support conversation for contacting us -->
-            <li><a class="btn" href="mailto:support@openemotion.org">כתבו לנו</a></li>
           </div>
         </nav>
       </div>
@@ -52,7 +53,13 @@
     </div>
 
     <footer>
-      &nbsp;
+      <ul class="nav-links">
+        <li><a href="/">openemotion.org</a></li>
+        <li><a href="/faq">שאלות נפוצות</a></li>
+        <li><a href="/terms">תנאי שימוש</a></li>
+        <!-- FIXME: create a support conversation for contacting us -->
+        <li><a href="mailto:support@openemotion.org">כתבו לנו</a></li>
+      </ul>
     </footer>
 
     <script type="text/javascript" src="/static/js/jquery-1.8.2.js"></script>
