@@ -1,35 +1,74 @@
-@import "utils.less";
+@import "vars.less";
 
-#main {
-    padding-bottom: 7px; // for share button shadow
-}
+header {
+    position: relative;
+    padding: 15px 0 0 0;
+    color: @lightBackground;
+    background: none;
+    box-shadow: none;
 
-#new_conversation {
-    float: left;
-}
+    #header-background {
+        z-index: -1;
+        background: @headerBackground;
+        position: absolute;
+        top: 0;
+        bottom: 23px;
+        width: 100%;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+    }
 
-#conversations {
-    .conversation {
-        .box;
-        overflow: hidden;
-        margin-bottom: 10px;
-
-        .title {
-            font-size: 1.4em;
+    #big-logo {
+        text-align: center;
+        #subtitle {
+            font-size: 23px;
             font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
+    }
 
-        .more {
-            font-size: 0.8em;
+    #description {
+        width: 90%;
+        margin: 0 auto;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 1.2em;
+        p {
+            margin: 15px 0;
+        }
+    }
+
+    #links {
+        display: none;
+    }
+
+    #buttons {
+        text-align: center;
+        button {
+            width: 145px;
+            margin-right: 7px;
+            &:first-child {
+                margin-right: 0;
+            };
         }
     }
 }
 
-#read-all {
-    float: left;
-    margin-left: 2px;
-    margin-top: 10px;
+.sharing {
+    .message {
+        max-height: 200px;
+        &:last-of-type {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            padding-bottom: 35px;
+        };
+    }
+}
+
+#enter {
+    a {
+        display: inline-block;
+        width: 70%;
+    }
+    text-align: center;
+    margin-bottom: 20px;
 }

@@ -30,7 +30,6 @@ $(function() {
                 if (doScroll) {
                     scrollToBottom();
                 }
-                updateStatus(data.conversation.status);
             },
             complete: function () {
                 reloading = false;
@@ -38,26 +37,18 @@ $(function() {
         });
     }
 
-    // format a single message
-    // FIXME: this is a duplication of the server-side message formatting code
-    // FIXME: no time is added when the user types a message
+    var messageTemplate = Handlebars.compile($("#message-template").html());
     function formatMessage(author, type, text, escape) {
-        if (escape) {
-            text = $("<div/>").text(text).html();
-        }
-        text = text.replace(/(\r?\n)+/g,"<br>");
-        msg = $("<div>").addClass("message").addClass(type);
-        by = $("<div>").addClass("by");
-        by.append($("<div>").addClass("author").addClass().append(author));
-        msg.append(by);
-        msg.append($("<div>").addClass("text").append(text));
-        return msg;
-    }
-
-    function updateStatus(status) {
-        if (status !== "pending") {
-            $("#status").hide();
-        }
+        return messageTemplate({
+            "message" : {
+                "type" : type,
+                "author" : {
+                    "name" : author
+                },
+                "post_time_since" : "רגע",
+                "text": text
+            }
+        });
     }
 
     function isCloseToBottom() {
@@ -69,15 +60,13 @@ $(function() {
         $(document).scrollTop($(document).height());
     }
 
-    $("#submit_message").click(function(e) {
+    $("#message_form").submit(function(e) {
+        e.preventDefault();
         submitMessage();
     });
 
     // start periodic updates
     setInterval(updateHistory, globalConfig.UPDATE_INTERVAL);
-
-    // update status
-    updateStatus(chatConfig.status);
 
     // when page is reloaded scroll to the bottom if already there
     if (isCloseToBottom()) {

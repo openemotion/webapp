@@ -1,0 +1,35 @@
+@import "utils.less";
+
+#main {
+    padding-bottom: 7px; // for share button shadow
+}
+
+#new_conversation {
+    float: left;
+}
+
+#conversations {
+    .conversation {
+        .box;
+        overflow: hidden;
+        margin-bottom: 10px;
+
+        .title {
+            font-size: 1.4em;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .more {
+            font-size: 0.8em;
+        }
+    }
+}
+
+#read-all {
+    float: left;
+    margin-left: 2px;
+    margin-top: 10px;
+}

@@ -1,115 +1,160 @@
-@import "utils.less";
-
-@footerHeight: 50px;
-@footerMargin: 20px;
-
-html {
-    height: 100%;
-}
-
-body {
-    min-height: 100%;
-    position: relative;
-    padding-bottom: @footerHeight + @footerMargin; // footer + 10px margin
-}
+@import "vars.less";
 
 header {
-    position: relative;
-    padding: 15px 0 0 0;
+    background: @headerBackground;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.3);
     color: #fff;
+    padding: 7px 0;
+    overflow: hidden;
 
-    #header-background {
-        background: @headerColor;
-        position: absolute;
-        top: 0;
-        bottom: 22px;
-        width: 100%;
-        box-shadow: 0 1px 5px rgba(0,0,0,0.3);
-    }
-
-    nav {
-        .fullwidth;
-        position: relative;
-        overflow: hidden;
-        padding-bottom: 15px;
-
-        #logo {
-            #tagline {
-                color: #fff;
-                border: none;
-                font-size: 24px;
-                position: relative;
-                top: -12px;
-                margin-right: 10px;
-                display: inline;
-            }
-        }
-
-        #description {
-            max-width: 650px;
-            margin-bottom: 10px;
-        }
-
-        #buttons {
-            float: left;
-            li {
-                display: inline;
-                margin-right: 5px;
-                &:first-child {
-                    margin-right: 0;
-                };
-            }
-
-            .btn {
-                box-shadow: 0 1px 5px rgba(0,0,0,0.3);
-            }
-        }
-
-    }
-}
-
-.nav-links {
-    float: left;
-    li {
+    h1 {
+        color: @lightTextColor;
         display: inline;
-        margin-right: 5px;
-        a {
-            color: #fff;
-        }
+        position: relative;
+        top: 5px;
+        margin-right: 10px;
+        margin-bottom: 0;
+    }
+
+    #logo {
+        display: none;
+        position: relative;
+        top: -4px;
+        height: 35px;
+        float: left;
+    }
+
+    #back {
+        position: relative;
+        top: 3px;
+        float: right;
+        padding: 7px 10px;
+    }
+
+    #menu {
+        float: left;
+        margin-right: 7px;
+    }
+
+    #new-sharing {
+        float: left;
+        margin-right: 7px;
     }
 }
 
-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    box-shadow: 0 -1px 5px rgba(0,0,0,0.3);
-    background: @headerColor;
-    height: @footerHeight;
+.conversation {
+    margin: 30px 20px;
 
-    .nav-links {
-        float: none;
-        text-align: center;
+    .title {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: block;
+        font-size: 20px;
+        font-weight: bold;
+        background: @textBackground;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        padding: 15px 20px 0;
     }
+
+    .messages {
+        .message {
+
+            .message-header {
+                background: url('/static/images/top-left.svg') no-repeat;
+                width: 100%;
+                height: 30px;
+                margin-top: -5px;
+            }
+
+            &:first-child .message-header {
+                background: @textBackground;
+            }
+
+            .message-body {
+                padding: 7px 20px;
+                background: @textBackground;
+                .by {
+                    border-bottom: 1px solid @textBackground - #111;
+                    margin-top: -25px;
+                    font-size: 14px;
+                    .author {
+                        font-weight: bold;
+                    }
+                }
+
+                .text {
+                    margin-top: 5px;
+                    text-align: justify;
+                    margin-bottom: -15px;
+                }
+            }
+
+            .message-footer {
+                background: url('/static/images/bottom-left.svg') no-repeat;
+                width: 100%;
+                height: 30px;
+            }
+
+            &:last-child .message-footer {
+                height: 20px;
+                background: @textBackground;
+            }
+
+            &.listener {
+                .message-body .text {
+                    font-size: 19px;
+                    font-style: italic;
+                }
+            }
+        }
+    }
+
+    .action {
+        position: relative;
+        display: block;
+        text-align: center;
+        font-size: 18px;
+        text-decoration: none;
+        color: @lightTextColor;
+        background: @buttonBackground;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+        padding: 5px;
+
+        &.read {
+            color: @lightTextColor;
+            background: @textColor + #666;
+        }
+    }
+
+    .read {
+        color: @textColor + #666;
+    }
+}
+
+.note {
+    background: @bodyBackgroundHalf;
+    color: @lightTextColor;
+    padding: 10px;
+    overflow: hidden;
+    a.hide {
+        color: @lightTextColor;
+        display: block;
+        float: left;
+        font-size: 14px;
+    }
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    width: 95%;
 }
 
 #main {
-    .fullwidth;
-}
-
-
-h1 {
-    border-bottom: 1px solid #ddd;
-}
-
-#content {
-    .box;
-    margin-top: 10px;
-    padding: 20px;
-    p {
-        line-height: 1.2em;
-        &:first-child {
-            margin-top: 0;
-        }
-    }
+    .container;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }

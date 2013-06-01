@@ -1,15 +1,50 @@
 {% extends "layout.html" %}
 
 {% block css %}
-  <link rel="stylesheet/less" type="text/css" href="/static/css/main.less">
+  <link rel="stylesheet/less" type="text/css" href="/static/css/profile.less">
 {% endblock %}
 
 {% block js %}
-    <script type="text/javascript" src="/static/js/conv_list_reload.js"></script>
+  <!--<script type="text/javascript" src="/static/js/conv_list_reload.js"></script>-->
+{% endblock %}
+
+{% block title %}
+הפרופיל שלי ({{session.logged_in_user}})
 {% endblock %}
 
 {% block main %}
-    <h1>{{user.name}}</h1>
-    <!-- <span class="subtitle">נרשם לפני {{user.create_time_since}}</span> -->
-    {% include "_conversation_list.html" %}
+    <div class="rubriks">
+        <div class="row">
+            <a href="/updates" class="rubrik">
+                <div class="rubrik-count">{{my_updated}}</div>
+                <div class="rubrik-title">השיחות שלי</div>
+            </a>
+            <a href="/pending" class="rubrik">
+                <div class="rubrik-count">{{pending}}</div>
+                <div class="rubrik-title">שיתופים ממתינים</div>
+            </a>
+        </div>
+        <div class="row">
+            <a href="#" class="rubrik">
+                <div class="rubrik-count">0</div>
+                <div class="rubrik-title">עדכונים קשורים</div>
+            </a>
+            <a href="/all" class="rubrik">
+                <div class="rubrik-count">{{all_updated}}</div>
+                <div class="rubrik-title">כל השיחות</div>
+            </a>
+        </div>
+        <div class="row">
+            <a href="#" class="wide rubrik">
+                <div class="rubrik-title">המסדרון</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="menu">
+        <a href="/faq" class="menu-item">שאלות נפוצות</a>
+        <a href="/terms" class="menu-item">תנאי שימוש</a>
+        <a href="/settings" class="menu-item">הגדרות</a>
+        <a href="/logout?goto=/" class="menu-item">יציאה</a>
+    </div>
 {% endblock %}

@@ -1,3 +1,5 @@
+#coding=utf8
+
 import os
 import re
 import sys
@@ -21,21 +23,36 @@ import model
 db = model.db
 db.init_app(app)
 
-# FIXME: create a custom 404 NOT FOUND page and 403 FORBIDDEN PAGE
+# FIXME: create a custom 404 NOT FOUND page
 
 @app.route('/')
 def main():
     user = get_current_user(required=False)
-    conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
     if user:
-        return render_template('main_updates.html', conversations=conversations)
+        my_updated = len(user.get_my_unread_conversations())
+        all_updated = len(user.get_unread_conversations())
+        pending = model.Conversation.query.filter_by(status=model.Conversation.STATUS.PENDING).count()
+        return render_template('profile.html', my_updated=my_updated, all_updated=all_updated, pending=pending)
     else:
-        return render_template('main.html', conversations=conversations)
+        conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
+        return render_template('landing.html', conversations=conversations)
 
-@app.route('/conversations')
-def conversations():
-    conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
-    return render_template('_conversation_list.html', conversations=conversations)
+@app.route('/updates')
+def updated_conversations():
+    user = get_current_user()
+    return render_template('updates.html', title=u"השיחות שלי", conversations=user.conversations)
+
+@app.route('/all')
+def all_conversations():
+    user = get_current_user()
+    conversations = user.get_unread_conversations()
+    return render_template('updates.html', title=u"כל השיחות", conversations=conversations)
+
+@app.route('/pending')
+def pending_conversations():
+    user = get_current_user()
+    conversations = model.Conversation.query.filter_by(status=model.Conversation.STATUS.PENDING)
+    return render_template('updates.html', title=u"שיתופים ממתינים", conversations=conversations)
 
 @app.route('/atom')
 def main_feed():
@@ -61,10 +78,11 @@ def terms():
 @app.route('/conversations/<int:id>/')
 @app.route('/conversations/<int:id>/<slug>')
 def conversation(id, slug=None):
+    user = get_current_user()
     conv = model.Conversation.query.get_or_404(id)
     if slug != conv.slug:
         return redirect(url_for('conversation', _external=True, id=id, slug=conv.slug))
-    conv.mark_read(get_current_user(required=False))
+    conv.mark_read(user)
     db.session.commit()
     user_message_type = detect_user_message_type(conv)
     return render_template(
@@ -76,6 +94,7 @@ def conversation(id, slug=None):
 
 @app.route('/conversations/<int:id>/atom')
 def conversation_feed(id):
+    user = get_current_user()
     conv = model.Conversation.query.get_or_404(id)
     feed = AtomFeed(conv.title, feed_url=request.url, url=request.url_root)
     for message in conv.messages:
@@ -91,9 +110,9 @@ def conversation_feed(id):
     return feed.get_response()
 
 @app.route('/conversations/<int:id>/updates')
-def updates(id):
+def conversation_updates(id):
     conv = model.Conversation.query.get_or_404(id)
-    user = get_current_user(required=False)
+    user = get_current_user()
     last_message_id = int(request.args.get('last_message_id', -1, type=int))
     messages = conv.get_updated_messages(last_message_id, user)
     last_message_id = messages[-1].id if messages else last_message_id
@@ -140,15 +159,12 @@ def new_conversation():
         db.session.commit()
         return redirect(url_for('conversation', id=conv.id), code=303)
 
-@app.route('/users/<name>/')
-def user(name):
-    user = model.User.get_or_404(name)
-    return render_template('profile.html', user=user, conversations=user.conversations)
 
-@app.route('/users/<name>/conversations')
-def user_conversations(name):
-    user = model.User.get_or_404(name)
-    return render_template('_conversation_list.html', conversations=user.conversations)
+@app.route('/settings')
+# FIXME: replace forms with Flask-WTF or better
+def settings():
+    user = get_current_user()
+    return render_template('settings.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 # FIXME: replace forms with Flask-WTF or better
@@ -200,6 +216,7 @@ def login():
 
 @app.route('/logout')
 def logout():
+    user = get_current_user()
     session['logged_in_user'] = None
     return redirect(urldecode(request.args.get('goto')) or url_for('main'))
 
@@ -222,6 +239,10 @@ def shorten_filter(s, maxlen=40):
     else:
         return s[:maxlen-3] + '...'
 
+def include_raw(filename):
+    return Markup(app.jinja_loader.get_source(app.jinja_env, filename)[0])
+app.jinja_env.globals.update(include_raw=include_raw)
+
 def urldecode(s):
     if isinstance(s, unicode):
         s = s.encode('utf8')
@@ -239,12 +260,16 @@ def detect_user_message_type(conversation):
 def get_current_user(required=True):
     if session.get('logged_in_user'):
         user = model.User.get_current()
-        if not user:
+        if user:
+            return user
+        else:
             abort(403)
-        return user
     if required:
         abort(403)
-    return None
+
+@app.errorhandler(403)
+def page_not_found(e):
+    return redirect(url_for('login', goto=request.path))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', threaded=True)

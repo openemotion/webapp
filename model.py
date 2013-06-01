@@ -54,10 +54,17 @@ class User(db.Model, Jsonable):
         result = []
         conversations = db.session.query(Conversation, db.func.max(Message.id)).join(Message).group_by(Conversation.id)
         conversations = conversations.order_by(Conversation.update_time.desc()).all()
-        unread = db.session.query(Unread).filter(User.id == self.id)
+        unread = db.session.query(Unread).filter(Unread.user_id == self.id)
         last_read_message_ids = dict((ur.conversation_id, ur.last_read_message_id) for ur in unread)
         for conv, last_message_id in conversations:
             if last_message_id > last_read_message_ids.get(conv.id, 0):
+                result.append(conv)
+        return result
+
+    def get_my_unread_conversations(self):
+        result = []
+        for conv in self.get_unread_conversations():
+            if conv.owner_id == self.id:
                 result.append(conv)
         return result
 
@@ -98,6 +105,14 @@ class Conversation(db.Model, Jsonable):
     def slug(self):
         return re.compile('\W+', re.UNICODE).sub('_', self.title)
 
+    @property
+    def read_class(self):
+        return '' if self.get_unread_messages(User.get_current()).count() else 'read'
+
+    @property
+    def unread_messages(self):
+        return self.get_unread_messages(User.get_current(), include_last_read=True)
+
     def get_first_message(self):
         return self.messages.first()
 
@@ -110,13 +125,14 @@ class Conversation(db.Model, Jsonable):
             q = q.filter(Message.author_id != for_user.id)
         return q.all()
 
-    def get_unread_messages(self, for_user):
+    def get_unread_messages(self, for_user, include_last_read=False):
         unread = Unread.get(for_user.id, self.id)
         last_read_message_id = unread.last_read_message_id if unread else 0
-        return self.messages.filter(Message.id > last_read_message_id).all()
-
-    def get_unread_messages_for_current_user(self):
-        return self.get_unread_messages(User.get_current())
+        if include_last_read:
+            # return the last read message as well
+            return self.messages.filter(Message.id >= last_read_message_id)
+        else:
+            return self.messages.filter(Message.id > last_read_message_id)
 
     def mark_read(self, user):
         if user:
@@ -165,6 +181,10 @@ class Message(db.Model, Jsonable):
     @property
     def post_time_since(self):
         return utils.prettydate(self.post_time)
+
+    @property
+    def read_class(self):
+        return '' if self.is_unread_by(User.get_current()) else 'read'
 
     def is_unread_by(self, user):
         unread = Unread.get(user.id, self.conversation_id)

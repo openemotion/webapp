@@ -1,45 +1,41 @@
 {% extends "layout.html" %}
 
 {% block css %}
-  <link rel="stylesheet/less" type="text/css" href="/static/css/chat.less">
+    <link rel="stylesheet/less" type="text/css" href="/static/css/conversation.less">
 {% endblock %}
 
 {% block js %}
-  <script type="text/javascript" src="/static/js/chat.js"></script>
-  <script type="text/javascript">
-    chatConfig = {
-      lastMessageId : '{{ conversation.messages[-1].id if messages else 0 }}',
-      status : '{{ conversation.status }}',
-      user : '{{ session.get("logged_in_user", "") }}',
-      userMessageType : '{{ user_message_type }}'
-    }
-  </script>
+    <script type="text/javascript" src="/static/js/handlebars.js"></script>
+    <script type="text/javascript" src="/static/js/chat.js"></script>
+    <script type="text/javascript">
+        chatConfig = {
+            lastMessageId : '{{ conversation.messages[-1].id if messages else 0 }}',
+            status : '{{ conversation.status }}',
+            user : '{{ session.get("logged_in_user", "") }}',
+            userMessageType : '{{ user_message_type }}'
+        }
+    </script>
+    <!-- reusing server-side template for client-side -->
+    <script id="message-template" type="text/x-handlebars-template">
+        {{ include_raw("_message.html") }}
+    </script>
 {% endblock %}
 
 {% block main %}
+    <div class="conversation">
 
-  <div id="content">
-    <h1>{{conversation.title|shorten}}</h1>
+        <div class="title {{conversation.messages[0].read_class}}">{{conversation.title}}</div>
+        <div id="history" class="messages">
+            {% for message in conversation.messages %}
+                {% include "_message.html" %}
+            {% endfor %}
+        </div>
+        <div class="noaction"></div>
 
-    {% if conversation.status == "pending" %}
-    <div id="status">השיתוף ממתין לתמיכה מלפני {{conversation.start_time_since}}</div>
-    {% endif %}
+        <form id="message_form" action="">
+            <textarea id="message" placeholder="תגידו משהו..."></textarea>
+            <input id="submit_message" type="submit" class="btn" value="שליחה">
+        </form>
 
-    <div id="history">
-      {% for message in conversation.messages %}
-        {% include "_message.html" %}
-      {% endfor %}
     </div>
-  </div>
-
-  <div id="converse">
-    {% if session.logged_in_user %}
-    <textarea id="message"></textarea>
-    <div class="note">לחץ Tab ואז Enter בכדי לשלוח.</div>
-    <button id="submit_message">שלח הודעה</button>
-    {% else %}
-    <div class="info">בשביל להגיב, צריך <a href="/login?goto={{request.url|urlencode}}">להתחבר</a> או <a href="/register?goto={{request.url|urlencode}}">להרשם</a></div>
-    {% endif %}
-  </div>
-
 {% endblock %}

@@ -1,30 +1,34 @@
 {% extends "layout.html" %}
 
+{% block title %}
+שיתוף חדש
+{% endblock %}
+
+{% block css %}
+  <link rel="stylesheet/less" type="text/css" href="/static/css/new_conversation.less">
+{% endblock %}
+
 {% block js %}
-    <!-- FIXME: move code to external js file -->
-    <script>
-    $(function () {
-      $("#title").focus();
-      original = $("h1").html();
-      $("#title").keyup(function(e) {
-        value = $.trim($("#title").val());
-        if (value === "") {
-          value = original;
-        }
-        $("h1").empty().append(value);
-      });
-    });
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/autoresize.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $("#new-message").autoResize();
+        });
     </script>
 {% endblock %}
 
 {% block main %}
-    <!-- FIXME: move styling to external stylesheet -->
-    <div id="content">
-      <h1>שיתוף חדש</h1>
-      <form method="post">
-        <input style="width: 100%" type="text" id="title" name="title" placeholder="נושא"></input>
-        <textarea style="width: 100%; margin-top: 15px;" rows="15" id="message" name="message" placeholder="מה מציק לך?"></textarea>
-        <div><input id="submit" type="submit" value="שתף"></div>
-      </form>
+    <div id="main">
+        <div class="sharing">
+            <div class="note">
+                כל הכבוד על האומץ, אנחנו יודעים שזה לא קל לשתף משהו אישי שעובר עליכם. אף אחד כאן לא ייתן לכם עצות או פתרונות ובוודאי לא ישפוט אתכם על שום דבר. מותר לכם להרגיש הכל ומותר לכם להגיד הכל. כן, מותר אפילו לקלל, לצעוק או לבכות. מותר הכל. אנחנו כאן בכדי להקשיב, לעודד ולתת כתף תומכת.
+            </div>
+            <form method="post">
+                <input name="title" type="text" placeholder="נושא">
+                <textarea name="message" id="new-message" placeholder="אני רוצה לשתף ש..."></textarea>
+                <input type="submit" class="btn" value="שליחה">
+            </form>
+        </div>
     </div>
 {% endblock %}

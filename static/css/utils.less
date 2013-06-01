@@ -1,6 +1,4 @@
-@headerColor: #924650;
-@buttonColor: #c98f97;
-@backgroundColor: #ffeecc;
+@import "vars.less";
 
 .box() {
     padding: 10px;
@@ -9,30 +7,16 @@
     background: #fff;
 }
 
-.fullwidth() {
-    width: 90%;
-    margin: 0 auto;
-    max-width: 900px;
-    padding-left: 7px; // for button shadow
-}
-
-@gridColumns: 12;
-@gridMargin: 1%;
-@gridColumnWidth: (100% - (@gridColumns - 1) * @gridMargin) / @gridColumns;
-
-// a row of the grid
-.row() {
-    overflow: hidden;
-    margin-top: @gridMargin;
-    padding-bottom: @gridMargin;
-}
-
-// a column of the grid (size is the number of virtual 1/12 columns to use)
-.column(@size) {
-    width: (@gridColumnWidth * @size) + (@gridMargin * (@size - 1));
-    float: right;
-    margin-right: @gridMargin;
-    &:first-child {
-        margin-right: 0;
+.corner-shadow() {
+    position: relative;
+    &:after {
+        position: absolute;
+        bottom: -14px;
+        left: -17px;
+        z-index: -1;
+        background: url("/img/btn-shadow.png");
+        content: "";
+        width: 85px;
+        height: 54px;
     };
 }
