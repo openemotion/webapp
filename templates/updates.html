@@ -16,7 +16,7 @@
     <div class="conversation">
         <div class="title {{conv.unread_messages[0].read_class}}">{{conv.title}}</div>
         <div class="messages">
-        {% for message in conv.unread_messages %}
+        {% for message in conv.unread_messages[:4] %}
             {% include "_message.html" %}
         {% endfor %}
         </div>
