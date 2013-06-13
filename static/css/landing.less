@@ -12,7 +12,7 @@ header {
         background: @headerBackground;
         position: absolute;
         top: 0;
-        bottom: 23px;
+        bottom: 18px;
         width: 100%;
         box-shadow: 0 1px 5px rgba(0,0,0,0.3);
     }
@@ -37,13 +37,10 @@ header {
         }
     }
 
-    #links {
-        display: none;
-    }
-
     #buttons {
         text-align: center;
-        button {
+        a.btn {
+            display: inline-block;
             width: 170px;
             margin-right: 7px;
             &:first-child {

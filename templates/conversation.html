@@ -13,7 +13,7 @@
             status : '{{ conversation.status }}',
             author : '{{ author.name }}',
             authorId : '{{ author.id }}',
-            messageType : '{{ new_message_type }}'
+            messageType : '{{ new_message_type }}',
         }
     </script>
     <!-- reusing server-side template for client-side -->
@@ -35,13 +35,18 @@
 
         {% if author %}
         <form id="message_form" action="">
+            <div class="note">
+                מחובר כ{{author.name}}
+                (<a href="?author=">התנתק</a>)
+            </div>
             <textarea id="message" placeholder="תגידו משהו..."></textarea>
             <input id="submit_message" type="submit" class="btn" value="שליחה">
         </form>
         {% else %}
         <form id="join_form" action="join" method="POST">
-            <input id="author" name="name" type="text" placeholder="שם"></input>
-            <input type="submit" class="btn" value="להצטרף לשיחה">
+            <div class="note">הזינו שם בדוי והצטרפו לשיחה</div>
+            <input id="author" name="name" type="text" placeholder="שם בדוי"></input>
+            <input type="submit" class="btn" value=הצטרפות>
         </form>
         {% endif %}
 
