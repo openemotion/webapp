@@ -11,8 +11,9 @@
         chatConfig = {
             lastMessageId : '{{ conversation.messages[-1].id if messages else 0 }}',
             status : '{{ conversation.status }}',
-            user : '{{ session.get("logged_in_user", "") }}',
-            userMessageType : '{{ user_message_type }}'
+            author : '{{ author.name }}',
+            authorId : '{{ author.id }}',
+            messageType : '{{ new_message_type }}'
         }
     </script>
     <!-- reusing server-side template for client-side -->
@@ -32,10 +33,17 @@
         </div>
         <div class="noaction"></div>
 
+        {% if author %}
         <form id="message_form" action="">
             <textarea id="message" placeholder="תגידו משהו..."></textarea>
             <input id="submit_message" type="submit" class="btn" value="שליחה">
         </form>
+        {% else %}
+        <form id="join_form" action="join" method="POST">
+            <input id="author" name="name" type="text" placeholder="שם"></input>
+            <input type="submit" class="btn" value="להצטרף לשיחה">
+        </form>
+        {% endif %}
 
     </div>
 {% endblock %}

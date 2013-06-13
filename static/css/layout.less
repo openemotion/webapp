@@ -11,17 +11,16 @@ header {
         color: @lightTextColor;
         display: inline;
         position: relative;
-        top: 5px;
+        top: 7px;
         margin-right: 10px;
         margin-bottom: 0;
     }
 
     #logo {
-        display: none;
         position: relative;
         top: -4px;
         height: 35px;
-        float: left;
+        float: right;
     }
 
     #back {
@@ -104,9 +103,11 @@ header {
                 background: @textBackground;
             }
 
-            &.listener {
-                .message-body .text {
-                    font-style: italic;
+            &.talker {
+                .message-body .author {
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    padding: 0 3px;
                 }
             }
         }

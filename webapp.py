@@ -10,10 +10,8 @@ from datetime import datetime
 
 import utils
 
-from flask import (Flask, render_template, request, session, redirect,
+from flask import (Flask, render_template, request, redirect,
     url_for, abort, Markup, escape)
-
-from werkzeug.contrib.atom import AtomFeed
 
 app = Flask(__name__)
 app.config.from_object(os.environ.get('OPENEM_CONFIG', 'config.dev'))
@@ -27,45 +25,8 @@ db.init_app(app)
 
 @app.route('/')
 def main():
-    user = get_current_user(required=False)
-    if user:
-        my_updated = len(user.get_my_unread_conversations())
-        all_updated = len(user.get_unread_conversations())
-        pending = model.Conversation.query.filter_by(status=model.Conversation.STATUS.PENDING).count()
-        return render_template('profile.html', my_updated=my_updated, all_updated=all_updated, pending=pending)
-    else:
-        conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
-        return render_template('landing.html', conversations=conversations)
-
-@app.route('/updates')
-def updated_conversations():
-    user = get_current_user()
-    return render_template('updates.html', title=u"השיחות שלי", conversations=user.conversations)
-
-@app.route('/all')
-def all_conversations():
-    user = get_current_user()
-    conversations = user.get_unread_conversations()
-    return render_template('updates.html', title=u"כל השיחות", conversations=conversations)
-
-@app.route('/pending')
-def pending_conversations():
-    user = get_current_user()
-    conversations = model.Conversation.query.filter_by(status=model.Conversation.STATUS.PENDING)
-    return render_template('updates.html', title=u"שיתופים ממתינים", conversations=conversations)
-
-@app.route('/atom')
-def main_feed():
-    feed = AtomFeed(u'Open Emotion Conversations', feed_url=request.url, url=request.url_root)
-    for conv in model.Conversation.query:
-        feed.add(conv.title,
-                 conv.get_first_message().text,
-                 content_type='html',
-                 author=conv.owner.name,
-                 url=make_external('/conversations/%d' % conv.id),
-                 updated=conv.update_time,
-                 published=conv.start_time)
-    return feed.get_response()
+    conversations = model.Conversation.query.filter_by(is_example=True).order_by(model.Conversation.update_time.desc()).all()
+    return render_template('landing.html', conversations=conversations)
 
 @app.route('/faq')
 def faq():
@@ -78,46 +39,38 @@ def terms():
 @app.route('/conversations/<int:id>/')
 @app.route('/conversations/<int:id>/<slug>')
 def conversation(id, slug=None):
-    user = get_current_user()
     conv = model.Conversation.query.get_or_404(id)
     if slug != conv.slug:
-        return redirect(url_for('conversation', _external=True, id=id, slug=conv.slug))
-    conv.mark_read(user)
-    db.session.commit()
-    user_message_type = detect_user_message_type(conv)
+        return redirect(url_for('conversation', id=id, slug=conv.slug))
+    authorId = request.args.get('author')
+    author = model.Author.query.get_or_404(authorId) if authorId else None
+    new_message_type = model.Message.TYPE.TALKER if conv.owner is author else model.Message.TYPE.LISTENER
     return render_template(
         'conversation.html', 
         conversation=conv, 
         messages=list(conv.messages), 
-        user_message_type=user_message_type
+        author=author,
+        new_message_type=new_message_type
     )
 
-@app.route('/conversations/<int:id>/atom')
-def conversation_feed(id):
-    user = get_current_user()
+@app.route('/conversations/<int:id>/join', methods=['POST'])
+def join_conversation(id, slug=None):
     conv = model.Conversation.query.get_or_404(id)
-    feed = AtomFeed(conv.title, feed_url=request.url, url=request.url_root)
-    for message in conv.messages:
-        feed.add (
-            message.text.splitlines()[0],
-            message.text,
-            content_type='html',
-            author=message.author.name,
-            url=request.url_root,
-            updated=message.post_time,
-            published=message.post_time
-        )
-    return feed.get_response()
+    name = request.form['name'].strip()
+    if not name:
+        abort(400)
+    author = model.Author(name)
+    conv.authors.append(author)
+    db.session.commit()
+    return redirect(url_for('conversation', id=conv.id, slug=conv.slug, author=author.id), code=303)
 
 @app.route('/conversations/<int:id>/updates')
 def conversation_updates(id):
     conv = model.Conversation.query.get_or_404(id)
-    user = get_current_user()
+    author = model.Author.query.get_or_404(request.args.get('author'))
     last_message_id = int(request.args.get('last_message_id', -1, type=int))
-    messages = conv.get_updated_messages(last_message_id, user)
+    messages = conv.get_updated_messages(last_message_id, author)
     last_message_id = messages[-1].id if messages else last_message_id
-    conv.mark_read(user)
-    # FIXME: for some reason the Conversation object goes away after commit
     result = utils.jsonify(
         conversation=conv,
         messages=messages, 
@@ -128,24 +81,21 @@ def conversation_updates(id):
 
 @app.route('/conversations/<int:id>/post', methods=['POST'])
 def post_message(id):
-    user = get_current_user()
+    print request.form['author']
     conv = model.Conversation.query.get_or_404(id)
+    author = model.Author.query.get_or_404(request.form['author'])
     text = request.form['text']
     if not text.strip():
         abort(400)
-    if (conv.owner != user and conv.status == model.Conversation.STATUS.PENDING):
+    if (conv.owner != author and conv.status == model.Conversation.STATUS.PENDING):
         conv.status = model.Conversation.STATUS.ACTIVE
-    conv.mark_read(user)
-    conv.messages.append(model.Message(user, escape(request.form['text'])))
+    conv.messages.append(model.Message(author, escape(request.form['text'])))
     conv.update_time = datetime.utcnow()
     db.session.commit()
-
     return 'OK', 201
 
 @app.route('/conversations/new', methods=['GET', 'POST'])
 def new_conversation():
-    user = get_current_user()
-
     if request.method == 'GET':
         return render_template('new_conversation.html')
 
@@ -154,71 +104,19 @@ def new_conversation():
         text = request.form['message']
         if not title or not text:
             abort(400)
-        conv = model.Conversation(user, request.form['title'])
-        conv.messages.append(model.Message(user, escape(request.form['message'])))
+
+        conv = model.Conversation(request.form['title'])
+        author = model.Author(request.form['author'], is_owner=True)
+        conv.authors.append(author)
+        conv.messages.append(model.Message(author, escape(request.form['message'])))
+        db.session.add(conv)
         db.session.commit()
-        return redirect(url_for('conversation', id=conv.id), code=303)
+        return redirect(url_for('conversation', id=conv.id, slug=conv.slug, author=author.id), code=303)
 
-
-@app.route('/settings')
-# FIXME: replace forms with Flask-WTF or better
-def settings():
-    user = get_current_user()
-    return render_template('settings.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-# FIXME: replace forms with Flask-WTF or better
-def register():
-    if request.method == 'POST':
-        name = request.form['name']
-        password = request.form['password']
-        password2 = request.form['password2']
-        if not name:
-            return redirect(url_for('register', error='no_name', goto=request.args.get('goto')))
-        if not password:
-            return redirect(url_for('register', error='no_password', name=name, goto=request.args.get('goto')))
-        if not password2:
-            return redirect(url_for('register', error='no_password2', name=name, goto=request.args.get('goto')))
-        existing = model.User.query.filter_by(name=name).first()
-        if existing:
-            return redirect(url_for('register', error='user_exists', name=existing.name, goto=request.args.get('goto')))
-        if password != password2:
-            return redirect(url_for('register', error='password_mismatch', name=name, goto=request.args.get('goto')))
-
-        user = model.User(name, password.encode('utf8'))
-        db.session.add(user)
-        db.session.commit()
-
-        session['logged_in_user'] = name
-        return redirect(urldecode(request.args.get('goto', '')) or url_for('main'), code=303)
-    else:
-        return render_template('register.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        name = request.form['name']
-        password = request.form['password']
-        if not name:
-            return redirect(url_for('login', error='no_name', goto=request.args.get('goto')))
-        if not password:
-            return redirect(url_for('login', error='no_password', name=name, goto=request.args.get('goto')))
-        user = model.User.query.filter_by(name=name).first()
-        if not user:
-            return redirect(url_for('login', error='bad_password', name=name, goto=request.args.get('goto')))
-        password_hash = utils.encrypt_password(password, name)
-        if user.password_hash != password_hash:
-            return redirect(url_for('login', error='bad_password', name=name, goto=request.args.get('goto')))
-        session['logged_in_user'] = request.form['name']
-        return redirect(urldecode(request.args.get('goto') or '') or url_for('main'), code=303)
-    else:
-        return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    user = get_current_user()
-    session['logged_in_user'] = None
-    return redirect(urldecode(request.args.get('goto')) or url_for('main'))
+@app.route('/conversations/all')
+def all():
+    conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
+    return render_template('all.html', conversations=conversations)
 
 @app.template_filter('urlencode')
 def urlencode_filter(s):
@@ -250,26 +148,6 @@ def urldecode(s):
 
 def make_external(url):
     return urljoin(request.url_root, url)
-
-def detect_user_message_type(conversation):
-    if session.get('logged_in_user') == conversation.owner.name:
-        return model.Message.TYPE.TALKER
-    else:
-        return model.Message.TYPE.LISTENER
-
-def get_current_user(required=True):
-    if session.get('logged_in_user'):
-        user = model.User.get_current()
-        if user:
-            return user
-        else:
-            abort(403)
-    if required:
-        abort(403)
-
-@app.errorhandler(403)
-def page_not_found(e):
-    return redirect(url_for('login', goto=request.path))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', threaded=True)

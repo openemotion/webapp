@@ -2,12 +2,14 @@
 from model import *
 
 def create_test_data():
-    alon = User(u"אלון", u"123456")
-    anat = User(u"ענת", u"123456")
-    tomer = User(u"תומר", u"123456")
-    db.session.add_all([alon, anat, tomer])
+    relationship = Conversation(u'אני מפחדת להרוס את היחסים', status=Conversation.STATUS.ACTIVE)
+    db.session.add(relationship)
+    alon = Author(u"אלון")
+    relationship.authors.append(alon)
+    anat = Author(u"ענת", is_owner=True)
+    relationship.is_example = True
+    relationship.authors.append(anat)
 
-    relationship = Conversation(anat, u'אני מפחדת להרוס את היחסים', status=Conversation.STATUS.ACTIVE)
     post = relationship.messages.append
 
     post(Message(anat, u"אני בטיפול ממושך להבראת דפוסים לא בריאים\nאחרי שבמשך שנים החרבתי מערכות יחסים בזו אחר זו\nולא תכננתי להכנס למערכת היחסים הזו\nואני מאד חרדה להחריב גם אותה\nואני סובלת, ליטרלי\nכאב\nאמיתי"))
@@ -130,7 +132,13 @@ def create_test_data():
     post(Message(alon, u"שיעורי בית"))
     post(Message(anat, u"אחלה\nחפרנו"))
 
-    career = Conversation(tomer, u'אני מתלבט אם לקחת אחריות ולהיות מנהל', status=Conversation.STATUS.ACTIVE)
+    career = Conversation(u'אני מתלבט אם לקחת אחריות ולהיות מנהל', status=Conversation.STATUS.ACTIVE)
+    db.session.add(career)
+    alon = Author(u"אלון")
+    career.authors.append(alon)
+    tomer = Author(u"תומר", is_owner=True)
+    career.authors.append(tomer)
+    career.is_example = True
     post = career.messages.append
 
     post(Message(tomer, u"אני בהתלבטות מאד קשה, ורוצה קצת שיקופים\nבעקבות הסדנה, בהמלצה של המאמנת, התחלתי קצת לכתוב דברים (ואני לא מתכוון לקוד)\nופתאום שמתי לב שיש לי עניין לא פתור לגבי החלפת התפקיד שלי בעבודה"))

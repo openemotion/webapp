@@ -2,7 +2,6 @@ import re
 from datetime import datetime
 from contextlib import contextmanager
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy.orm.collections import attribute_mapped_collection
 
 import utils
 
@@ -12,61 +11,6 @@ class Jsonable(object):
     def __json__(self):
         # put all data members into json representation
         return dict((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_sa_'))
-
-class User(db.Model, Jsonable):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True, index=True)
-    password_hash = db.Column(db.String)
-    create_time = db.Column(db.DateTime)
-    unread = db.relationship('Unread', collection_class=attribute_mapped_collection('conversation_id'))
-
-    def __init__(self, name, password, create_time=None):
-        self.name = name
-        self.password_hash = utils.encrypt_password(password, name)
-        self.create_time = datetime.utcnow()
-
-    def __repr__(self):
-        return "<User('%s')>" % (self.name)
-
-    @classmethod
-    def get(cls, name):
-        return cls.query.filter_by(name=name).first()
-
-    @classmethod
-    def get_or_404(cls, name):
-        return cls.query.filter_by(name=name).first_or_404()
-
-    @property
-    def create_time_since(self):
-        return utils.prettydate(self.create_time)
-
-    @classmethod
-    def get_current(cls):
-        from flask import session
-        return cls.get(session.get('logged_in_user'))
-
-    def set_last_read_message(self, conv, message_id):
-        Unread.set(self.id, conv.id, message_id)
-
-    def get_unread_conversations(self):
-        result = []
-        conversations = db.session.query(Conversation, db.func.max(Message.id)).join(Message).group_by(Conversation.id)
-        conversations = conversations.order_by(Conversation.update_time.desc()).all()
-        unread = db.session.query(Unread).filter(Unread.user_id == self.id)
-        last_read_message_ids = dict((ur.conversation_id, ur.last_read_message_id) for ur in unread)
-        for conv, last_message_id in conversations:
-            if last_message_id > last_read_message_ids.get(conv.id, 0):
-                result.append(conv)
-        return result
-
-    def get_my_unread_conversations(self):
-        result = []
-        for conv in self.get_unread_conversations():
-            if conv.owner_id == self.id:
-                result.append(conv)
-        return result
 
 class Conversation(db.Model, Jsonable):
     __tablename__ = 'conversations'
@@ -80,11 +24,9 @@ class Conversation(db.Model, Jsonable):
     update_time = db.Column(db.DateTime, index=True)
     title = db.Column(db.String)
     status = db.Column(db.String)
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
-    owner = db.relationship('User', backref=db.backref('conversations', lazy='dynamic'))
+    is_example = db.Column(db.Boolean, default=False, index=True)
 
-    def __init__(self, owner, title, status=STATUS.PENDING, start_time=None):
-        self.owner = owner
+    def __init__(self, title, status=STATUS.PENDING, start_time=None):
         self.title = title
         self.status = status
         self.start_time = start_time or datetime.utcnow()
@@ -106,12 +48,8 @@ class Conversation(db.Model, Jsonable):
         return re.compile('\W+', re.UNICODE).sub('_', self.title)
 
     @property
-    def read_class(self):
-        return '' if self.get_unread_messages(User.get_current()).count() else 'read'
-
-    @property
-    def unread_messages(self):
-        return self.get_unread_messages(User.get_current(), include_last_read=True)
+    def owner(self):
+        return self.authors.filter_by(is_owner=True).one()
 
     def get_first_message(self):
         return self.messages.first()
@@ -125,18 +63,21 @@ class Conversation(db.Model, Jsonable):
             q = q.filter(Message.author_id != for_user.id)
         return q.all()
 
-    def get_unread_messages(self, for_user, include_last_read=False):
-        unread = Unread.get(for_user.id, self.id)
-        last_read_message_id = unread.last_read_message_id if unread else 0
-        if include_last_read:
-            # return the last read message as well
-            return self.messages.filter(Message.id >= last_read_message_id)
-        else:
-            return self.messages.filter(Message.id > last_read_message_id)
+class Author(db.Model):
+    __tablename__ = 'authors'
 
-    def mark_read(self, user):
-        if user:
-            Unread.set(user.id, self.id, self.get_last_message().id)
+    def __init__(self, name, is_owner=False):
+        self.name = name
+        self.is_owner = is_owner
+
+    id = db.Column(db.Integer, primary_key=True)
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'), index=True)
+    conversation = db.relationship('Conversation', backref=db.backref('authors', lazy='dynamic'))
+    name = db.Column(db.String)
+    is_owner = db.Column(db.Boolean, index=True)
+
+    def __str__(self):
+        return self.name
 
 class Message(db.Model, Jsonable):
     __tablename__ = 'messages'
@@ -151,8 +92,8 @@ class Message(db.Model, Jsonable):
     conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'), index=True)
     conversation = db.relationship('Conversation', 
         backref=db.backref('messages', order_by=post_time, lazy='dynamic'))
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
-    author = db.relationship('User')
+    author_id = db.Column(db.Integer, db.ForeignKey('authors.id'), index=True)
+    author = db.relationship('Author')
 
     def __init__(self, author, text, post_time=None):
         self.author = author
@@ -173,7 +114,7 @@ class Message(db.Model, Jsonable):
         if not self.conversation:
             raise ValueError('message not connected to conversation')
 
-        if self.author is self.conversation.owner:
+        if self.author == self.conversation.owner:
             return Message.TYPE.TALKER
         else:
             return Message.TYPE.LISTENER
@@ -181,42 +122,6 @@ class Message(db.Model, Jsonable):
     @property
     def post_time_since(self):
         return utils.prettydate(self.post_time)
-
-    @property
-    def read_class(self):
-        return '' if self.is_unread_by(User.get_current()) else 'read'
-
-    def is_unread_by(self, user):
-        unread = Unread.get(user.id, self.conversation_id)
-        return unread is None or self.id > unread.last_read_message_id
-
-class Unread(db.Model, Jsonable):
-    __tablename__ = 'unread'
-    __table_args__ = (db.PrimaryKeyConstraint('user_id', 'conversation_id'), {})
-
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
-    conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'), index=True)
-    last_read_message_id = db.Column(db.Integer, db.ForeignKey('messages.id'), index=True)
-
-    def __init__(self, user_id, conversation_id):
-        self.user_id = user_id
-        self.conversation_id = conversation_id
-
-    def __repr__(self):
-        return '<Unread (user=%s, conversation=%s, message=%s)>' % \
-            (self.user_id, self.conversation_id, self.last_read_message_id)
-
-    @classmethod
-    def get(cls, user_id, conversation_id):
-        return cls.query.filter_by(user_id=user_id, conversation_id=conversation_id).first()
-
-    @classmethod
-    def set(cls, user_id, conversation_id, last_read_message_id):
-        unread = cls.get(user_id, conversation_id)
-        if unread is None:
-            unread = cls(user_id, conversation_id)
-            db.session.add(unread)
-        unread.last_read_message_id = last_read_message_id
 
 @contextmanager
 def temp_db_context(uri='sqlite:///:memory:', echo=False):

@@ -13,6 +13,7 @@
     <script type="text/javascript" src="/static/js/autoresize.js"></script>
     <script type="text/javascript">
         $(function() {
+            $("#author").focus();
             $("#new-message").autoResize();
         });
     </script>
@@ -25,6 +26,7 @@
                 כל הכבוד על האומץ, אנחנו יודעים שזה לא קל לשתף משהו אישי שעובר עליכם. אף אחד כאן לא ייתן לכם עצות או פתרונות ובוודאי לא ישפוט אתכם על שום דבר. מותר לכם להרגיש הכל ומותר לכם להגיד הכל. כן, מותר אפילו לקלל, לצעוק או לבכות. מותר הכל. אנחנו כאן בכדי להקשיב, לעודד ולתת כתף תומכת.
             </div>
             <form method="post">
+                <input id="author" name="author" type="text" placeholder="שם">
                 <input name="title" type="text" placeholder="נושא">
                 <textarea name="message" id="new-message" placeholder="אני רוצה לשתף ש..."></textarea>
                 <input type="submit" class="btn" value="שליחה">

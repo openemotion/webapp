@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block css %}
-    <link rel="stylesheet/less" type="text/css" href="/static/css/main.less">
+    <link rel="stylesheet/less" type="text/css" href="/static/css/landing.less">
 {% endblock %}
 
 {% block header %}
@@ -16,13 +16,10 @@
                 <p>
                     יש רגעים בחיים בהם אנחנו מרגישים בודדים וצריכים לדבר עם מישהו. מישהו שבאמת יודע להקשיב. כאן המקום לדבר על הכל, במיוחד על מה שמפחיד או מביך לדבר עליו.
                 </p>
-                <p>
-                    שני עקרונות מנחים אותנו:
-                </p>
             </div>
             <div id="buttons">
-                <button href="#">אנונימיות</button>
-                <button href="#">והקשבה</button>
+                <button href="#">תנאי שימוש</button>
+                <button href="#">שאלות נפוצות</button>
             </div>
         </div>
     </header>
@@ -42,7 +39,7 @@
     {% else %}
     <div  class="note">זה נורא עצוב, אבל אין כאן שום דבר.</div>
     {% endfor %}
-    <div id="enter">
-        <a href="/login" class="btn">כניסה לאתר</a>
+    <div class="new-conversation">
+        <a href="/conversations/new" class="btn">שיתוף חדש</a>
     </div>
 {% endblock %}

@@ -5,11 +5,14 @@ $(function() {
     function submitMessage() {
         var text = $("#message").val();
         $("#message").val("");
-        $("#history").append(formatMessage(chatConfig.user, chatConfig.userMessageType, text, true));
+        $("#history").append(formatMessage(chatConfig.author, chatConfig.messageType, text, true));
         // FIXME: doesn't scroll to bottom on Safari, probably works badly on phones
         scrollToBottom();
         $("#message").focus();
-        $.post("post", {text:text});
+        $.post("post", {
+            author: chatConfig.authorId,
+            text: text
+        });
     }
 
     // get message updates from the server
@@ -20,7 +23,10 @@ $(function() {
         }
         reloading = true;
         $.ajax("updates", {
-            data: { last_message_id: chatConfig.lastMessageId },
+            data: { 
+                last_message_id: chatConfig.lastMessageId,
+                author: chatConfig.authorId
+            },
             success: function (data, textStatus, jqXHR) {
                 chatConfig.lastMessageId = data.last_message_id;
                 var doScroll = isCloseToBottom();
@@ -42,9 +48,7 @@ $(function() {
         return messageTemplate({
             "message" : {
                 "type" : type,
-                "author" : {
-                    "name" : author
-                },
+                "author" : author,
                 "post_time_since" : "רגע",
                 "text": text
             }
