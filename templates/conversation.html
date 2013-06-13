@@ -24,6 +24,13 @@
 
 {% block main %}
     <div class="conversation">
+        {% if author %}
+        <div class="note">
+            אפשר לשלוח לעצמכם
+            <a href="mailto:?subject=[openemotion] {{conversation.title}}&amp;body={{url_for('conversation', id=conversation.id, author=author.id, _external=True)}}">לינק לשיחה הזאת במייל</a>
+        </div>
+        <br>
+        {% endif %}
 
         <div class="title {{conversation.messages[0].read_class}}">{{conversation.title}}</div>
         <div id="history" class="messages">

@@ -32,7 +32,7 @@ def terms():
 def conversation(id, slug=None):
     conv = model.Conversation.query.get_or_404(id)
     if slug != conv.slug:
-        return flask.redirect(flask.url_for('conversation', id=id, slug=conv.slug))
+        return flask.redirect(flask.url_for('conversation', id=id, slug=conv.slug, **flask.request.args))
 
     # if author supplied in the URL, store it in session and redirect to a URL without it
     if 'author' in flask.request.args:
