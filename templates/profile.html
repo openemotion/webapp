@@ -25,17 +25,13 @@
             </a>
         </div>
         <div class="row">
-            <a href="#" class="rubrik">
-                <div class="rubrik-count">0</div>
-                <div class="rubrik-title">עדכונים קשורים</div>
-            </a>
             <a href="/all" class="rubrik">
                 <div class="rubrik-count">{{all_updated}}</div>
                 <div class="rubrik-title">כל השיחות</div>
             </a>
-        </div>
-        <div class="row">
-            <a href="#" class="wide rubrik">
+
+            <a href="/hallway" class="rubrik">
+                <div class="rubrik-count">&nbsp;</div>
                 <div class="rubrik-title">המסדרון</div>
             </a>
         </div>
@@ -44,7 +40,7 @@
     <div class="menu">
         <a href="/faq" class="menu-item">שאלות נפוצות</a>
         <a href="/terms" class="menu-item">תנאי שימוש</a>
-        <a href="/settings" class="menu-item">הגדרות</a>
+        {# <a href="/settings" class="menu-item">הגדרות</a> #}
         <a href="/logout?goto=/" class="menu-item">יציאה ({{session.logged_in_user}})</a>
     </div>
 {% endblock %}
