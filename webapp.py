@@ -75,6 +75,10 @@ def faq():
 def terms():
     return render_template('terms.html')
 
+@app.route('/anon')
+def anon():
+    return render_template('anon.html')
+
 @app.route('/conversations/<int:id>/')
 @app.route('/conversations/<int:id>/<slug>')
 def conversation(id, slug=None):
