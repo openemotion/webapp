@@ -87,6 +87,10 @@ def listen():
 def hallway():
     return render_template('hallway.html')
 
+@app.route('/pub')
+def pub():
+    return render_template('pub.html')
+
 @app.route('/conversations/<int:id>/')
 @app.route('/conversations/<int:id>/<slug>')
 def conversation(id, slug=None):
