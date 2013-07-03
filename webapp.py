@@ -159,11 +159,18 @@ def post_message(id):
     return 'OK', 201
 
 @app.route('/conversations/new', methods=['GET', 'POST'])
-def new_conversation():
+def new_conversation_yes():
+    return new_conversation('new_conversation.html')
+
+@app.route('/conversations/new_notyet', methods=['GET', 'POST'])
+def new_conversation_notyet():
+    return new_conversation('new_conversation_notyet.html')
+
+def new_conversation(template):
     user = get_current_user()
 
     if request.method == 'GET':
-        return render_template('new_conversation.html')
+        return render_template(template)
 
     if request.method == 'POST':
         title = request.form['title']
@@ -174,7 +181,6 @@ def new_conversation():
         conv.messages.append(model.Message(user, escape(request.form['message'])))
         db.session.commit()
         return redirect(url_for('conversation', id=conv.id), code=303)
-
 
 @app.route('/settings')
 # FIXME: replace forms with Flask-WTF or better
