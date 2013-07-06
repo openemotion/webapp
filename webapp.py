@@ -34,7 +34,7 @@ def main():
         pending = model.Conversation.query.filter_by(status=model.Conversation.STATUS.PENDING).count()
         return render_template('profile.html', my_updated=my_updated, all_updated=all_updated, pending=pending)
     else:
-        conversations = model.Conversation.query.order_by(model.Conversation.update_time.desc()).all()
+        conversations = model.Conversation.all()
         return render_template('landing.html', conversations=conversations)
 
 @app.route('/updates')
@@ -44,8 +44,7 @@ def updated_conversations():
 
 @app.route('/all')
 def all_conversations():
-    user = get_current_user()
-    conversations = user.get_unread_conversations()
+    conversations = model.Conversation.all()
     return render_template('updates.html', title=u"כל השיחות", conversations=conversations)
 
 @app.route('/pending')

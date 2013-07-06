@@ -138,6 +138,10 @@ class Conversation(db.Model, Jsonable):
         if user:
             Unread.set(user.id, self.id, self.get_last_message().id)
 
+    @classmethod
+    def all(cls):
+        return cls.query.order_by(cls.update_time.desc()).all()
+
 class Message(db.Model, Jsonable):
     __tablename__ = 'messages'
 
