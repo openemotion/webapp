@@ -170,6 +170,7 @@ class Message(db.Model, Jsonable):
         data = super(Message, self).__json__()
         data['author'] = self.author.name
         data['type'] = self.type
+        data['unescaped_text'] = self.unescaped_text
         return data
 
     @property
@@ -189,6 +190,10 @@ class Message(db.Model, Jsonable):
     @property
     def read_class(self):
         return '' if self.is_unread_by(User.get_current()) else 'read'
+
+    @property
+    def unescaped_text(self):
+        return utils.unescape(self.text)
 
     def is_unread_by(self, user):
         unread = Unread.get(user.id, self.conversation_id)

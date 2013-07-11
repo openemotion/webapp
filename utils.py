@@ -59,3 +59,8 @@ def jsonify(*args, **kwargs):
         ), 
         mimetype='application/json',
     )
+
+def unescape(s):
+    import HTMLParser
+    h = HTMLParser.HTMLParser()
+    return h.unescape(s)

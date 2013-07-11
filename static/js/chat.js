@@ -25,7 +25,7 @@ $(function() {
                 chatConfig.lastMessageId = data.last_message_id;
                 var doScroll = isCloseToBottom();
                 $.each(data.messages, function (index, message) {
-                    $("#history").append(formatMessage(message.author, message.type, message.text, false));
+                    $("#history").append(formatMessage(message.author, message.type, message.unescaped_text, false));
                 });
                 if (doScroll) {
                     scrollToBottom();
@@ -46,7 +46,7 @@ $(function() {
                     "name" : author
                 },
                 "post_time_since" : "רגע",
-                "text": text
+                "unescaped_text": text
             }
         });
     }
