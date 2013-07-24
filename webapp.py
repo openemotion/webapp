@@ -5,6 +5,7 @@ import re
 import sys
 import urllib
 import logging
+import postmark
 from urlparse import urljoin
 from datetime import datetime
 
@@ -151,9 +152,12 @@ def post_message(id):
     if (conv.owner != user and conv.status == model.Conversation.STATUS.PENDING):
         conv.status = model.Conversation.STATUS.ACTIVE
     conv.mark_read(user)
-    conv.messages.append(model.Message(user, escape(request.form['text'])))
+    message = model.Message(user, escape(request.form['text']))
+    conv.messages.append(message)
     conv.update_time = datetime.utcnow()
     db.session.commit()
+
+    send_email_updates(conv, message, user)
 
     return 'OK', 201
 
@@ -287,6 +291,26 @@ def get_current_user(required=True):
             abort(403)
     if required:
         abort(403)
+
+def send_email_updates(conversation, message, author):
+    # FIXME: move the actual sending to a worker behind a queue
+    try:
+        body = render_template('email_update.html',
+            conversation=conversation,
+            message=message,
+            author=author
+        )
+        mail = postmark.PMMail(
+            api_key='579092b0-2122-412a-8a94-56347bffc850', 
+            sender='info@openemotion.org', 
+            to='eli.finer@gmail.com', 
+            subject='[openemotion] %s' % conversation.title,
+            html_body=body
+        )
+        mail.send()
+    except:
+        import traceback
+        traceback.print_exc()
 
 @app.errorhandler(403)
 def page_not_found(e):

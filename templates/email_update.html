@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>{{conversation.title}}</title>
+    </head>
+    <body style="direction: rtl">
+        <div style="margin: 10px 0;">
+            <span style="font-weight: bold;">{{message.author.name}}:</span>
+        </div>
+
+        <div style="margin: 10px; padding-right: 10px; border-right: 1px solid #ccc;">
+            {{message.unescaped_text}}
+        </div>
+
+        <div style="margin: 10px 0;">
+            <a href="{{url_for('conversation', id=conversation.id, _external=True)}}#bottom">להגיב באתר</a> 
+        </div>
+    </body>
+</html>

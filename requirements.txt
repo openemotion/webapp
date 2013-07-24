@@ -6,3 +6,4 @@ distribute==0.6.36 # required by Flask-SQLAlchemy
 SQLAlchemy==0.8.0
 psycopg2==2.4.6
 gunicorn==0.17.3
+python-postmark==0.3.2
