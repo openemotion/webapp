@@ -1,11 +1,24 @@
 $(function() {
     var lastMessageId = 0;
 
+    // converts a multiline string to paragraphs
+    function multilineToP(text) {
+        var lines = text.split(/\r?\n/);
+        for (var i = 0; i < lines.length; i++) {
+            if (lines[i].trim()) {
+                lines[i] = '<p>' + lines[i] + '</p>';
+            } else {
+                lines[i] = '<br>';
+            }
+        }
+        return lines.join('\n');
+    }
+
     // add a message to history and submit it to the server
     function submitMessage() {
         var text = $("#message").val();
         $("#message").val("");
-        $("#history").append(formatMessage(chatConfig.user, chatConfig.userMessageType, text, true));
+        $("#history").append(formatMessage(chatConfig.user, chatConfig.userMessageType, multilineToP(text), true));
         // FIXME: doesn't scroll to bottom on Safari, probably works badly on phones
         scrollToBottom();
         $("#message").focus();

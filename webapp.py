@@ -251,12 +251,6 @@ def urlencode_filter(s):
         s = s.encode('utf8')
     return Markup(urllib.quote_plus(s))
 
-@app.template_filter('multiline')
-def multiline_filter(s):
-    s = s or ''
-    s = re.sub(r'(\r?\n)', '<br>', s)
-    return Markup(s)
-
 @app.template_filter('shorten')
 def shorten_filter(s, maxlen=40):
     if len(s) < maxlen:
@@ -301,7 +295,7 @@ def send_email_updates(conversation, message, author):
             author=author
         )
         mail = postmark.PMMail(
-            api_key='579092b0-2122-412a-8a94-56347bffc850', 
+            api_key=app.config['POSTMARK_API_KEY'],
             sender='info@openemotion.org', 
             to='eli.finer@gmail.com', 
             subject='[openemotion] %s' % conversation.title,

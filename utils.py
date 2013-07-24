@@ -3,7 +3,7 @@
 import json
 from datetime import datetime
 from prettydate import prettydate
-from flask import escape, current_app, request
+from flask import escape, current_app, request, Markup
 # from flask.ext.sqlalchemy import BaseQuery
 
 class dictobj(dict):
@@ -29,12 +29,20 @@ def bytes(s):
         return s.encode("utf8")
     return s
 
+def unescape(s):
+    """
+    Converts HTML entities to characters.
+    """
+    import HTMLParser
+    h = HTMLParser.HTMLParser()
+    return h.unescape(s)
+
 def text2p(text):
     """
     Converts a block of text into HTML paragraphs.
     """
-    text = escape(text)
-    return "\n".join(("<p>%s</p>" % l) if l else "<br>" for l in text.splitlines())
+    text = escape(unescape(text))
+    return Markup("\n".join(("<p>%s</p>" % l) if l else "<br>" for l in text.splitlines()))
 
 def jsonify(*args, **kwargs):
     """
@@ -59,8 +67,3 @@ def jsonify(*args, **kwargs):
         ), 
         mimetype='application/json',
     )
-
-def unescape(s):
-    import HTMLParser
-    h = HTMLParser.HTMLParser()
-    return h.unescape(s)

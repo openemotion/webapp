@@ -193,7 +193,7 @@ class Message(db.Model, Jsonable):
 
     @property
     def unescaped_text(self):
-        return utils.unescape(self.text)
+        return utils.text2p(self.text)
 
     def is_unread_by(self, user):
         unread = Unread.get(user.id, self.conversation_id)
