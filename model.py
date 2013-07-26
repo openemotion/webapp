@@ -94,6 +94,7 @@ class Conversation(db.Model, Jsonable):
     status = db.Column(db.String)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     owner = db.relationship('User', backref=db.backref('conversations', lazy='dynamic'))
+    show_on_landing = db.Column(db.Boolean)
 
     def __init__(self, owner, title, status=STATUS.PENDING, start_time=None):
         self.owner = owner
@@ -158,7 +159,11 @@ class Conversation(db.Model, Jsonable):
 
     @classmethod
     def all(cls):
-        return cls.query.order_by(cls.update_time.desc()).all()
+        return cls.query.order_by(cls.start_time.desc()).all()
+
+    @classmethod
+    def landing(cls):
+        return cls.query.filter_by(show_on_landing=True).order_by(cls.start_time.desc()).all()
 
 class Message(db.Model, Jsonable):
     __tablename__ = 'messages'

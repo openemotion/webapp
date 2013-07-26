@@ -36,7 +36,7 @@ def main():
         pending = model.Conversation.query.filter_by(status=model.Conversation.STATUS.PENDING).count()
         return render_template('profile.html', user=user, my_updated=my_updated, all_updated=all_updated, pending=pending)
     else:
-        conversations = model.Conversation.all()
+        conversations = model.Conversation.landing()
         return render_template('landing.html', conversations=conversations)
 
 @app.route('/updates')
