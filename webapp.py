@@ -306,14 +306,22 @@ def send_email_updates(conversation, message, author):
             message=message,
             author=author
         )
-        mail = postmark.PMMail(
-            api_key=app.config['POSTMARK_API_KEY'],
-            sender='info@openemotion.org', 
-            to='eli.finer@gmail.com', 
-            subject='[openemotion] %s' % conversation.title,
-            html_body=body
-        )
-        q.enqueue(mail.send)
+
+        # send an update to everybody who ever participated in the conversation
+        emails = [user.email for user in conversation.get_authors()]
+        emails.extend(app.config['ALWAYS_EMAIL'])
+        emails = list(set(emails)) # only once per email
+
+        for email in emails:
+            print email
+            mail = postmark.PMMail(
+                api_key=app.config['POSTMARK_API_KEY'],
+                sender='info@openemotion.org',
+                to=email,
+                subject='[openemotion] %s' % conversation.title,
+                html_body=body
+            )
+            q.enqueue(mail.send)
 
 @app.errorhandler(403)
 def page_not_found(e):
