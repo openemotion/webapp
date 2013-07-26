@@ -1,8 +1,9 @@
 #coding=utf8
 
 import os
-import re
+import rq
 import sys
+import redis
 import urllib
 import logging
 import postmark
@@ -287,8 +288,10 @@ def get_current_user(required=True):
         abort(403)
 
 def send_email_updates(conversation, message, author):
-    # FIXME: move the actual sending to a worker behind a queue
-    try:
+    redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+    conn = redis.from_url(redis_url)
+    with rq.Connection(conn):
+        q = rq.Queue('default')
         body = render_template('email_update.html',
             conversation=conversation,
             message=message,
@@ -301,10 +304,7 @@ def send_email_updates(conversation, message, author):
             subject='[openemotion] %s' % conversation.title,
             html_body=body
         )
-        mail.send()
-    except:
-        import traceback
-        traceback.print_exc()
+        q.enqueue(mail.send)
 
 @app.errorhandler(403)
 def page_not_found(e):

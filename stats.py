@@ -18,7 +18,7 @@ def log(msg):
 
 def main():
     log('connecting...')
-    credentials = os.popen('heroku pg:credentials DATABASE_URL').readlines()[1].strip(' \n"')
+    credentials = os.popen('heroku pg:credentials --app openemotion DATABASE_URL').readlines()[1].strip(' \n"')
     conn = Connection(credentials)
     log('fetching...')
 

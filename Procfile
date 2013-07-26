@@ -1,1 +1,2 @@
-web: env OPENEM_CONFIG=config.prod gunicorn webapp:app
+web: gunicorn webapp:app
+worker: python worker.py
