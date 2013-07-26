@@ -134,6 +134,12 @@ class Conversation(db.Model, Jsonable):
         else:
             return self.messages.filter(Message.id > last_read_message_id)
 
+    def get_authors(self):
+        authors = db.session.query(User).distinct().\
+                     join(Message, Message.author_id == User.id).\
+                     filter(Message.conversation_id == self.id)
+        return authors.all()
+
     def mark_read(self, user):
         if user:
             Unread.set(user.id, self.id, self.get_last_message().id)

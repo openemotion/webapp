@@ -288,6 +288,8 @@ def get_current_user(required=True):
         abort(403)
 
 def send_email_updates(conversation, message, author):
+    if not app.config['POSTMARK_API_KEY']:
+        return
     redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
     conn = redis.from_url(redis_url)
     with rq.Connection(conn):
