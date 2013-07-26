@@ -8,3 +8,4 @@ psycopg2==2.4.6
 gunicorn==0.17.3
 python-postmark==0.3.2
 rq==0.3.8
+pycrypto==2.6
