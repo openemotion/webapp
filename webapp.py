@@ -42,18 +42,27 @@ def main():
 @app.route('/updates')
 def updated_conversations():
     user = get_current_user()
-    return render_template('updates.html', title=u"השיחות שלי", conversations=user.conversations)
+    return render_template('updates.html',
+        title=u"השיחות שלי",
+        conversations=user.conversations.order_by(model.Conversation.update_time.desc())
+    )
 
 @app.route('/all')
 def all_conversations():
     conversations = model.Conversation.all()
-    return render_template('updates.html', title=u"כל השיחות", conversations=conversations)
+    return render_template('updates.html',
+        title=u"כל השיחות",
+        conversations=conversations
+    )
 
 @app.route('/pending')
 def pending_conversations():
     user = get_current_user()
-    conversations = model.Conversation.query.filter_by(status=model.Conversation.STATUS.PENDING)
-    return render_template('updates.html', title=u"שיתופים ממתינים", conversations=conversations)
+    conversations = model.Conversation.query.filter_by(status=model.Conversation.STATUS.PENDING).order_by(model.Conversation.update_time.desc())
+    return render_template('updates.html',
+        title=u"שיתופים ממתינים",
+        conversations=conversations
+    )
 
 @app.route('/atom')
 def main_feed():

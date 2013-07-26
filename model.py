@@ -123,6 +123,10 @@ class Conversation(db.Model, Jsonable):
         return '' if self.get_unread_messages(User.get_current()).count() else 'read'
 
     @property
+    def unread(self):
+        return self.get_unread_messages(User.get_current(), include_last_read=False).count() > 0
+
+    @property
     def unread_messages(self):
         return self.get_unread_messages(User.get_current(), include_last_read=True)
 
@@ -159,7 +163,7 @@ class Conversation(db.Model, Jsonable):
 
     @classmethod
     def all(cls):
-        return cls.query.order_by(cls.start_time.desc()).all()
+        return cls.query.order_by(cls.update_time.desc()).all()
 
     @classmethod
     def landing(cls):
