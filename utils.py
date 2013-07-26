@@ -3,6 +3,7 @@
 import json
 from datetime import datetime
 from prettydate import prettydate
+from encrypt import encrypt, decrypt
 from flask import escape, current_app, request, Markup
 # from flask.ext.sqlalchemy import BaseQuery
 

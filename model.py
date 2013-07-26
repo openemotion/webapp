@@ -3,6 +3,7 @@ from datetime import datetime
 from contextlib import contextmanager
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.orm.collections import attribute_mapped_collection
+from flask import current_app
 
 import utils
 
@@ -21,6 +22,7 @@ class User(db.Model, Jsonable):
     password_hash = db.Column(db.String)
     create_time = db.Column(db.DateTime)
     unread = db.relationship('Unread', collection_class=attribute_mapped_collection('conversation_id'))
+    encrypted_email = db.Column(db.String, name='email')
 
     def __init__(self, name, password, create_time=None):
         self.name = name
@@ -41,6 +43,16 @@ class User(db.Model, Jsonable):
     @property
     def create_time_since(self):
         return utils.prettydate(self.create_time)
+
+    @property
+    def email(self):
+        if not self.encrypted_email:
+            return ''
+        return utils.decrypt(self.encrypted_email, current_app.config['ENCRYPT_KEY'])
+
+    @email.setter
+    def email(self, value):
+        self.encrypted_email = utils.encrypt(value, current_app.config['ENCRYPT_KEY'])
 
     @classmethod
     def get_current(cls):

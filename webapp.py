@@ -34,7 +34,7 @@ def main():
         my_updated = len(user.get_my_unread_conversations())
         all_updated = len(user.get_unread_conversations())
         pending = model.Conversation.query.filter_by(status=model.Conversation.STATUS.PENDING).count()
-        return render_template('profile.html', my_updated=my_updated, all_updated=all_updated, pending=pending)
+        return render_template('profile.html', user=user, my_updated=my_updated, all_updated=all_updated, pending=pending)
     else:
         conversations = model.Conversation.all()
         return render_template('landing.html', conversations=conversations)
@@ -186,11 +186,18 @@ def new_conversation(template):
         db.session.commit()
         return redirect(url_for('conversation', id=conv.id), code=303)
 
-@app.route('/settings')
-# FIXME: replace forms with Flask-WTF or better
+@app.route('/settings', methods=['GET', 'POST'])
 def settings():
     user = get_current_user()
-    return render_template('settings.html')
+    if request.method == 'POST':
+        email = request.form['email'].strip()
+        if email and '@' not in email:
+            return redirect(url_for('settings', error='bad_email'))
+        user.email = email
+        db.session.commit()
+        return redirect(url_for('main'))
+    else:
+        return render_template('settings.html', user=user)
 
 @app.route('/register', methods=['GET', 'POST'])
 # FIXME: replace forms with Flask-WTF or better

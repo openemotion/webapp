@@ -13,6 +13,9 @@
 {% endblock %}
 
 {% block main %}
+    {% if not user.email %}
+    <a href="/settings" class="menu-item">רוצים לקבל עדכון במייל על כל הודעה חדשה? ליחצו כאן.</a>
+    {% endif %}
     <div class="rubriks">
         <div class="row">
             <a href="/updates" class="rubrik">
@@ -50,7 +53,7 @@
     <div class="menu">
         <a href="/faq" class="menu-item">שאלות נפוצות</a>
         <a href="/terms" class="menu-item">תנאי שימוש</a>
-        {# <a href="/settings" class="menu-item">הגדרות</a> #}
+        <a href="/settings" class="menu-item">הגדרות</a>
         <a href="/logout?goto=/" class="menu-item">יציאה ({{session.logged_in_user}})</a>
     </div>
 {% endblock %}

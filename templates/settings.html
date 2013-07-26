@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block main %}
+    {#
     <form id="update-name" action="">
         <h2>עדכון שם בדוי</h2>
         <div class="help">
@@ -29,15 +30,28 @@
         <input type="submit" value="שמירה">
         <div class="clear"></div>
     </form>
-    <form id="update-email-settings" action="">
+    #}
+    <form id="update-email-settings" method="post">
         <h2>עדכון אימייל</h2>
         <div class="help">
-            אתם יכולים לרשום את האימייל שלכם ולקבל עדכונים על הודעות חדשות באתר. אנחנו לעולם לא נגלה אותו לאף אחד ולא נציק לכם עם שטויות.
+            <p>
+            אתם יכולים לרשום את האימייל שלכם כאן ולקבל עדכונים על הודעות חדשות באתר. אנחנו לעולם לא נגלה אותו לאף אחד ולא נציק לכם עם שטויות.
+            </p>
+            <p>
+            כתובות המייל נשמרות אצלינו בצורה מוצפנת ואנחנו עושים מאמצים רבים בכדי לשמור על הזהות שלכם חסויה. אם אתם בכל זאת חוששים, אתם יכולים להשתמש בשירות מייל אנונימי כמו <a href="http://www.hidemyass.com/anonymous-email/">Hide My Ass</a>.
+            </p>
         </div>
-        <input type="email" placeholder="somebody@somewhere.com">
-        <label class="checkbox"><input type="checkbox" id="">אני רוצה לקבל עדכונים לשיחות שלי</label>
-        <label class="checkbox"><input type="checkbox" id="">אני רוצה לקבל עדכונים כלליים</label>
+        <input name="email" type="email" placeholder="somebody@somewhere.com" value="{{user.email}}">
+        {# <label class="checkbox"><input type="checkbox" id="">אני רוצה לקבל עדכונים לשיחות שלי</label> #}
+        {# <label class="checkbox"><input type="checkbox" id="">אני רוצה לקבל עדכונים כלליים</label> #}
+        {% if request.args.get("error") == "bad_email" %}
+        <div class="error">הכתובת שהזנתם לא נראית כמו מייל תקין.</div>
+        {% endif %}
         <input type="submit" value="שמירה">
         <div class="clear"></div>
     </form>
+
+    <p>
+        רוצים להגדיר משהו ולא מוצאים אותו כאן? כתבו לנו ל-<a href="mailto:info@openemotion.org?subject=הגדרות">info@openemotion.org</a>.
+
 {% endblock %}
