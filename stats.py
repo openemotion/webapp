@@ -26,6 +26,7 @@ def main():
     print 'Total'
     print '-----'
     print '%d users' % conn.count('users')
+    print '%d emails' % conn.query('select count(email) from users')[0][0]
     print '%d conversations' % conn.count('conversations')
     print '%d messages' % conn.count('messages')
 

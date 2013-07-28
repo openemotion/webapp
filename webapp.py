@@ -319,10 +319,10 @@ def send_email_updates(conversation, message, author):
         # send an update to everybody who ever participated in the conversation
         emails = [user.email for user in conversation.get_authors()]
         emails.extend(app.config['ALWAYS_EMAIL'])
+        emails = [e for e in emails if e.strip()]
         emails = list(set(emails)) # only once per email
 
         for email in emails:
-            print email
             mail = postmark.PMMail(
                 api_key=app.config['POSTMARK_API_KEY'],
                 sender='info@openemotion.org',
