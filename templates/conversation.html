@@ -6,6 +6,7 @@
 
 {% block js %}
     <script type="text/javascript" src="/static/js/handlebars.js"></script>
+    <script type="text/javascript" src="/static/js/autoresize.js"></script>
     <script type="text/javascript" src="/static/js/chat.js"></script>
     <script type="text/javascript">
         chatConfig = {
@@ -14,6 +15,10 @@
             user : '{{ session.get("logged_in_user", "") }}',
             userMessageType : '{{ user_message_type }}'
         }
+        $(function() {
+            $("#message").autoResize();
+        });
+    </script>
     </script>
     <!-- reusing server-side template for client-side -->
     <script id="message-template" type="text/x-handlebars-template">
