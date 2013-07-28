@@ -19,7 +19,7 @@ $(function() {
         var text = $("#message").val();
         $("#message").val("");
         $("#history").append(formatMessage(chatConfig.user, chatConfig.userMessageType, multilineToP(text), true));
-        // FIXME: doesn't scroll to bottom on Safari, probably works badly on phones
+        $("#message").height(0); // relies on min-height to set actual height
         scrollToBottom();
         $("#message").focus();
         $.post("post", {text:text});
@@ -36,7 +36,7 @@ $(function() {
             data: { last_message_id: chatConfig.lastMessageId },
             success: function (data, textStatus, jqXHR) {
                 chatConfig.lastMessageId = data.last_message_id;
-                var doScroll = isCloseToBottom();
+                var doScroll = (data.messages.length > 0);
                 $.each(data.messages, function (index, message) {
                     $("#history").append(formatMessage(message.author, message.type, message.unescaped_text, false));
                 });
@@ -70,7 +70,7 @@ $(function() {
     }
 
     function scrollToBottom() {
-        $(document).scrollTop($(document).height());
+        $("html,body").scrollTop($("#bottom").offset().top - $(window).height());
     }
 
     $("#message_form").submit(function(e) {
@@ -79,7 +79,7 @@ $(function() {
     });
 
     // start periodic updates
-    // setInterval(updateHistory, globalConfig.UPDATE_INTERVAL);
+    setInterval(updateHistory, globalConfig.UPDATE_INTERVAL);
 
     // when page is reloaded scroll to the bottom if already there
     if (isCloseToBottom()) {
