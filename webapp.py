@@ -191,8 +191,10 @@ def new_conversation(template):
         if not title or not text:
             abort(400)
         conv = model.Conversation(user, request.form['title'])
-        conv.messages.append(model.Message(user, escape(request.form['message'])))
+        message = model.Message(user, escape(request.form['message']))
+        conv.messages.append(message)
         db.session.commit()
+        send_email_updates(conv, message, user)
         return redirect(url_for('conversation', id=conv.id), code=303)
 
 @app.route('/settings', methods=['GET', 'POST'])
@@ -317,7 +319,7 @@ def send_email_updates(conversation, message, author):
         )
 
         # send an update to everybody who ever participated in the conversation
-        emails = [user.email for user in conversation.get_authors()]
+        emails = [user.email for user in conversation.get_authors() if user is not author]
         emails.extend(app.config['ALWAYS_EMAIL'])
         emails = [e for e in emails if e.strip()]
         emails = list(set(emails)) # only once per email
