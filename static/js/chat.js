@@ -79,7 +79,7 @@ $(function() {
     });
 
     // start periodic updates
-    setInterval(updateHistory, globalConfig.UPDATE_INTERVAL);
+    // setInterval(updateHistory, globalConfig.UPDATE_INTERVAL);
 
     // when page is reloaded scroll to the bottom if already there
     if (isCloseToBottom()) {
