@@ -8,10 +8,26 @@ form {
         margin-top: 0;
     }
 
+    .textarea-container {
+        overflow: hidden;
+        background: @textBackground;
+        padding: 5px 10px;
+        margin: 10px 0;
+        border: 1px solid @headerBackground;
+        box-shadow: inset 0 0 5px @buttonBackground;
+    }
+
     textarea {
         direction: rtl;
         background: @textBackground;
         min-height: 150px;
+        padding: 0;
+        margin: 0;
+        border: none;
+        &:focus {
+            outline:none;
+            box-shadow: none;
+        }
     }
 }
 
