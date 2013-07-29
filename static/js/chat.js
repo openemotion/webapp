@@ -7,8 +7,6 @@ $(function() {
         for (var i = 0; i < lines.length; i++) {
             if (lines[i].trim()) {
                 lines[i] = '<p>' + lines[i] + '</p>';
-            } else {
-                lines[i] = '<br>';
             }
         }
         return lines.join('\n');

@@ -43,7 +43,7 @@ def text2p(text):
     Converts a block of text into HTML paragraphs.
     """
     text = escape(unescape(text))
-    return Markup("\n".join(("<p>%s</p>" % l) if l else "<br>" for l in text.splitlines()))
+    return Markup("\n".join(("<p>%s</p>" % l) for l in text.splitlines() if l))
 
 def jsonify(*args, **kwargs):
     """
