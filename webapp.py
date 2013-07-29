@@ -215,14 +215,15 @@ def settings():
 def register():
     if request.method == 'POST':
         name = request.form['name']
+        email = request.form['email']
         password = request.form['password']
         password2 = request.form['password2']
         if not name:
             return redirect(url_for('register', error='no_name', goto=request.args.get('goto')))
         if not password:
-            return redirect(url_for('register', error='no_password', name=name, goto=request.args.get('goto')))
+            return redirect(url_for('register', error='no_password', name=name, email=email, goto=request.args.get('goto')))
         if not password2:
-            return redirect(url_for('register', error='no_password2', name=name, goto=request.args.get('goto')))
+            return redirect(url_for('register', error='no_password2', name=name, email=email, goto=request.args.get('goto')))
         existing = model.User.query.filter_by(name=name).first()
         if existing:
             return redirect(url_for('register', error='user_exists', name=existing.name, goto=request.args.get('goto')))
@@ -230,6 +231,7 @@ def register():
             return redirect(url_for('register', error='password_mismatch', name=name, goto=request.args.get('goto')))
 
         user = model.User(name, password.encode('utf8'))
+        user.email = email
         db.session.add(user)
         db.session.commit()
 
