@@ -52,7 +52,10 @@ class User(db.Model, Jsonable):
 
     @email.setter
     def email(self, value):
-        self.encrypted_email = utils.encrypt(value, current_app.config['ENCRYPT_KEY'])
+        if value:
+            self.encrypted_email = utils.encrypt(value, current_app.config['ENCRYPT_KEY'])
+        else:
+            self.encrypted_email = None
 
     @classmethod
     def get_current(cls):

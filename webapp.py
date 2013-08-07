@@ -214,8 +214,8 @@ def settings():
 # FIXME: replace forms with Flask-WTF or better
 def register():
     if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
+        name = request.form['name'].strip()
+        email = request.form['email'].strip()
         password = request.form['password']
         password2 = request.form['password2']
         if not name:
