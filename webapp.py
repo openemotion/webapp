@@ -320,8 +320,12 @@ def send_email_updates(conversation, message, author):
             author=author
         )
 
+        # send an update to everybody
+        emails = [user.email for user in model.User.query.all()]
+
         # send an update to everybody who ever participated in the conversation
-        emails = [user.email for user in conversation.get_authors() if user is not author]
+        # emails = [user.email for user in conversation.get_authors() if user is not author]
+
         emails.extend(app.config['ALWAYS_EMAIL'])
         emails = [e for e in emails if e.strip()]
         emails = list(set(emails)) # only once per email
