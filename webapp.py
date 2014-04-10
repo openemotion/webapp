@@ -1,9 +1,7 @@
 #coding=utf8
 
 import os
-import rq
 import sys
-import redis
 import urllib
 import logging
 import postmark
@@ -310,35 +308,31 @@ def get_current_user(required=True):
 def send_email_updates(conversation, message, author):
     if not app.config['POSTMARK_API_KEY']:
         return
-    redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-    conn = redis.from_url(redis_url)
-    with rq.Connection(conn):
-        q = rq.Queue('default')
-        body = render_template('email_update.html',
-            conversation=conversation,
-            message=message,
-            author=author
+    body = render_template('email_update.html',
+        conversation=conversation,
+        message=message,
+        author=author
+    )
+
+    # send an update to everybody
+    emails = [user.email for user in model.User.query.all()]
+
+    # send an update to everybody who ever participated in the conversation
+    # emails = [user.email for user in conversation.get_authors() if user is not author]
+
+    emails.extend(app.config['ALWAYS_EMAIL'])
+    emails = [e for e in emails if e.strip()]
+    emails = list(set(emails)) # only once per email
+
+    for email in emails:
+        mail = postmark.PMMail(
+            api_key=app.config['POSTMARK_API_KEY'],
+            sender='info@openemotion.org',
+            to=email,
+            subject='[openemotion] %s' % conversation.title,
+            html_body=body
         )
-
-        # send an update to everybody
-        emails = [user.email for user in model.User.query.all()]
-
-        # send an update to everybody who ever participated in the conversation
-        # emails = [user.email for user in conversation.get_authors() if user is not author]
-
-        emails.extend(app.config['ALWAYS_EMAIL'])
-        emails = [e for e in emails if e.strip()]
-        emails = list(set(emails)) # only once per email
-
-        for email in emails:
-            mail = postmark.PMMail(
-                api_key=app.config['POSTMARK_API_KEY'],
-                sender='info@openemotion.org',
-                to=email,
-                subject='[openemotion] %s' % conversation.title,
-                html_body=body
-            )
-            q.enqueue(mail.send)
+        mail.send()
 
 @app.errorhandler(403)
 def page_not_found(e):
